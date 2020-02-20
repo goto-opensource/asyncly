@@ -1,0 +1,11 @@
+cc_library(
+    name = "asyncly_mocks",
+    hdrs = glob(["asyncly/**/*.h"]),
+    includes = ["."],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:asyncly",
+        "@com_google_googletest//:gtest",
+    ],
+)

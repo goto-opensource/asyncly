@@ -1,0 +1,22 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "asyncly_test_utils",
+    srcs = glob([
+        "Source/**/*.cpp",
+        "Source/**/*.h",
+    ]),
+    hdrs = glob([
+        "Include/**/*.h",
+    ]),
+    includes = [
+        "Include",
+    ],
+    linkstatic = True,
+    deps = [
+        "//:asyncly",
+        "@boost//:asio",
+        "@boost//:thread",
+        "@com_google_googletest//:gtest",
+    ],
+)

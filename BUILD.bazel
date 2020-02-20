@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "asyncly_Include",
+    srcs = glob(["Include/**/*.h"]),
+)
+
+cc_library(
+    name = "asyncly",
+    srcs = glob([
+        "Source/**/*.cpp",
+        "Source/**/*.h",
+    ]),
+    hdrs = [":asyncly_Include"],
+    includes = [
+        "Include",
+    ],
+    linkstatic = True,
+    deps = [
+        "@boost//:asio",
+        "@boost//:callable_traits",
+        "@boost//:hana",
+        "@boost//:mp11",
+        "@boost//:thread",
+        "@boost//:variant2",
+        "@com_github_jupp0r_prometheus_cpp//core",
+        "@com_github_naios_function2//:function2",
+    ],
+)

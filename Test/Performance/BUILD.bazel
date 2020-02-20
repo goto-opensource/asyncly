@@ -1,0 +1,10 @@
+cc_binary(
+    name = "asyncly_benchmarks",
+    srcs = glob(["**/*.cpp"]),
+    deps = [
+        "//:asyncly",
+        "@boost//:chrono",
+        "@boost//:thread",
+        "@com_github_google_benchmark//:benchmark",
+    ],
+)

@@ -1,0 +1,20 @@
+EXTRA_SOURCES = []
+
+cc_test(
+    name = "test_asyncly",
+    size = "small",
+    srcs = EXTRA_SOURCES + glob(
+        [
+            "**/*.cpp",
+            "**/*.h",
+        ],
+    ),
+    deps = [
+        "//:asyncly",
+        "//Test/Mocks:asyncly_mocks",
+        "//Test/Utils:asyncly_test_utils",
+        "@boost//:chrono",
+        "@boost//:thread",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

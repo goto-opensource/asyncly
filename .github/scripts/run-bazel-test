@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -euo pipefail
+
+OS_ARG=${1:?}
+
+bazel test --test_output=all //...
+
+bazel run -c opt //Test/Performance/...
