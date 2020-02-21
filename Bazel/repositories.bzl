@@ -35,10 +35,10 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_naios_function2",
-        sha256 = "6bc62a300cc54586f5ba0a2a04118ddf88c1076bd0329b21d7bed78f838baa43",
-        strip_prefix = "function2-4.0.0",
+        sha256 = "784dd273df24e6709c4cf434cb7bfe988e64fa33ff0f8c1e3839f6eef6a4cb80",
+        strip_prefix = "function2-7cd95374b0f1c941892bfc40f0ebb6564d33fdb9",
         urls = [
-            "https://github.com/Naios/function2/archive/4.0.0.tar.gz",
+            "https://github.com/Naios/function2/archive/7cd95374b0f1c941892bfc40f0ebb6564d33fdb9.tar.gz",
         ],
         build_file = "@com_github_logmein_asyncly//Bazel:function2.BUILD",
     )
