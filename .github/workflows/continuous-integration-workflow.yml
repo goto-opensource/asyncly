@@ -6,6 +6,7 @@ jobs:
     name: ${{ matrix.buildsystem }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         buildsystem: [bazel]
         os: [macOS-latest, ubuntu-18.04, windows-2016]
