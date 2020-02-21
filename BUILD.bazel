@@ -12,6 +12,7 @@ cc_library(
         "Source/**/*.h",
     ]),
     hdrs = [":asyncly_Include"],
+    defines = ["WIN32_LEAN_AND_MEAN"],
     includes = [
         "Include",
     ],

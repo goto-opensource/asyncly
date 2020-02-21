@@ -1,4 +1,4 @@
-bazel build //... || EXIT /B 1
+set "BAZEL_VS=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
 
 bazel test --test_output=all //... || EXIT /B 1
 

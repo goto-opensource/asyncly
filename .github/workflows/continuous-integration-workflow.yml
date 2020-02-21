@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         buildsystem: [bazel]
-        os: [macOS-latest, ubuntu-18.04, windows-2016]
+        os: [macOS-latest, ubuntu-18.04, windows-2019]
     steps:
       - uses: actions/checkout@master
       - name: Prepare
