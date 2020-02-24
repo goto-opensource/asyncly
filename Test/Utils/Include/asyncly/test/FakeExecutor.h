@@ -62,6 +62,7 @@ class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeE
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& period, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
   private:
     std::queue<Task> m_taskQueue;
@@ -112,6 +113,11 @@ FakeExecutor::post_periodically(const clock_type::duration& period, CopyableTask
 inline asyncly::ISchedulerPtr FakeExecutor::get_scheduler() const
 {
     return m_scheduler;
+}
+
+inline bool FakeExecutor::is_serializing() const
+{
+    return false;
 }
 
 inline void FakeExecutor::post(Task&& closure)

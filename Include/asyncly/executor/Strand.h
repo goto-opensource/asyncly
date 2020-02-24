@@ -55,6 +55,7 @@ class Strand : public IExecutor, public std::enable_shared_from_this<Strand> {
     post_periodically(const clock_type::duration& period, CopyableTask) override;
 
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
   private:
     enum class State {

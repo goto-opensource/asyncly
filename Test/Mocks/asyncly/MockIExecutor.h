@@ -58,5 +58,6 @@ class MockIExecutor : public IExecutor {
         post_periodically,
         std::shared_ptr<Cancelable>(const clock_type::duration& period, CopyableTask task));
     MOCK_CONST_METHOD0(get_scheduler, ISchedulerPtr());
+    MOCK_CONST_METHOD0(is_serializing, bool());
 };
 }

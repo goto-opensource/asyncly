@@ -25,14 +25,18 @@
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 
 #include "asyncly/test/ExecutorTestFactories.h"
+#include "detail/ThrowingExecutor.h"
 
 namespace asyncly {
 
 using namespace testing;
 
-template <typename TExecutorFactory> class WrapTest : public Test {
+using ExecutorFactoryTypes = ::testing::
+    Types<asyncly::test::AsioExecutorFactory<>, asyncly::test::DefaultExecutorFactory<>>;
+
+template <typename TExecutorFactory> class WrapPostTest : public virtual Test {
   public:
-    WrapTest()
+    WrapPostTest()
         : executor_(factory_.create())
     {
     }
@@ -41,17 +45,10 @@ template <typename TExecutorFactory> class WrapTest : public Test {
     std::shared_ptr<IExecutor> executor_;
 };
 
-using ExecutorFactoryTypes = ::testing::
-    Types<asyncly::test::AsioExecutorFactory<>, asyncly::test::DefaultExecutorFactory<>>;
+TYPED_TEST_SUITE(WrapPostTest, ExecutorFactoryTypes);
 
-TYPED_TEST_SUITE(WrapTest, ExecutorFactoryTypes);
-
-struct Callback : public std::enable_shared_from_this<Callback> {
-    MOCK_METHOD0(callback, void());
-    MOCK_METHOD1(callbackWithReturn, int(int));
-};
-
-TYPED_TEST(WrapTest, shouldWrapPost)
+// wrap_post
+TYPED_TEST(WrapPostTest, shouldWrapPost)
 {
     std::promise<std::thread::id> called;
     auto wrapped = asyncly::wrap_post(
@@ -67,7 +64,7 @@ TYPED_TEST(WrapTest, shouldWrapPost)
     EXPECT_NE(future.get(), std::this_thread::get_id());
 }
 
-TYPED_TEST(WrapTest, shouldWrapPostWithArguments)
+TYPED_TEST(WrapPostTest, shouldWrapPostWithArguments)
 {
     std::promise<int> called;
 
@@ -82,140 +79,85 @@ TYPED_TEST(WrapTest, shouldWrapPostWithArguments)
     EXPECT_EQ(future.get(), x + y);
 }
 
-TYPED_TEST(WrapTest, shouldWeakWrapPost)
+TYPED_TEST(WrapPostTest, shouldWorkForMutableLambasWhenPosting)
 {
-    std::promise<void> done;
-    auto callback = std::make_shared<Callback>();
-
-    EXPECT_CALL(*callback, callback()).Times(0);
-
-    auto wrapped = asyncly::wrap_weak_post_ignore(
-        this->executor_, callback, [&done](const std::shared_ptr<Callback>& cb) {
-            cb->callback();
-            done.set_value();
-        });
-
-    Mock::VerifyAndClearExpectations(callback.get());
-
-    EXPECT_CALL(*callback, callback());
-    wrapped();
-    done.get_future().wait();
+    // this test verifies that this code compiles
+    int i = 0;
+    asyncly::wrap_post(this->executor_, [i]() mutable { i = 1; });
 }
 
-TYPED_TEST(WrapTest, shouldWeakWrapPostWithArguments)
+struct Callback : public std::enable_shared_from_this<Callback> {
+    MOCK_METHOD0(callback, void());
+    MOCK_METHOD1(callbackWithReturn, int(int));
+};
+
+class WrapWeakTest : public virtual Test {
+  public:
+    WrapWeakTest()
+        : callback_(std::make_shared<Callback>())
+    {
+    }
+
+    std::shared_ptr<Callback> callback_;
+};
+
+// wrap_weak
+TEST_F(WrapWeakTest, shouldWeakWrap)
 {
-    std::promise<int> done;
-    auto callback = std::make_shared<NiceMock<Callback>>();
-    int x = 1;
-    int y = 2;
-
-    auto wrapped = asyncly::wrap_weak_post_ignore(
-        this->executor_, callback, [&done](const std::shared_ptr<Callback>& cb, int a, int b) {
-            cb->callback();
-            done.set_value(a + b);
-        });
-
-    wrapped(x, y);
-    EXPECT_EQ(done.get_future().get(), x + y);
-}
-
-TYPED_TEST(WrapTest, shouldNotCallExpiredWeakWrapPost)
-{
-    std::promise<void> done;
-    auto callback = std::make_shared<Callback>();
-
-    EXPECT_CALL(*callback, callback()).Times(0);
-
-    auto wrapped = asyncly::wrap_weak_post_ignore(
-        this->executor_, callback, [](const std::shared_ptr<Callback>& cb) { cb->callback(); });
-
-    callback.reset();
-    wrapped();
-    this->executor_->post([&done]() { done.set_value(); });
-    done.get_future().wait();
-}
-
-TYPED_TEST(WrapTest, shouldCustomErrorWithExpiredWeakWrapPost)
-{
-    std::promise<void> errored;
-    auto callback = std::make_shared<Callback>();
-
-    EXPECT_CALL(*callback, callback()).Times(0);
-
-    auto wrapped = asyncly::wrap_weak_post_with_custom_error(
-        this->executor_,
-        callback,
-        [](const std::shared_ptr<Callback>& cb) { cb->callback(); },
-        [&errored]() { errored.set_value(); });
-
-    EXPECT_CALL(*callback, callback()).Times(0);
-    callback.reset();
-    wrapped();
-    errored.get_future().wait();
-}
-
-TYPED_TEST(WrapTest, shouldWeakWrap)
-{
-    auto callback = std::make_shared<Callback>();
-
     auto wrapped
-        = asyncly::wrap_weak(callback, [](auto aliveCallback) { aliveCallback->callback(); });
+        = asyncly::wrap_weak(callback_, [](auto aliveCallback) { aliveCallback->callback(); });
 
-    EXPECT_CALL(*callback, callback());
+    EXPECT_CALL(*callback_, callback());
     wrapped();
 }
 
-TYPED_TEST(WrapTest, shouldWeakWrapWithReturnValues)
+TEST_F(WrapWeakTest, shouldWeakWrapWithReturnValues)
 {
-    auto callback = std::make_shared<NiceMock<Callback>>();
-    EXPECT_CALL(*callback, callbackWithReturn(_)).WillOnce(ReturnArg<0>());
+    EXPECT_CALL(*callback_, callbackWithReturn(_)).WillOnce(ReturnArg<0>());
 
     auto wrapped = asyncly::wrap_weak(
-        callback, [](auto aliveCallback, int a) { return aliveCallback->callbackWithReturn(a); });
+        callback_, [](auto aliveCallback, int a) { return aliveCallback->callbackWithReturn(a); });
 
     EXPECT_EQ(12, wrapped(12));
 }
 
-TYPED_TEST(WrapTest, shouldErrorOnDeadWeakWrap)
+TEST_F(WrapWeakTest, shouldErrorOnDeadWeakWrap)
 {
-    auto callback = std::make_shared<Callback>();
-
     auto wrapped
-        = asyncly::wrap_weak(callback, [](auto aliveCallback) { aliveCallback->callback(); });
+        = asyncly::wrap_weak(callback_, [](auto aliveCallback) { aliveCallback->callback(); });
 
-    EXPECT_CALL(*callback, callback()).Times(0);
-    callback.reset();
+    EXPECT_CALL(*callback_, callback()).Times(0);
+    callback_.reset();
     EXPECT_THROW(wrapped(), std::runtime_error);
 }
 
-TYPED_TEST(WrapTest, shouldCustomErrorOnDeadWeakWrap)
+// wrap_weak_with_custom_error
+TEST_F(WrapWeakTest, shouldCustomErrorOnDeadWeakWrap)
 {
-    auto callback = std::make_shared<Callback>();
-
     struct MyError : public std::exception {
     };
 
     auto wrapped = asyncly::wrap_weak_with_custom_error(
-        callback, [](auto aliveCallback) { aliveCallback->callback(); }, []() { throw MyError{}; });
+        callback_,
+        [](auto aliveCallback) { aliveCallback->callback(); },
+        []() { throw MyError{}; });
 
-    EXPECT_CALL(*callback, callback()).Times(0);
-    callback.reset();
+    EXPECT_CALL(*callback_, callback()).Times(0);
+    callback_.reset();
     EXPECT_THROW(wrapped(), MyError);
 }
 
-TYPED_TEST(WrapTest, shouldIgnoreOnDeadWeakWrapIgnore)
+// wrap_weak_ignore
+TEST_F(WrapWeakTest, shouldIgnoreOnDeadWeakWrapIgnore)
 {
-    auto callback = std::make_shared<Callback>();
-
     auto wrapped = asyncly::wrap_weak_ignore(
-        callback, [](auto aliveCallback) { aliveCallback->callback(); });
+        callback_, [](auto aliveCallback) { aliveCallback->callback(); });
 
-    EXPECT_CALL(*callback, callback()).Times(0);
-    callback.reset();
+    EXPECT_CALL(*callback_, callback()).Times(0);
+    callback_.reset();
     EXPECT_NO_THROW(wrapped());
 }
 
-// Tests for wrap_weak_this
 struct Subject : public std::enable_shared_from_this<Subject> {
     auto method()
     {
@@ -239,30 +181,143 @@ struct Subject : public std::enable_shared_from_this<Subject> {
     }
 };
 
-TYPED_TEST(WrapTest, shouldWeakWrapThis)
-{
-    auto subject = std::make_shared<Subject>();
+class WrapWeakThisTest : public virtual Test {
+  public:
+    WrapWeakThisTest()
+        : subject_(std::make_shared<Subject>())
+    {
+    }
 
-    EXPECT_EQ(3, subject->method()(1, 2));
+    std::shared_ptr<Subject> subject_;
+};
+
+// wrap_weak_this
+TEST_F(WrapWeakThisTest, shouldWeakWrapThis)
+{
+    EXPECT_EQ(3, subject_->method()(1, 2));
 }
 
-TYPED_TEST(WrapTest, shouldThrowForExpiredWeakWrapThis)
+TEST_F(WrapWeakThisTest, shouldThrowForExpiredWeakWrapThis)
 {
-    auto subject = std::make_shared<Subject>();
-    auto wrapped = subject->method();
-    subject.reset();
+    auto wrapped = subject_->method();
+    subject_.reset();
     EXPECT_THROW(wrapped(1, 2), std::runtime_error);
 }
 
-TYPED_TEST(WrapTest, shouldIgnoreForExpiredWeakWrapThisIgnore)
+TEST_F(WrapWeakThisTest, shouldIgnoreForExpiredWeakWrapThisIgnore)
 {
-    auto subject = std::make_shared<Subject>();
-    auto wrapped = subject->methodIgnore();
-    subject.reset();
+    auto wrapped = subject_->methodIgnore();
+    subject_.reset();
     EXPECT_NO_THROW(wrapped(1, 2));
 }
 
-// Tests for wrap_weak_this_post
+// wrap_weak_this_ignore
+TEST_F(WrapWeakThisTest, shouldWorkForMutableLambas)
+{
+    // this test verifies that this code compiles
+    int i = 0;
+    asyncly::wrap_weak_this_ignore(subject_.get(), [i]() mutable { i = 1; });
+}
+
+template <typename TExecutorFactory>
+class WrapWeakPostTest : public WrapWeakTest, public WrapPostTest<TExecutorFactory> {
+};
+
+TYPED_TEST_SUITE(WrapWeakPostTest, ExecutorFactoryTypes);
+
+// wrap_weak_post_with_custom_error
+TYPED_TEST(WrapWeakPostTest, shouldCustomErrorWithExpiredWeakWrapPost)
+{
+    std::promise<void> errored;
+
+    EXPECT_CALL(*this->callback_, callback()).Times(0);
+
+    auto wrapped = asyncly::wrap_weak_post_with_custom_error(
+        this->executor_,
+        this->callback_,
+        [](const std::shared_ptr<Callback>& cb) { cb->callback(); },
+        [&errored]() { errored.set_value(); });
+
+    this->callback_.reset();
+    wrapped();
+    errored.get_future().get();
+}
+
+TYPED_TEST(WrapWeakPostTest, shouldCustomErrorWithThrowingExecutorWeakWrapPost)
+{
+    std::promise<void> errored;
+    auto executor = asyncly::detail::ThrowingExecutor::create();
+
+    EXPECT_CALL(*this->callback_, callback()).Times(0);
+
+    auto wrapped = asyncly::wrap_weak_post_with_custom_error(
+        executor,
+        this->callback_,
+        [](const std::shared_ptr<Callback>& cb) { cb->callback(); },
+        [&errored]() { errored.set_value(); });
+
+    wrapped();
+    errored.get_future().get();
+}
+
+// wrap_weak_post_ignore
+TYPED_TEST(WrapWeakPostTest, shouldWeakWrapPost)
+{
+    std::promise<void> done;
+
+    EXPECT_CALL(*this->callback_, callback()).Times(0);
+
+    auto wrapped = asyncly::wrap_weak_post_ignore(
+        this->executor_, this->callback_, [&done](const std::shared_ptr<Callback>& cb) {
+            cb->callback();
+            done.set_value();
+        });
+
+    Mock::VerifyAndClearExpectations(this->callback_.get());
+
+    EXPECT_CALL(*this->callback_, callback());
+    wrapped();
+    done.get_future().get();
+}
+
+TYPED_TEST(WrapWeakPostTest, shouldWeakWrapPostWithArguments)
+{
+    std::promise<int> done;
+    int x = 1;
+    int y = 2;
+
+    auto wrapped = asyncly::wrap_weak_post_ignore(
+        this->executor_,
+        this->callback_,
+        [&done](const std::shared_ptr<Callback>& cb, int a, int b) {
+            cb->callback();
+            done.set_value(a + b);
+        });
+
+    Mock::VerifyAndClearExpectations(this->callback_.get());
+
+    EXPECT_CALL(*this->callback_, callback());
+    wrapped(x, y);
+    EXPECT_EQ(done.get_future().get(), x + y);
+}
+
+TYPED_TEST(WrapWeakPostTest, shouldNotCallExpiredWeakWrapPost)
+{
+    std::promise<void> done;
+
+    EXPECT_CALL(*this->callback_, callback()).Times(0);
+
+    auto wrapped = asyncly::wrap_weak_post_ignore(
+        this->executor_, this->callback_, [](const std::shared_ptr<Callback>& cb) {
+            cb->callback();
+        });
+
+    this->callback_.reset();
+    wrapped();
+    this->executor_->post([&done]() { done.set_value(); });
+    done.get_future().get();
+}
+
 struct SubjectPost : public std::enable_shared_from_this<SubjectPost> {
     SubjectPost(std::shared_ptr<std::promise<int>> called)
         : called_(called)
@@ -287,39 +342,35 @@ struct SubjectPost : public std::enable_shared_from_this<SubjectPost> {
     std::shared_ptr<std::promise<int>> called_;
 };
 
-TYPED_TEST(WrapTest, shouldWeakWrapThisPost)
-{
-    auto called = std::make_shared<std::promise<int>>();
+template <typename TExecutorFactory>
+class WrapWeakThisPostTest : public WrapPostTest<TExecutorFactory> {
+  public:
+    WrapWeakThisPostTest()
+        : called_(std::make_shared<std::promise<int>>())
+        , subject_(std::make_shared<SubjectPost>(called_))
+    {
+    }
 
-    auto subject = std::make_shared<SubjectPost>(called);
-    auto wrapped = subject->methodPostIgnore(this->executor_);
+    std::shared_ptr<std::promise<int>> called_;
+    std::shared_ptr<SubjectPost> subject_;
+};
+
+TYPED_TEST_SUITE(WrapWeakThisPostTest, ExecutorFactoryTypes);
+
+// wrap_weak_this_post_ignore
+TYPED_TEST(WrapWeakThisPostTest, shouldWeakWrapThisPost)
+{
+    auto wrapped = this->subject_->methodPostIgnore(this->executor_);
     wrapped(1, 2);
-    EXPECT_EQ(called->get_future().get(), 3);
+    EXPECT_EQ(this->called_->get_future().get(), 3);
 }
 
-TYPED_TEST(WrapTest, shouldNotCallExpiredWeakWrapThisPost)
+TYPED_TEST(WrapWeakThisPostTest, shouldNotCallExpiredWeakWrapThisPost)
 {
-    auto called = std::make_shared<std::promise<int>>();
-
-    auto subject = std::make_shared<SubjectPost>(called);
-    auto wrapped = subject->methodPostIgnore(this->executor_);
-    subject.reset();
+    auto wrapped = this->subject_->methodPostIgnore(this->executor_);
+    this->subject_.reset();
     wrapped(1, 2);
-    this->executor_->post([called]() { called->set_value(5); });
-    EXPECT_EQ(called->get_future().get(), 5);
-}
-
-TYPED_TEST(WrapTest, shouldWorkForMutableLambas)
-{
-    // this test verifies that this code compiles
-    auto subject = std::make_shared<Subject>();
-    asyncly::wrap_weak_this_ignore(subject.get(), [subject](auto) mutable { subject.reset(); });
-}
-
-TYPED_TEST(WrapTest, shouldWorkForMutableLambasWhenPosting)
-{
-    // this test verifies that this code compiles
-    auto subject = std::make_shared<Subject>();
-    asyncly::wrap_post(this->executor_, [subject]() mutable { subject.reset(); });
+    this->executor_->post([called{ this->called_ }]() { called->set_value(5); });
+    EXPECT_EQ(this->called_->get_future().get(), 5);
 }
 }

@@ -47,6 +47,7 @@ class ExceptionShield : public IExecutor, public std::enable_shared_from_this<Ex
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& t, CopyableTask task) override;
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
   private:
     const std::shared_ptr<IExecutor> executor_;

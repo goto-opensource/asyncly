@@ -62,6 +62,7 @@ class MetricsWrapper : public IExecutor,
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& t, CopyableTask f) override;
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
     std::vector<prometheus::MetricFamily> Collect() const override;
 
@@ -168,6 +169,11 @@ template <typename ClockType>
 std::shared_ptr<asyncly::IScheduler> MetricsWrapper<ClockType>::get_scheduler() const
 {
     return executor_->get_scheduler();
+}
+
+template <typename ClockType> bool asyncly::MetricsWrapper<ClockType>::is_serializing() const
+{
+    return executor_->is_serializing();
 }
 
 template <typename ClockType>

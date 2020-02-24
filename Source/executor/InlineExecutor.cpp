@@ -84,4 +84,11 @@ ISchedulerPtr InlineExecutor::get_scheduler() const
     return _scheduler;
 }
 
+bool InlineExecutor::is_serializing() const
+{
+    // to be on the safe side, don't pretend to be "serializing"
+    // depends on whether post...() methods are called in a serialized manner
+    return false;
+}
+
 }

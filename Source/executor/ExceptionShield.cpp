@@ -79,4 +79,9 @@ std::shared_ptr<asyncly::IScheduler> ExceptionShield::get_scheduler() const
     return executor_->get_scheduler();
 }
 
+bool ExceptionShield::is_serializing() const
+{
+    return executor_->is_serializing();
+}
+
 }

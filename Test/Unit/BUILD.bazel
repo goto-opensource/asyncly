@@ -9,6 +9,9 @@ cc_test(
             "**/*.h",
         ],
     ),
+    includes = [
+        ".",
+    ],
     deps = [
         "//:asyncly",
         "//Test/Mocks:asyncly_mocks",

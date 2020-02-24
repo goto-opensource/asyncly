@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#pragma once
+
 #include <thread>
 
 #include "boost/asio/io_context.hpp"

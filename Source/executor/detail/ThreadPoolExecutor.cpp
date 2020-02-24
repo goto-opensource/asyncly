@@ -21,17 +21,19 @@
 namespace asyncly {
 
 std::shared_ptr<ThreadPoolExecutor>
-ThreadPoolExecutor::create(const asyncly::ISchedulerPtr& scheduler)
+ThreadPoolExecutor::create(const asyncly::ISchedulerPtr& scheduler, bool isSerializing)
 {
-    auto executor = std::shared_ptr<ThreadPoolExecutor>(new ThreadPoolExecutor(scheduler));
+    auto executor
+        = std::shared_ptr<ThreadPoolExecutor>(new ThreadPoolExecutor(scheduler, isSerializing));
     return executor;
 }
 
-ThreadPoolExecutor::ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler)
+ThreadPoolExecutor::ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler, bool isSerializing)
     : m_activeThreads(0)
     , m_isShutdownActive(false)
     , m_isStopped(false)
     , m_scheduler(scheduler)
+    , m_isSerializing(isSerializing)
 {
 }
 
@@ -72,6 +74,11 @@ ThreadPoolExecutor::post_periodically(const clock_type::duration& period, Copyab
 asyncly::ISchedulerPtr ThreadPoolExecutor::get_scheduler() const
 {
     return m_scheduler;
+}
+
+bool ThreadPoolExecutor::is_serializing() const
+{
+    return m_isSerializing;
 }
 
 void ThreadPoolExecutor::post(Task&& closure)

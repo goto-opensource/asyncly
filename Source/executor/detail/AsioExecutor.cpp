@@ -20,9 +20,10 @@
 
 namespace asyncly {
 
-AsioExecutor::AsioExecutor(const ISchedulerPtr& scheduler)
+AsioExecutor::AsioExecutor(const ISchedulerPtr& scheduler, bool isSerializing)
     : work_(boost::asio::make_work_guard(ioContext_.get_executor()))
     , m_scheduler(scheduler)
+    , m_isSerializing(isSerializing)
 {
 }
 
@@ -93,6 +94,11 @@ AsioExecutor::post_periodically(const clock_type::duration& relTime, CopyableTas
 std::shared_ptr<asyncly::IScheduler> AsioExecutor::get_scheduler() const
 {
     return m_scheduler;
+}
+
+bool AsioExecutor::is_serializing() const
+{
+    return m_isSerializing;
 }
 
 }

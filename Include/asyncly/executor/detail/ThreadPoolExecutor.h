@@ -33,7 +33,8 @@ namespace asyncly {
 class ThreadPoolExecutor : public IExecutor,
                            public std::enable_shared_from_this<ThreadPoolExecutor> {
   public:
-    static std::shared_ptr<ThreadPoolExecutor> create(const asyncly::ISchedulerPtr& scheduler);
+    static std::shared_ptr<ThreadPoolExecutor>
+    create(const asyncly::ISchedulerPtr& scheduler, bool isSerializing);
 
     ThreadPoolExecutor(ThreadPoolExecutor const&) = delete;
     ThreadPoolExecutor& operator=(ThreadPoolExecutor const&) = delete;
@@ -49,9 +50,10 @@ class ThreadPoolExecutor : public IExecutor,
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& period, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
   private:
-    ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler);
+    ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler, bool isSerializing);
 
   private:
     boost::mutex m_mutex;
@@ -63,6 +65,8 @@ class ThreadPoolExecutor : public IExecutor,
     bool m_isStopped;
 
     const ISchedulerPtr m_scheduler;
+
+    const bool m_isSerializing;
 };
 
 }

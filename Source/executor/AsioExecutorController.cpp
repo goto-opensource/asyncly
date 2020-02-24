@@ -28,7 +28,8 @@ AsioExecutorController::AsioExecutorController(
             threadConfig.schedulerInitFunction, std::make_shared<DefaultScheduler>());
         scheduler = m_schedulerThread->get_scheduler();
     }
-    m_executor = std::make_unique<AsioExecutor>(scheduler);
+    const bool isSerializedExecutor = true;
+    m_executor = std::make_unique<AsioExecutor>(scheduler, isSerializedExecutor);
     m_workerThread = std::thread([this, executorThreadConfig{ threadConfig.executorInitFunction }] {
         this_thread::set_current_executor(m_executor);
         if (executorThreadConfig) {

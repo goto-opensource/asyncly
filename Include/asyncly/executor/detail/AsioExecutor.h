@@ -33,7 +33,7 @@ namespace asyncly {
 
 class AsioExecutor : public IExecutor, public std::enable_shared_from_this<AsioExecutor> {
   public:
-    explicit AsioExecutor(const ISchedulerPtr& scheduler);
+    explicit AsioExecutor(const ISchedulerPtr& scheduler, bool isSerializing);
     ~AsioExecutor();
     AsioExecutor(AsioExecutor const&) = delete;
     AsioExecutor& operator=(AsioExecutor const&) = delete;
@@ -50,10 +50,12 @@ class AsioExecutor : public IExecutor, public std::enable_shared_from_this<AsioE
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& relTime, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
 
   private:
     boost::asio::io_context ioContext_;
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
     const ISchedulerPtr m_scheduler;
+    const bool m_isSerializing;
 };
 }

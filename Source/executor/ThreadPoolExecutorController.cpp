@@ -30,7 +30,8 @@ ThreadPoolExecutorController::ThreadPoolExecutorController(
         scheduler = m_schedulerThread->get_scheduler();
     }
 
-    m_executor = ThreadPoolExecutor::create(scheduler);
+    const bool isSerializingExecutor = (threadPoolConfig.executorInitFunctions.size() == 1);
+    m_executor = ThreadPoolExecutor::create(scheduler, isSerializingExecutor);
 
     for (const auto& threadInitFunction : threadPoolConfig.executorInitFunctions) {
         m_workerThreads.emplace_back([this, threadInitFunction]() {

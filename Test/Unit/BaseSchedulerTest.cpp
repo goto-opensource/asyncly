@@ -59,6 +59,10 @@ class ImmediatePostExecutor : public IExecutor {
     {
         return _scheduler;
     }
+    bool is_serializing() const override
+    {
+        return false;
+    }
 
   private:
     ISchedulerPtr _scheduler;

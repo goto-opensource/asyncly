@@ -93,6 +93,11 @@ ISchedulerPtr Strand::get_scheduler() const
     return executor_->get_scheduler();
 }
 
+bool Strand::is_serializing() const
+{
+    return true;
+}
+
 void Strand::notifyDone()
 {
     std::unique_lock<std::mutex> lock(mutex_);

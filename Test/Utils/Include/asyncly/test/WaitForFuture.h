@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#pragma once
+
 #include "asyncly/ExecutorTypes.h"
 #include "asyncly/future/Future.h"
 #include "asyncly/observable/Observable.h"
