@@ -18,6 +18,7 @@
 
 #include "asyncly/future/WhenAll.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
 #include "boost/tuple/tuple_comparison.hpp"
@@ -45,7 +46,7 @@ template <typename TExecutorFactory> class WhenAllTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(WhenAllTest, ExecutorFactoryTypes);
 

@@ -24,6 +24,7 @@
 
 #include "asyncly/future/Future.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 #include "detail/ThrowingExecutor.h"
 
@@ -46,7 +47,7 @@ template <typename TExecutorFactory> class FutureTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(FutureTest, ExecutorFactoryTypes);
 

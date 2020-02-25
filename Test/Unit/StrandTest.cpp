@@ -21,7 +21,9 @@
 #include "gmock/gmock.h"
 
 #include "asyncly/executor/Strand.h"
+#include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/test/FakeExecutor.h"
+#include "executor/detail/StrandImpl.h"
 
 using namespace asyncly;
 using namespace testing;
@@ -30,7 +32,7 @@ class StrandTest : public Test {
   public:
     StrandTest()
         : fakeExecutor_{ std::make_shared<asyncly::test::FakeExecutor>() }
-        , strand_{ std::make_shared<Strand>(fakeExecutor_) }
+        , strand_{ std::make_shared<StrandImpl>(fakeExecutor_) }
     {
     }
 
@@ -66,4 +68,27 @@ TEST_F(StrandTest, shouldSerializeExecution)
     fakeExecutor_->runTasks(1U);
 
     EXPECT_TRUE(run2);
+}
+
+class StrandFactoryTest : public Test {
+};
+
+TEST_F(StrandFactoryTest, shouldCreateStrandIfNonserializedExecutor)
+{
+    auto multiThreadPoolController = ThreadPoolExecutorController::create(2);
+    auto multiThreadExecutor = multiThreadPoolController->get_executor();
+    ASSERT_FALSE(multiThreadExecutor->is_serializing());
+    auto strand = asyncly::create_strand(multiThreadExecutor);
+    ASSERT_TRUE(strand->is_serializing());
+    ASSERT_NE(strand, multiThreadExecutor);
+}
+
+TEST_F(StrandFactoryTest, shouldNotCreateStrandIfSerializedExecutor)
+{
+    auto multiThreadPoolController = ThreadPoolExecutorController::create(1);
+    auto multiThreadExecutor = multiThreadPoolController->get_executor();
+    ASSERT_TRUE(multiThreadExecutor->is_serializing());
+    auto strand = asyncly::create_strand(multiThreadExecutor);
+    ASSERT_TRUE(strand->is_serializing());
+    ASSERT_EQ(strand, multiThreadExecutor);
 }

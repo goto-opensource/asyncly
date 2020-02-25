@@ -18,6 +18,7 @@
 
 #include "asyncly/future/Split.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
 #include "gmock/gmock.h"
@@ -41,7 +42,7 @@ template <typename TExecutorFactory> class SplitTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(SplitTest, ExecutorFactoryTypes);
 

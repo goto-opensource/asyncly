@@ -18,6 +18,7 @@
 
 #include "asyncly/future/AddTimeout.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
 #include "gmock/gmock.h"
@@ -43,7 +44,7 @@ template <typename TExecutorFactory> class AddTimeoutTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(AddTimeoutTest, ExecutorFactoryTypes);
 

@@ -15,6 +15,7 @@ cc_library(
     defines = ["WIN32_LEAN_AND_MEAN"],
     includes = [
         "Include",
+        "Source",
     ],
     linkstatic = True,
     deps = [

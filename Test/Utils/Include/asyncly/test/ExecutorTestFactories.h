@@ -24,7 +24,6 @@
 
 #include "asyncly/executor/AsioExecutorController.h"
 #include "asyncly/executor/IExecutor.h"
-#include "asyncly/executor/Strand.h"
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/scheduler/AsioScheduler.h"
 #include "asyncly/test/SchedulerProvider.h"
@@ -53,23 +52,6 @@ template <class SchedulerProvider = SchedulerProviderNone> class AsioExecutorFac
     SchedulerProvider schedulerProvider_;
 };
 
-template <class SchedulerProvider = SchedulerProviderNone> class StrandFactory {
-  public:
-    StrandFactory()
-    {
-        executorController_
-            = ThreadPoolExecutorController::create(1, schedulerProvider_.get_scheduler());
-    }
-
-    std::shared_ptr<IExecutor> create()
-    {
-        return std::make_shared<Strand>(executorController_->get_executor());
-    }
-
-  private:
-    std::unique_ptr<IExecutorController> executorController_;
-    SchedulerProvider schedulerProvider_;
-};
 template <size_t threads = 1, class SchedulerProvider = SchedulerProviderNone>
 class DefaultExecutorFactory {
   public:

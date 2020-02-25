@@ -18,6 +18,7 @@
 
 #include <benchmark/benchmark.h>
 
+#include "executor/detail/StrandImpl.h"
 #include <asyncly/executor/ExceptionShield.h>
 #include <asyncly/executor/MetricsWrapper.h>
 #include <asyncly/executor/Strand.h>
@@ -72,7 +73,7 @@ static void exceptionShieldTest(benchmark::State& state)
 static void strandTest(benchmark::State& state)
 {
     auto executorControl = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor_ = std::make_shared<asyncly::Strand>(executorControl->get_executor());
+    auto executor_ = std::make_shared<asyncly::StrandImpl>(executorControl->get_executor());
 
     asyncly::testExecutor(state, executor_);
 }

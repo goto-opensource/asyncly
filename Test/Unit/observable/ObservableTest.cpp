@@ -23,6 +23,7 @@
 #include "asyncly/executor/CurrentExecutor.h"
 #include "asyncly/observable/Observable.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
 namespace asyncly {
@@ -48,7 +49,7 @@ template <typename TExecutorFactory> class ObservableTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(ObservableTest, ExecutorFactoryTypes);
 

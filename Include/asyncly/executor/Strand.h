@@ -22,54 +22,14 @@
 #include <future>
 #include <memory>
 
-#include "asyncly/executor/IExecutor.h"
-#include "asyncly/scheduler/IScheduler.h"
+#include "asyncly/ExecutorTypes.h"
 
 namespace asyncly {
 
-/// Strand implements a serializing queue used to dispatch tasks that have to be executed
-/// sequentially.
-class Strand : public IExecutor, public std::enable_shared_from_this<Strand> {
-  public:
-    /// Construct a new Strand.
-    /// @param executor The underlying executor tasks are forwarded to.
-    Strand(const IExecutorPtr& executor);
+/**
+ * Strand implements a serializing queue used to dispatch tasks that have to be executed
+ * sequentially.
+ */
+IExecutorPtr create_strand(const IExecutorPtr& executor);
 
-    ~Strand();
-
-  public:
-    /// get current time
-    clock_type::time_point now() const override;
-
-    /// post a task to the Strand. All tasks are guaranteed to not be executed in parallel.
-    void post(Task&&) override;
-
-    /// post a task to the underlying Strand at a given time point
-    std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) override;
-
-    /// post a task to the underlying Strand after a given time period
-    std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) override;
-
-    /// post a task to the underlying Strand peridocially
-    std::shared_ptr<Cancelable>
-    post_periodically(const clock_type::duration& period, CopyableTask) override;
-
-    ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
-
-  private:
-    enum class State {
-        Waiting,
-        Executing,
-    };
-
-    void notifyDone();
-
-    const IExecutorPtr executor_;
-    std::deque<Task> taskQueue_;
-    std::mutex mutex_;
-    State state_;
-    std::promise<void> destroyed_;
-    std::shared_future<void> destroyedFuture_;
-};
 }

@@ -21,10 +21,12 @@
 #include "asyncly/executor/AsioExecutorController.h"
 #include "asyncly/executor/ExceptionShield.h"
 #include "asyncly/executor/MetricsWrapper.h"
-#include "asyncly/executor/Strand.h"
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/test/ExecutorInterfaceTest.h"
 #include "asyncly/test/ExecutorTestFactories.h"
+
+#include "StrandImplTestFactory.h"
+#include "executor/detail/StrandImpl.h"
 
 namespace asyncly {
 namespace test {
@@ -33,17 +35,17 @@ using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<5>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 INSTANTIATE_TYPED_TEST_SUITE_P(ThreadPoolExecutor, ExecutorCommonTest, ExecutorFactoryTypes);
 
 using ScheduledExecutorFactoryTypes = ::testing::Types<
     AsioExecutorFactory<>,
     DefaultExecutorFactory<>,
-    StrandFactory<>,
+    StrandImplTestFactory<>,
     AsioExecutorFactory<SchedulerProviderDefault>,
     DefaultExecutorFactory<1, SchedulerProviderDefault>,
-    StrandFactory<SchedulerProviderDefault>
+    StrandImplTestFactory<SchedulerProviderDefault>
     /*, disabled SchedulerProviderAsio due to flaky test
     (https://jira.ops.expertcity.com/browse/ACINI-1142)
     Executor/ScheduledExecutorCommonTest/9.shouldExecuteBeforeNewestExpires,
@@ -52,7 +54,7 @@ using ScheduledExecutorFactoryTypes = ::testing::Types<
 
     AsioExecutorFactory<SchedulerProviderAsio>,
     DefaultExecutorFactory<1, SchedulerProviderAsio>,
-    StrandFactory<SchedulerProviderAsio>
+    StrandImplTestFactory<SchedulerProviderAsio>
     */
     >;
 
@@ -81,7 +83,7 @@ TEST_F(SerializingPropertyTest, multiThreadIsNotSerializing)
 TEST_F(SerializingPropertyTest, strandIsSerializing)
 {
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
-    auto strand = std::make_shared<Strand>(multiThreadExecutorController->get_executor());
+    auto strand = std::make_shared<StrandImpl>(multiThreadExecutorController->get_executor());
     ASSERT_TRUE(strand->is_serializing());
 }
 

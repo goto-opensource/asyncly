@@ -16,106 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <cassert>
-#include <future>
 #include <memory>
 
-#include "asyncly/executor/Strand.h"
-#include "asyncly/scheduler/IScheduler.h"
-#include "asyncly/task/detail/PeriodicTask.h"
+#include "detail/StrandImpl.h"
 
 namespace asyncly {
 
-Strand::Strand(const IExecutorPtr& executor)
-    : executor_{ executor }
-    , state_{ Strand::State::Waiting }
-    , destroyedFuture_{ destroyed_.get_future() }
+IExecutorPtr create_strand(const IExecutorPtr& executor)
 {
-}
-
-Strand::~Strand()
-{
-    destroyed_.set_value();
-}
-
-clock_type::time_point Strand::now() const
-{
-    return executor_->now();
-}
-
-void Strand::post(Task&& task)
-{
-    if (!task) {
-        throw std::runtime_error("invalid closure");
-    }
-
-    task.maybe_set_executor(shared_from_this());
-
-    std::unique_lock<std::mutex> lock(mutex_);
-    switch (state_) {
-    case Strand::State::Waiting:
-        state_ = Strand::State::Executing;
-        lock.unlock();
-        executor_->post([ctask = std::move(task), self = shared_from_this()]() {
-            ctask();
-            self->notifyDone();
-        });
-        break;
-
-    case Strand::State::Executing:
-        taskQueue_.push_back(std::move(task));
-        break;
+    if (executor->is_serializing()) {
+        return executor;
+    } else {
+        return std::make_shared<StrandImpl>(executor);
     }
 }
 
-std::shared_ptr<asyncly::Cancelable>
-Strand::post_at(const clock_type::time_point& absTime, Task&& task)
-{
-    task.maybe_set_executor(shared_from_this());
-    return get_scheduler()->execute_at(shared_from_this(), absTime, std::move(task));
-}
-
-std::shared_ptr<asyncly::Cancelable>
-Strand::post_after(const clock_type::duration& relTime, Task&& task)
-{
-    task.maybe_set_executor(shared_from_this());
-    return get_scheduler()->execute_after(shared_from_this(), relTime, std::move(task));
-}
-
-std::shared_ptr<asyncly::Cancelable>
-Strand::post_periodically(const clock_type::duration& period, CopyableTask task)
-{
-    return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
-}
-
-ISchedulerPtr Strand::get_scheduler() const
-{
-    return executor_->get_scheduler();
-}
-
-bool Strand::is_serializing() const
-{
-    return true;
-}
-
-void Strand::notifyDone()
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-
-    assert(state_ == Strand::State::Executing);
-
-    if (taskQueue_.empty()) {
-        state_ = Strand::State::Waiting;
-        return;
-    }
-
-    auto task = std::move(taskQueue_.front());
-    taskQueue_.pop_front();
-    lock.unlock();
-
-    executor_->post([ctask = std::move(task), self = shared_from_this()]() {
-        ctask();
-        self->notifyDone();
-    });
-}
 }

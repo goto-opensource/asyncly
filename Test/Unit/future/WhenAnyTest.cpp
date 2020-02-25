@@ -18,6 +18,7 @@
 
 #include "asyncly/future/WhenAny.h"
 
+#include "StrandImplTestFactory.h"
 #include "asyncly/future/Future.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
@@ -44,7 +45,7 @@ template <typename TExecutorFactory> class WhenAnyTest : public Test {
 using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
-    asyncly::test::StrandFactory<>>;
+    asyncly::test::StrandImplTestFactory<>>;
 
 TYPED_TEST_SUITE(WhenAnyTest, ExecutorFactoryTypes);
 
