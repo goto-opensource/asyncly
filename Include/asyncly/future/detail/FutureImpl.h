@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <asyncly/executor/ExecutorStoppedException.h>
 #include <asyncly/executor/IExecutor.h>
 #include <asyncly/future/detail/Future.h>
 
@@ -571,7 +572,10 @@ template <typename T> void FutureImplBase<T>::notify_error_ready(std::exception_
     }
 
     if (ready->onError_) {
-        ready->onError_(error);
+        try {
+            ready->onError_(error);
+        } catch (ExecutorStoppedException) {
+        }
         if (!errorBreaksContinuationChain_) {
             if (auto errorObserver = ready->errorObserver_.lock()) {
                 errorObserver->notify_error_ready(error);
@@ -596,7 +600,10 @@ template <typename T> void FutureImpl<T>::notify_value_ready(const T& value)
     }
 
     if (ready->continuation_) {
-        ready->continuation_(value);
+        try {
+            ready->continuation_(value);
+        } catch (ExecutorStoppedException) {
+        }
         this->state_ = future_state::Continued{};
     } else {
         this->state_ = future_state::Resolved<T>{ value };
@@ -613,7 +620,10 @@ template <typename T> void FutureImpl<T>::notify_value_ready(T&& value)
     }
 
     if (ready->continuation_) {
-        ready->continuation_(std::forward<T>(value));
+        try {
+            ready->continuation_(std::forward<T>(value));
+        } catch (ExecutorStoppedException) {
+        }
         this->state_ = future_state::Continued{};
     } else {
         this->state_ = future_state::Resolved<T>{ std::forward<T>(value) };
@@ -630,7 +640,10 @@ inline void FutureImpl<void>::notify_value_ready()
     }
 
     if (ready->continuation_) {
-        ready->continuation_();
+        try {
+            ready->continuation_();
+        } catch (ExecutorStoppedException) {
+        }
         state_ = future_state::Continued{};
     } else {
         state_ = future_state::Resolved<void>{};

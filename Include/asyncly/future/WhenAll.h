@@ -46,7 +46,7 @@ template <typename T> class Future;
 ///
 /// \return a `Future` containing a
 /// std::tuple of the same type as the supplied promises, with void
-/// promises filtered out. For example `when_any(Future<void>,
+/// promises filtered out. For example `when_all(Future<void>,
 /// Future<int>, Future<void>, Future<bool>) ->
 /// Future<std::tuple<int,bool>>`
 ///

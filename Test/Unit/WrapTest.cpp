@@ -246,7 +246,7 @@ TYPED_TEST(WrapWeakPostTest, shouldCustomErrorWithExpiredWeakWrapPost)
 TYPED_TEST(WrapWeakPostTest, shouldCustomErrorWithThrowingExecutorWeakWrapPost)
 {
     std::promise<void> errored;
-    auto executor = asyncly::detail::ThrowingExecutor::create();
+    auto executor = asyncly::detail::ThrowingExecutor<>::create();
 
     EXPECT_CALL(*this->callback_, callback()).Times(0);
 

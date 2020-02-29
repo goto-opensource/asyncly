@@ -25,6 +25,7 @@
 #include "asyncly/future/Future.h"
 
 #include "StrandImplTestFactory.h"
+#include "asyncly/executor/ExecutorStoppedException.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 #include "detail/ThrowingExecutor.h"
 
@@ -1385,16 +1386,16 @@ TYPED_TEST(FutureTest, thenShouldHoldExecutorReference)
 /// FutureThrowingExecutorTest provides test cases that ensure futures behave correctly in case
 /// underlying executors encounter runtime errors that prevent them to execute tasks that futures
 /// schedule on them.
-class FutureThrowingExecutorTest : public Test {
+template <typename E> class FutureThrowingExecutorTestBase : public Test {
   public:
-    FutureThrowingExecutorTest(std::tuple<asyncly::Future<void>, asyncly::Promise<void>> lazy)
+    FutureThrowingExecutorTestBase(std::tuple<asyncly::Future<void>, asyncly::Promise<void>> lazy)
         : promise_(std::get<1>(lazy))
         , future_(std::get<0>(lazy))
-        , throwingExecutor_(asyncly::detail::ThrowingExecutor::create())
+        , throwingExecutor_(asyncly::detail::ThrowingExecutor<E>::create())
     {
     }
-    FutureThrowingExecutorTest()
-        : FutureThrowingExecutorTest(make_lazy_future<void>())
+    FutureThrowingExecutorTestBase()
+        : FutureThrowingExecutorTestBase(make_lazy_future<void>())
     {
     }
 
@@ -1405,31 +1406,67 @@ class FutureThrowingExecutorTest : public Test {
 
     asyncly::Promise<void> promise_;
     asyncly::Future<void> future_;
-    std::shared_ptr<asyncly::detail::ThrowingExecutor> throwingExecutor_;
+    std::shared_ptr<asyncly::detail::ThrowingExecutor<E>> throwingExecutor_;
 };
 
-TEST_F(FutureThrowingExecutorTest, throws_on_late_then)
+class FutureThrowingExecutorRuntimeErrorTest
+    : public FutureThrowingExecutorTestBase<std::runtime_error> {
+};
+
+TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_then)
 {
     promise_.set_value();
     EXPECT_ANY_THROW(future_.then([]() { ADD_FAILURE(); }));
 }
 
-TEST_F(FutureThrowingExecutorTest, throws_on_late_set_value)
+TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_set_value)
 {
     future_.then([]() { ADD_FAILURE(); });
     EXPECT_ANY_THROW(promise_.set_value());
 }
 
-TEST_F(FutureThrowingExecutorTest, throws_on_late_catch_error)
+TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_catch_error)
 {
     promise_.set_exception("intentional error");
     EXPECT_ANY_THROW(future_.catch_error([](auto) { ADD_FAILURE(); }));
 }
 
-TEST_F(FutureThrowingExecutorTest, throws_on_late_set_exception)
+TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_set_exception)
 {
     future_.catch_error([](auto) { ADD_FAILURE(); });
     EXPECT_ANY_THROW(promise_.set_exception("intentional error"));
+}
+
+class FutureThrowingExecutorExecutorStoppedExceptionTest
+    : public FutureThrowingExecutorTestBase<ExecutorStoppedException> {
+};
+
+TEST_F(FutureThrowingExecutorExecutorStoppedExceptionTest, throws_on_late_then)
+{
+    promise_.set_value();
+    EXPECT_ANY_THROW(future_.then([]() { ADD_FAILURE(); }));
+}
+
+TEST_F(
+    FutureThrowingExecutorExecutorStoppedExceptionTest,
+    catches_executor_post_exception_on_late_set_value)
+{
+    future_.then([]() { ADD_FAILURE(); });
+    promise_.set_value();
+}
+
+TEST_F(FutureThrowingExecutorExecutorStoppedExceptionTest, throws_on_late_catch_error)
+{
+    promise_.set_exception("intentional error");
+    EXPECT_ANY_THROW(future_.catch_error([](auto) { ADD_FAILURE(); }));
+}
+
+TEST_F(
+    FutureThrowingExecutorExecutorStoppedExceptionTest,
+    catches_executor_post_exception_on_late_set_exception)
+{
+    future_.catch_error([](auto) { ADD_FAILURE(); });
+    promise_.set_exception("intentional error");
 }
 
 }

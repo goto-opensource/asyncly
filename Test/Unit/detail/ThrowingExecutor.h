@@ -27,7 +27,9 @@
 namespace asyncly {
 namespace detail {
 
-class ThrowingExecutor : public IExecutor, public std::enable_shared_from_this<ThrowingExecutor> {
+template <typename E = std::runtime_error>
+class ThrowingExecutor : public IExecutor,
+                         public std::enable_shared_from_this<ThrowingExecutor<E>> {
   private:
     ThrowingExecutor();
 
@@ -46,7 +48,7 @@ class ThrowingExecutor : public IExecutor, public std::enable_shared_from_this<T
   private:
     const ISchedulerPtr _scheduler;
 };
-class ThrowingScheduler : public IScheduler {
+template <typename E> class ThrowingScheduler : public IScheduler {
     clock_type::time_point now() const
     {
         return clock_type::now();
@@ -54,57 +56,63 @@ class ThrowingScheduler : public IScheduler {
     std::shared_ptr<Cancelable>
     execute_at(const IExecutorWPtr&, const clock_type::time_point&, Task&&)
     {
-        throw std::runtime_error("throwing executor always throws");
+        throw E("throwing executor always throws");
     }
     std::shared_ptr<Cancelable>
     execute_after(const IExecutorWPtr&, const clock_type::duration&, Task&&)
     {
-        throw std::runtime_error("throwing executor always throws");
+        throw E("throwing executor always throws");
     }
 };
 
-inline ThrowingExecutor::ThrowingExecutor()
-    : _scheduler(std::make_shared<ThrowingScheduler>())
+template <typename E>
+inline ThrowingExecutor<E>::ThrowingExecutor()
+    : _scheduler(std::make_shared<ThrowingScheduler<E>>())
 {
 }
 
-inline std::shared_ptr<ThrowingExecutor> ThrowingExecutor::create()
+template <typename E> inline std::shared_ptr<ThrowingExecutor<E>> ThrowingExecutor<E>::create()
 {
     return std::shared_ptr<ThrowingExecutor>(new ThrowingExecutor());
 }
 
-inline clock_type::time_point ThrowingExecutor::now() const
+template <typename E> inline clock_type::time_point ThrowingExecutor<E>::now() const
 {
     return _scheduler->now();
 }
 
-inline void ThrowingExecutor::post(Task&&)
+template <typename E> inline void ThrowingExecutor<E>::post(Task&&)
 {
-    throw std::runtime_error("throwing executor always throws");
+    throw E("throwing executor always throws");
 }
 
-inline std::shared_ptr<Cancelable> ThrowingExecutor::post_at(const clock_type::time_point&, Task&&)
-{
-    throw std::runtime_error("throwing executor always throws");
-}
-
-inline std::shared_ptr<Cancelable> ThrowingExecutor::post_after(const clock_type::duration&, Task&&)
-{
-    throw std::runtime_error("throwing executor always throws");
-}
-
+template <typename E>
 inline std::shared_ptr<Cancelable>
-ThrowingExecutor::post_periodically(const clock_type::duration&, CopyableTask)
+ThrowingExecutor<E>::post_at(const clock_type::time_point&, Task&&)
 {
-    throw std::runtime_error("throwing executor always throws");
+    throw E("throwing executor always throws");
 }
 
-inline ISchedulerPtr ThrowingExecutor::get_scheduler() const
+template <typename E>
+inline std::shared_ptr<Cancelable>
+ThrowingExecutor<E>::post_after(const clock_type::duration&, Task&&)
+{
+    throw E("throwing executor always throws");
+}
+
+template <typename E>
+inline std::shared_ptr<Cancelable>
+ThrowingExecutor<E>::post_periodically(const clock_type::duration&, CopyableTask)
+{
+    throw E("throwing executor always throws");
+}
+
+template <typename E> inline ISchedulerPtr ThrowingExecutor<E>::get_scheduler() const
 {
     return _scheduler;
 }
 
-inline bool ThrowingExecutor::is_serializing() const
+template <typename E> inline bool ThrowingExecutor<E>::is_serializing() const
 {
     return false;
 }

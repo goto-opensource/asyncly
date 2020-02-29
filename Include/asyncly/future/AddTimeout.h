@@ -43,7 +43,7 @@ struct Timeout : public std::exception {
 /// Example usage:
 ///
 /// auto connectionFuture = server->connect();
-/// add_timeout(std::chrono::seconds(15, std::move(connectionFuture))
+/// add_timeout(std::chrono::seconds(15), std::move(connectionFuture))
 ///           .then([](auto connection) {
 ///                // do something with the connection
 ///           })

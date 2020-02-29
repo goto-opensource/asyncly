@@ -18,6 +18,8 @@
 
 #include "asyncly/executor/detail/ThreadPoolExecutor.h"
 
+#include "asyncly/executor/ExecutorStoppedException.h"
+
 namespace asyncly {
 
 std::shared_ptr<ThreadPoolExecutor>
@@ -90,7 +92,7 @@ void ThreadPoolExecutor::post(Task&& closure)
     {
         std::lock_guard<boost::mutex> lock(m_mutex);
         if (m_isStopped) {
-            throw std::runtime_error("executor stopped");
+            throw ExecutorStoppedException("executor stopped");
         }
         m_taskQueue.push(std::move(closure));
     }
