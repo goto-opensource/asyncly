@@ -68,49 +68,45 @@ struct maybe_pack_and_save<
 }
 
 template <typename T>
-PromiseImpl<T>::PromiseImpl(const std::shared_ptr<FutureImpl<T>>& future)
+PromiseImplBase<T>::PromiseImplBase(const std::shared_ptr<FutureImpl<T>>& future)
     : future_{ future }
+{
+}
+
+template <typename T> void PromiseImplBase<T>::set_exception(std::exception_ptr e)
+{
+    future_->notify_error_ready(e);
+}
+
+template <typename T> std::shared_ptr<FutureImpl<T>> PromiseImplBase<T>::get_future()
+{
+    return future_;
+}
+
+template <typename T>
+PromiseImpl<T>::PromiseImpl(const std::shared_ptr<FutureImpl<T>>& future)
+    : PromiseImplBase<T>{ future }
 {
 }
 
 template <typename T> void PromiseImpl<T>::set_value(const T& value)
 {
-    future_->notify_value_ready(value);
+    this->future_->notify_value_ready(value);
 }
 
 template <typename T> void PromiseImpl<T>::set_value(T&& value)
 {
-    future_->notify_value_ready(std::forward<T>(value));
-}
-
-template <typename T> void PromiseImpl<T>::set_exception(std::exception_ptr e)
-{
-    future_->notify_error_ready(e);
-}
-
-template <typename T> std::shared_ptr<FutureImpl<T>> PromiseImpl<T>::get_future()
-{
-    return future_;
+    this->future_->notify_value_ready(std::forward<T>(value));
 }
 
 inline PromiseImpl<void>::PromiseImpl(const std::shared_ptr<FutureImpl<void>>& future)
-    : future_{ future }
+    : PromiseImplBase<void>{ future }
 {
 }
 
 inline void PromiseImpl<void>::set_value()
 {
     future_->notify_value_ready();
-}
-
-inline void PromiseImpl<void>::set_exception(std::exception_ptr e)
-{
-    future_->notify_error_ready(e);
-}
-
-inline std::shared_ptr<FutureImpl<void>> PromiseImpl<void>::get_future()
-{
-    return future_;
 }
 
 template <typename T>
@@ -447,7 +443,6 @@ FutureImplBase<T>::then(F&& continuation)
 
     std::shared_ptr<FutureImpl<ContinuationT>> future;
     std::shared_ptr<PromiseImpl<ContinuationT>> promise;
-
     std::tie(future, promise) = make_lazy_future_impl<ContinuationT>();
 
     auto continuationTmp = make_continuation<T, ContinuationT>::create(
@@ -651,13 +646,12 @@ inline void FutureImpl<void>::notify_value_ready()
 }
 
 template <typename T>
-void future_state::Resolved<T>::callContinuation(typename continuation_t<T>::type& continuation)
+void future_state::Resolved<T>::callContinuation(resolve_handler_t<T>& continuation)
 {
     continuation(std::forward<T>(value_));
 }
 
-inline void
-future_state::Resolved<void>::callContinuation(typename continuation_t<void>::type& continuation)
+inline void future_state::Resolved<void>::callContinuation(resolve_handler_t<void>& continuation)
 {
     continuation();
 }

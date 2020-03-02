@@ -47,18 +47,51 @@ inline std::shared_ptr<FutureImpl<void>> make_ready_future_impl();
 template <typename T>
 std::shared_ptr<FutureImpl<T>> make_exceptional_future_impl(std::exception_ptr e);
 
+template <typename T> class PromiseImplBase {
+  public:
+    PromiseImplBase(const std::shared_ptr<FutureImpl<T>>& future);
+
+    void set_exception(std::exception_ptr e);
+    std::shared_ptr<FutureImpl<T>> get_future();
+
+  protected:
+    const std::shared_ptr<FutureImpl<T>> future_;
+};
+
+template <typename T> class PromiseImpl : public PromiseImplBase<T> {
+  public:
+    friend std::tuple<std::shared_ptr<FutureImpl<T>>, std::shared_ptr<PromiseImpl<T>>>
+    make_lazy_future_impl<T>();
+
+    PromiseImpl(const std::shared_ptr<FutureImpl<T>>&);
+
+    void set_value(const T&);
+    void set_value(T&&);
+};
+
+template <> class PromiseImpl<void> : public PromiseImplBase<void> {
+  public:
+    friend std::tuple<std::shared_ptr<FutureImpl<void>>, std::shared_ptr<PromiseImpl<void>>>
+    make_lazy_future_impl<void>();
+
+    PromiseImpl(const std::shared_ptr<FutureImpl<void>>&);
+
+    void set_value();
+};
+
 struct ErrorSink {
     virtual ~ErrorSink() = default;
     virtual void notify_error_ready(std::exception_ptr) = 0;
 };
 
-template <typename T> struct continuation_t {
+template <typename T> struct resolve_handler {
     using type = fu2::unique_function<void(T)>;
 };
-
-template <> struct continuation_t<void> {
+template <> struct resolve_handler<void> {
     using type = fu2::unique_function<void()>;
 };
+template <typename T> using resolve_handler_t = typename resolve_handler<T>::type;
+using reject_handler_t = fu2::unique_function<void(std::exception_ptr)>;
 
 ///    --> Resolved --
 ///    |             |
@@ -68,18 +101,18 @@ template <> struct continuation_t<void> {
 
 namespace future_state {
 template <typename T> struct Ready {
-    typename continuation_t<T>::type continuation_;
-    fu2::unique_function<void(std::exception_ptr)> onError_;
+    resolve_handler_t<T> continuation_;
+    reject_handler_t onError_;
     std::weak_ptr<ErrorSink> errorObserver_;
 };
 
 template <typename T> struct Resolved {
     T value_;
-    void callContinuation(typename continuation_t<T>::type& continuation);
+    void callContinuation(resolve_handler_t<T>& continuation);
 };
 
 template <> struct Resolved<void> {
-    void callContinuation(typename continuation_t<void>::type& continuation);
+    void callContinuation(resolve_handler_t<void>& continuation);
 };
 
 struct Rejected {
@@ -119,23 +152,6 @@ template <typename T> class FutureImplBase : public ErrorSink {
     std::mutex mutex_;
 };
 
-template <typename T> class PromiseImpl {
-  public:
-    friend std::tuple<std::shared_ptr<FutureImpl<T>>, std::shared_ptr<PromiseImpl<T>>>
-    make_lazy_future_impl<T>();
-
-    PromiseImpl(const std::shared_ptr<FutureImpl<T>>&);
-
-  public:
-    void set_value(const T&);
-    void set_value(T&&);
-    void set_exception(std::exception_ptr e);
-    std::shared_ptr<FutureImpl<T>> get_future();
-
-  private:
-    const std::shared_ptr<FutureImpl<T>> future_;
-};
-
 template <typename T> class FutureImpl : public FutureImplBase<T> {
   public:
     friend std::shared_ptr<FutureImpl<T>> make_ready_future_impl<T>(T&& value);
@@ -146,28 +162,10 @@ template <typename T> class FutureImpl : public FutureImplBase<T> {
 
     using value_type = T;
 
-    FutureImpl() = default;
-
   private:
     // called by Promise<T>
     void notify_value_ready(const T& value);
     void notify_value_ready(T&& value);
-};
-
-template <> class PromiseImpl<void> {
-  public:
-    friend std::tuple<std::shared_ptr<FutureImpl<void>>, std::shared_ptr<PromiseImpl<void>>>
-    make_lazy_future_impl<void>();
-
-    PromiseImpl(const std::shared_ptr<FutureImpl<void>>&);
-
-  public:
-    void set_value();
-    void set_exception(std::exception_ptr e);
-    std::shared_ptr<FutureImpl<void>> get_future();
-
-  private:
-    const std::shared_ptr<FutureImpl<void>> future_;
 };
 
 template <> class FutureImpl<void> : public FutureImplBase<void> {
