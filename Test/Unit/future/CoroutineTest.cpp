@@ -51,11 +51,11 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfReadyFuture)
 {
     auto value = std::make_shared<std::promise<int>>();
 
-    this->executor_->post([&value]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        auto result = co_await make_ready_future(42);
-        value2->set_value(result);
+    this->executor_->post([&value]() {
+        [](auto& value) -> Future<void> {
+            auto result = co_await make_ready_future(42);
+            value->set_value(result);
+        }(value);
     });
 
     EXPECT_EQ(42, value->get_future().get());
@@ -65,11 +65,11 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfReadyVoidFuture)
 {
     auto value = std::make_shared<std::promise<void>>();
 
-    this->executor_->post([&value]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        co_await make_ready_future();
-        value2->set_value();
+    this->executor_->post([&value]() {
+        [](auto& value) -> Future<void> {
+            co_await make_ready_future();
+            value->set_value();
+        }(value);
     });
 
     value->get_future().get();
@@ -83,17 +83,17 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfLazyFuture)
     auto future = std::get<0>(lazy);
     auto promise = std::get<1>(lazy);
 
-    this->executor_->post([&value, &future]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        auto result = co_await future;
+    this->executor_->post([&value, &future]() {
+        [](auto& value, auto& future) -> Future<void> {
+            auto result = co_await future;
 
 #ifdef ASYNCLY_FUTURE_DEBUG
-        std::cerr << "co_await ready, value is " << result << " on thread "
-                  << std::this_thread::get_id() << std::endl;
+            std::cerr << "co_await ready, value is " << result << " on thread "
+                      << std::this_thread::get_id() << std::endl;
 #endif
 
-        value2->set_value(result);
+            value->set_value(result);
+        }(value, future);
     });
 
     this->executor_->post([&promise]() {
@@ -115,16 +115,16 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfLazyVoidFuture)
     auto future = std::get<0>(lazy);
     auto promise = std::get<1>(lazy);
 
-    this->executor_->post([&value, &future]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        co_await future;
+    this->executor_->post([&value, &future]() {
+        [](auto& value, auto& future) -> Future<void> {
+            co_await future;
 
 #ifdef ASYNCLY_FUTURE_DEBUG
-        std::cerr << "co_await ready, on thread " << std::this_thread::get_id() << std::endl;
+            std::cerr << "co_await ready, on thread " << std::this_thread::get_id() << std::endl;
 #endif
 
-        value2->set_value();
+            value->set_value();
+        }(value, future);
     });
 
     this->executor_->post([&promise]() {
@@ -141,14 +141,14 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfExceptionalFuture)
 {
     auto value = std::make_shared<std::promise<int>>();
 
-    this->executor_->post([&value]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        try {
-            co_await make_exceptional_future<int>("intentaional error");
-        } catch (...) {
-            value2->set_exception(std::current_exception());
-        }
+    this->executor_->post([&value]() {
+        [](auto& value) -> Future<void> {
+            try {
+                co_await make_exceptional_future<int>("intentaional error");
+            } catch (...) {
+                value->set_exception(std::current_exception());
+            }
+        }(value);
     });
 
     EXPECT_ANY_THROW(value->get_future().get());
@@ -158,14 +158,14 @@ TYPED_TEST(CoroutineTest, shouldSupportCoroutineAsyncAwaitOfExceptionalVoidFutur
 {
     auto value = std::make_shared<std::promise<void>>();
 
-    this->executor_->post([&value]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        try {
-            co_await make_exceptional_future<void>("intentaional error");
-        } catch (...) {
-            value2->set_exception(std::current_exception());
-        }
+    this->executor_->post([&value]() {
+        [](auto& value) -> Future<void> {
+            try {
+                co_await make_exceptional_future<void>("intentaional error");
+            } catch (...) {
+                value->set_exception(std::current_exception());
+            }
+        }(value);
     });
 
     EXPECT_ANY_THROW(value->get_future().get());
@@ -176,17 +176,16 @@ TYPED_TEST(CoroutineTest, shouldThrowOnSecondCoroutineAsyncAwaitOfReadyFuture)
     auto value = std::make_shared<std::promise<int>>();
     auto future = make_ready_future(42);
 
-    this->executor_->post([&value, &future]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        auto future2 = future;
-        co_await future2;
+    this->executor_->post([&value, &future]() {
+        [](auto& value, auto& future) -> Future<void> {
+            co_await future;
 
-        try {
-            co_await future2;
-        } catch (...) {
-            value2->set_exception(std::current_exception());
-        }
+            try {
+                co_await future;
+            } catch (...) {
+                value->set_exception(std::current_exception());
+            }
+        }(value, future);
     });
 
     EXPECT_ANY_THROW(value->get_future().get());
@@ -197,17 +196,16 @@ TYPED_TEST(CoroutineTest, shouldThrowOnSecondCoroutineAsyncAwaitOfReadyVoidFutur
     auto value = std::make_shared<std::promise<void>>();
     auto future = make_ready_future();
 
-    this->executor_->post([&value, &future]() -> Future<void> {
-        // todo: prolong task life time througout suspensions
-        auto value2 = value;
-        auto future2 = future;
-        co_await future2;
+    this->executor_->post([&value, &future]() {
+        [](auto& value, auto& future) -> Future<void> {
+            co_await future;
 
-        try {
-            co_await future2;
-        } catch (...) {
-            value2->set_exception(std::current_exception());
-        }
+            try {
+                co_await future;
+            } catch (...) {
+                value->set_exception(std::current_exception());
+            }
+        }(value, future);
     });
 
     EXPECT_ANY_THROW(value->get_future().get());
