@@ -1,0 +1,7 @@
+#include <@HEADER@>
+
+// check for header guard presence
+#include <@HEADER@>
+
+// silence warnings about empty object files
+int @UNIQUE_PART@_self_contained_header_check;

@@ -1,0 +1,11 @@
+
+asyncly_add_google_benchmark(asyncly_benchmarks
+  Executor/ExecutorBenchmarksMain.cpp
+  Executor/ExecutorWrappersPerformance.cpp
+  Executor/ThreadPoolPerformanceTest.cpp)
+
+
+target_include_directories(asyncly_benchmarks PRIVATE ${PROJECT_SOURCE_DIR}/Source)
+
+target_link_libraries(asyncly_benchmarks asyncly)
+target_link_libraries(asyncly_benchmarks Boost::chrono Boost::thread Boost::system)

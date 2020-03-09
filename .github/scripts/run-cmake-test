@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+
+WORKSPACE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && /bin/pwd -P)
+
+# Build and Test
+
+mkdir "${WORKSPACE}/_build" && cd $_
+cmake .. "-DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+make -j$(nproc)
+ctest -V
+mkdir -p deploy
+make DESTDIR="${PWD}/deploy" install

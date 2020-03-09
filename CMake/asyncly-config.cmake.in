@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+
+set_and_check(asyncly_INCLUDE_DIR "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
+
+find_dependency(Boost 1.71.0)
+find_dependency(function2)
+find_dependency(prometheus-cpp)
+
+include("${CMAKE_CURRENT_LIST_DIR}/asyncly-targets.cmake")
