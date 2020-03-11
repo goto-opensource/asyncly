@@ -25,7 +25,7 @@ namespace detail {
 struct TaskConcept {
     virtual ~TaskConcept() = default;
     virtual void run() = 0;
-    virtual operator bool() const = 0;
+    virtual explicit operator bool() const = 0;
 };
 }
 }

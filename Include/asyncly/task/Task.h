@@ -28,9 +28,6 @@
 namespace asyncly {
 
 struct Task {
-    Task(Task&& other) = default;
-    Task& operator=(Task&& other) = default;
-
     template <typename T, typename = typename std::enable_if<!std::is_same<T, Task>::value>>
     Task(T&& closure)
         : task_{ new detail::TaskWrapper<typename std::remove_reference<T>::type>{
@@ -44,13 +41,6 @@ struct Task {
     {
     }
 
-    void operator()()
-    {
-        detail::TaskCurrentExecutorGuard guard(executor_);
-        task_->run();
-        task_.reset();
-    }
-
     void operator()() const
     {
         detail::TaskCurrentExecutorGuard guard(executor_);
@@ -58,9 +48,9 @@ struct Task {
         task_.reset();
     }
 
-    operator bool() const
+    explicit operator bool() const
     {
-        return *task_;
+        return task_ && *task_;
     }
 
     /// maybe_set_executor should be called by each executor in the

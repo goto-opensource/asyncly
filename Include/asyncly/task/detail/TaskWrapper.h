@@ -64,7 +64,7 @@ template <typename T> struct TaskWrapper : public TaskConcept {
         closure_();
     }
 
-    operator bool() const override
+    explicit operator bool() const override
     {
         return checkClosure(closure_);
     }

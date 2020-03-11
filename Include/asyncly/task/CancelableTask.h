@@ -34,15 +34,6 @@ class CancelableTask {
     {
     }
 
-    CancelableTask(CancelableTask&& other) = default;
-
-    void operator()()
-    {
-        if (cancelable_->maybeMarkAsRunning()) {
-            (*task_)();
-        }
-    }
-
     void operator()() const
     {
         if (cancelable_->maybeMarkAsRunning()) {
@@ -51,7 +42,7 @@ class CancelableTask {
     }
 
   private:
-    const std::shared_ptr<Task> task_;
-    const std::shared_ptr<TaskCancelable> cancelable_;
+    std::shared_ptr<Task> task_;
+    std::shared_ptr<TaskCancelable> cancelable_;
 };
 }

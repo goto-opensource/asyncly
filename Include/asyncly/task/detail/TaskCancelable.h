@@ -31,7 +31,7 @@ class TaskCancelable : public Cancelable {
     TaskCancelable(std::weak_ptr<Task>&& task)
         : isCanceled_(false)
         , isRunning_(false)
-        , task_(task)
+        , task_(std::move(task))
     {
     }
 
