@@ -57,7 +57,7 @@ class PriorityQueue {
 
     const T& peekBack() const
     {
-        return container.back();
+        return *std::min_element(container.begin(), container.end(), compare);
     }
 
     void clear()

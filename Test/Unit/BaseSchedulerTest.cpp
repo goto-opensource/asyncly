@@ -228,6 +228,8 @@ TEST_F(BaseSchedulerTest, shouldGetLastExpiredTime)
     addTask(1, std::chrono::milliseconds(5));
     addTask(2, std::chrono::milliseconds(10));
     addTask(3, std::chrono::milliseconds(20));
+    addTask(4, std::chrono::milliseconds(15));
+    addTask(5, std::chrono::milliseconds(17));
     const auto last = now + std::chrono::milliseconds(20);
     EXPECT_EQ(last, _scheduler->getLastExpiredTime());
 }
