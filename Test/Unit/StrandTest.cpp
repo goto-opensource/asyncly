@@ -31,7 +31,7 @@ using namespace testing;
 class StrandTest : public Test {
   public:
     StrandTest()
-        : fakeExecutor_{ std::make_shared<asyncly::test::FakeExecutor>() }
+        : fakeExecutor_{ asyncly::test::FakeExecutor::create() }
         , strand_{ std::make_shared<StrandImpl>(fakeExecutor_) }
     {
     }

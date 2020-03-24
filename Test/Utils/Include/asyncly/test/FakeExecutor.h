@@ -32,6 +32,9 @@
 namespace asyncly {
 namespace test {
 
+class FakeExecutor;
+using FakeExecutorPtr = std::shared_ptr<FakeExecutor>;
+
 /// FakeExecutor is useful for single-threaded unit tests where tasks
 /// should be executed in the same thread like the test code itself.
 /// Main difference to ThreadPoolExecutor is that advanceClock() and runOnce() execute all pending
@@ -40,7 +43,8 @@ namespace test {
 /// advanceClock()/runOnce()
 class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeExecutor> {
   public:
-    FakeExecutor();
+    static FakeExecutorPtr create();
+
     FakeExecutor(FakeExecutor const&) = delete;
     FakeExecutor& operator=(FakeExecutor const&) = delete;
 
@@ -65,11 +69,16 @@ class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeE
     bool is_serializing() const override;
 
   private:
+    FakeExecutor();
     std::queue<Task> m_taskQueue;
     std::shared_ptr<FakeClockScheduler> m_scheduler;
 };
 
-using FakeExecutorPtr = std::shared_ptr<FakeExecutor>;
+inline FakeExecutorPtr FakeExecutor::create()
+{
+    auto fakeExecutor = std::shared_ptr<FakeExecutor>(new FakeExecutor());
+    return fakeExecutor;
+}
 
 inline FakeExecutor::FakeExecutor()
     : m_scheduler(std::make_shared<FakeClockScheduler>())
