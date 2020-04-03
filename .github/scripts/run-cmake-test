@@ -8,7 +8,7 @@ WORKSPACE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && /bin/pwd -P)
 
 mkdir "${WORKSPACE}/_build" && cd $_
 cmake .. "-DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
-make -j$(nproc)
+make -j$(getconf _NPROCESSORS_ONLN)
 ctest -V
 mkdir -p deploy
 make DESTDIR="${PWD}/deploy" install
