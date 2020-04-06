@@ -11,4 +11,5 @@ BinPackArguments: false
 BinPackParameters: false
 AlignAfterOpenBracket: AlwaysBreak
 SpaceBeforeCpp11BracedList: false
+AllowShortBlocksOnASingleLine: Never
 ---
