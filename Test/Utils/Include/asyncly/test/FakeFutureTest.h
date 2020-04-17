@@ -72,7 +72,7 @@ inline FakeFutureTest::FakeFutureTest()
 {
 }
 
-asyncly::test::FakeExecutorPtr FakeFutureTest::get_fake_executor()
+inline asyncly::test::FakeExecutorPtr FakeFutureTest::get_fake_executor()
 {
     return fakeExecutor_;
 }

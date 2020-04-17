@@ -339,11 +339,14 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithRelativeTimeOff
 
 TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithPeriodic)
 {
+    std::promise<void> continueQueue;
     std::promise<void> actionPerformed;
 
+    this->executor_->post([&continueQueue]() { continueQueue.get_future().get(); });
     auto cancelable = this->executor_->post_periodically(
         this->delay_, [&actionPerformed]() { actionPerformed.set_value(); });
     cancelable->cancel();
+    continueQueue.set_value();
     EXPECT_EQ(
         std::future_status::timeout,
         actionPerformed.get_future().wait_for(

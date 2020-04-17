@@ -29,7 +29,6 @@ static const size_t kBatchSize = 10000;
 
 static void testExecutor(benchmark::State& state, const IExecutorPtr& executor)
 {
-    size_t iterations = 0;
     for (const auto _ : state) {
         std::promise<void> done;
         for (size_t i = 1; i <= kBatchSize; i++) {
@@ -39,43 +38,43 @@ static void testExecutor(benchmark::State& state, const IExecutorPtr& executor)
                 }
             });
         }
-        done.get_future().wait();
-        iterations++;
+        done.get_future().get();
     }
-    state.SetItemsProcessed(iterations * kBatchSize);
+    state.SetItemsProcessed(state.iterations() * kBatchSize);
 }
 }
 
 static void executorThreadPoolTest(benchmark::State& state)
 {
-    auto executor_ = asyncly::ThreadPoolExecutorController::create(1);
+    auto executorController = asyncly::ThreadPoolExecutorController::create(1);
+    auto executor = executorController->get_executor();
 
-    asyncly::testExecutor(state, executor_->get_executor());
+    asyncly::testExecutor(state, executor);
 }
 
 static void metricsWrapperTest(benchmark::State& state)
 {
-    auto executorControl = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor_ = asyncly::MetricsWrapper<>::create(executorControl->get_executor());
+    auto executorController = asyncly::ThreadPoolExecutorController::create(1);
+    auto executor = asyncly::MetricsWrapper<>::create(executorController->get_executor());
 
-    asyncly::testExecutor(state, executor_);
+    asyncly::testExecutor(state, executor);
 }
 
 static void exceptionShieldTest(benchmark::State& state)
 {
-    auto executorControl = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor_ = asyncly::ExceptionShield::create(
-        executorControl->get_executor(), [](std::exception_ptr) {});
+    auto executorController = asyncly::ThreadPoolExecutorController::create(1);
+    auto executor = asyncly::ExceptionShield::create(
+        executorController->get_executor(), [](std::exception_ptr) {});
 
-    asyncly::testExecutor(state, executor_);
+    asyncly::testExecutor(state, executor);
 }
 
 static void strandTest(benchmark::State& state)
 {
-    auto executorControl = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor_ = std::make_shared<asyncly::StrandImpl>(executorControl->get_executor());
+    auto executorController = asyncly::ThreadPoolExecutorController::create(1);
+    auto executor = std::make_shared<asyncly::StrandImpl>(executorController->get_executor());
 
-    asyncly::testExecutor(state, executor_);
+    asyncly::testExecutor(state, executor);
 }
 
 BENCHMARK(executorThreadPoolTest);
