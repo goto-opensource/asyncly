@@ -20,6 +20,7 @@
 
 #include <exception>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 #ifdef _MSC_VER
