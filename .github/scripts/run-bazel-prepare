@@ -3,25 +3,3 @@
 set -euo pipefail
 
 OS_ARG=${1:?}
-
-case "${OS_ARG}" in
-    ubuntu*)
-        packages=()
-
-        curl -sL https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-        echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-        packages+=(bazel)
-
-        sudo apt-get remove -y --purge man-db # avoid time-consuming trigger
-        sudo apt-get update
-        sudo apt-get install -y "${packages[@]}"
-        ;;
-
-    macOS*)
-        packages=()
-
-        packages+=(bazelbuild/tap/bazel)
-
-        brew install "${packages[@]}"
-        ;;
-esac
