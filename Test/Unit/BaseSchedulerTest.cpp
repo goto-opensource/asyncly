@@ -18,7 +18,6 @@
 
 #include "gmock/gmock.h"
 
-#include "asyncly/MockIExecutor.h"
 #include "asyncly/scheduler/detail/BaseScheduler.h"
 
 #include <algorithm>
