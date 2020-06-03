@@ -324,9 +324,10 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldExecuteBeforeNewestExpires)
 TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithRelativeTimeOffset)
 {
     std::promise<void> continueQueue;
+    std::shared_future<void> continueQueueFuture(continueQueue.get_future());
     std::promise<void> actionPerformed;
 
-    this->executor_->post([&continueQueue]() { continueQueue.get_future().get(); });
+    this->executor_->post([continueQueueFuture]() { continueQueueFuture.get(); });
     auto cancelable = this->executor_->post_after(
         this->delay_, [&actionPerformed]() { actionPerformed.set_value(); });
     cancelable->cancel();
@@ -340,9 +341,10 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithRelativeTimeOff
 TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithPeriodic)
 {
     std::promise<void> continueQueue;
+    std::shared_future<void> continueQueueFuture(continueQueue.get_future());
     std::promise<void> actionPerformed;
 
-    this->executor_->post([&continueQueue]() { continueQueue.get_future().get(); });
+    this->executor_->post([continueQueueFuture]() { continueQueueFuture.get(); });
     auto cancelable = this->executor_->post_periodically(
         this->delay_, [&actionPerformed]() { actionPerformed.set_value(); });
     cancelable->cancel();

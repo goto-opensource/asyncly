@@ -10,9 +10,17 @@ function(asyncly_add_google_test target)
 endfunction()
 
 function(asyncly_add_google_benchmark target)
-  add_executable(${target} ${ARGN})
+  set(_options EXCLUDE_FROM_TEST)
+  set(_oneValueArgs)
+  set(_multiValueArgs SOURCES)
+
+  cmake_parse_arguments(_ARGS "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
+
+  add_executable(${target} ${_ARGS_SOURCES})
   set_property(TARGET ${target} APPEND PROPERTY LINK_LIBRARIES "benchmark::benchmark")
-  add_test(NAME ${target} COMMAND ${target})
+  if(NOT _ARGS_EXCLUDE_FROM_TEST)
+    add_test(NAME ${target} COMMAND ${target})
+  endif()
 endfunction()
 
 function(asyncly_add_self_contained_header_test target_name include_root)
