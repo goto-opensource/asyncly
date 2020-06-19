@@ -18,7 +18,6 @@ asyncly_add_google_test(test_asyncly
   BaseSchedulerTest.cpp
   ExceptionShieldTest.cpp
   ExecutorCommonTest.cpp
-  ExecutorThreadPoolTest.cpp
   InterfaceForExecutorTest.h
   MetricsWrapperTest.cpp
   StrandTest.cpp
