@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include <boost/optional.hpp>
 #include <boost/thread/condition_variable.hpp>
+
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -70,6 +72,8 @@ class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeE
 
   private:
     FakeExecutor();
+
+    boost::optional<std::thread::id> m_runningThreadId;
     std::queue<Task> m_taskQueue;
     std::shared_ptr<FakeClockScheduler> m_scheduler;
 };
@@ -126,7 +130,7 @@ inline asyncly::ISchedulerPtr FakeExecutor::get_scheduler() const
 
 inline bool FakeExecutor::is_serializing() const
 {
-    return false;
+    return true;
 }
 
 inline void FakeExecutor::post(Task&& closure)
@@ -165,6 +169,14 @@ inline void FakeExecutor::advanceClockToCurrentLastEvent()
 
 inline size_t FakeExecutor::runTasks(size_t maxTasksToExecute /* = 0 */)
 {
+    const auto currentThreadId = std::this_thread::get_id();
+    if (!m_runningThreadId.is_initialized()) {
+        m_runningThreadId = currentThreadId;
+    }
+    if (m_runningThreadId != currentThreadId) {
+        throw std::runtime_error("FakeExecutor can only be called from a single thread!");
+    }
+
     auto size = m_taskQueue.size();
     auto remainingTasks = maxTasksToExecute;
     while (!m_taskQueue.empty() && (maxTasksToExecute == 0 || remainingTasks > 0)) {
