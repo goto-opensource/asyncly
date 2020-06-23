@@ -79,10 +79,6 @@ class ExecutorCommonTestBase : public Test {
     ExecutorCommonTestBase()
         : executor_(factory_.create())
     {
-        asyncly::this_thread::set_current_executor(IExecutorPtr());
-    }
-    virtual ~ExecutorCommonTestBase()
-    {
     }
     TExecutorFactory factory_;
     std::shared_ptr<IExecutor> executor_;

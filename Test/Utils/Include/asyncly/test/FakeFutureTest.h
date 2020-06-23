@@ -61,12 +61,12 @@ class FakeFutureTest : public ::testing::Test {
 
   private:
     const asyncly::test::FakeExecutorPtr fakeExecutor_;
-    const std::unique_ptr<asyncly::test::CurrentExecutorGuard> currentExecutorGuard_;
+    const asyncly::test::CurrentExecutorGuard currentExecutorGuard_;
 };
 
 inline FakeFutureTest::FakeFutureTest()
     : fakeExecutor_(asyncly::test::FakeExecutor::create())
-    , currentExecutorGuard_(std::make_unique<asyncly::test::CurrentExecutorGuard>(fakeExecutor_))
+    , currentExecutorGuard_(fakeExecutor_)
 {
 }
 

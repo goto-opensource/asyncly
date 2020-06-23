@@ -26,6 +26,7 @@
 
 #include "StrandImplTestFactory.h"
 #include "asyncly/executor/ExecutorStoppedException.h"
+#include "asyncly/test/CurrentExecutorGuard.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 #include "detail/ThrowingExecutor.h"
 
@@ -1392,6 +1393,7 @@ template <typename E> class FutureThrowingExecutorTestBase : public Test {
         : promise_(std::get<1>(lazy))
         , future_(std::get<0>(lazy))
         , throwingExecutor_(asyncly::detail::ThrowingExecutor<E>::create())
+        , currentExecutorGuard_(throwingExecutor_)
     {
     }
     FutureThrowingExecutorTestBase()
@@ -1399,14 +1401,10 @@ template <typename E> class FutureThrowingExecutorTestBase : public Test {
     {
     }
 
-    void SetUp() override
-    {
-        asyncly::this_thread::set_current_executor(throwingExecutor_);
-    }
-
     asyncly::Promise<void> promise_;
     asyncly::Future<void> future_;
-    std::shared_ptr<asyncly::detail::ThrowingExecutor<E>> throwingExecutor_;
+    const std::shared_ptr<asyncly::detail::ThrowingExecutor<E>> throwingExecutor_;
+    const asyncly::test::CurrentExecutorGuard currentExecutorGuard_;
 };
 
 class FutureThrowingExecutorRuntimeErrorTest
