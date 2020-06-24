@@ -58,7 +58,7 @@ getHttpUrl("https://discovery/numberservice")
 - Boost 1.72
 - prometheus-cpp
 - function2
-- Bazel (CMake support planned)
+- Bazel or CMake
 
 ## Contributing
 
