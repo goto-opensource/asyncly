@@ -18,10 +18,6 @@
 
 #pragma once
 
-#include <deque>
-#include <future>
-#include <memory>
-
 #include "asyncly/ExecutorTypes.h"
 
 namespace asyncly {

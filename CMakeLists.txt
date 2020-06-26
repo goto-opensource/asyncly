@@ -52,14 +52,19 @@ add_library(asyncly
   Source/executor/AsioExecutorController.cpp
   Source/executor/ExceptionShield.cpp
   Source/executor/InlineExecutor.cpp
+  Source/executor/MetricsWrapper.cpp
   Source/executor/Strand.cpp
   Source/executor/ThreadPoolExecutorController.cpp
 
   Source/executor/detail/AsioExecutor.cpp
   Source/executor/detail/ExecutorMetrics.cpp
+  Source/executor/detail/ExecutorMetrics.h
   Source/executor/detail/MetricsTask.cpp
+  Source/executor/detail/MetricsTask.h
   Source/executor/detail/MetricsTaskState.cpp
+  Source/executor/detail/MetricsTaskState.h
   Source/executor/detail/StrandImpl.cpp
+  Source/executor/detail/StrandImpl.h
   Source/executor/detail/ThreadPoolExecutor.cpp
 
   Source/task/detail/PeriodicTask.cpp

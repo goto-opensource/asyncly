@@ -25,6 +25,8 @@
 
 #include "boost/optional.hpp"
 
+#include "prometheus/metric_family.h"
+
 #include "gmock/gmock.h"
 
 #include "asyncly/executor/MetricsWrapper.h"
@@ -36,7 +38,8 @@ using namespace testing;
 using namespace asyncly;
 
 namespace {
-using SteadyClockTimePoint = clock_type::time_point;
+// ASYNCLY-13
+/*using SteadyClockTimePoint = clock_type::time_point;
 using ZeroTimePoint = std::chrono::time_point<clock_type>;
 
 class FakeClock {
@@ -54,7 +57,7 @@ class FakeClock {
 
     static std::deque<SteadyClockTimePoint> ourTimesToReturn;
 };
-std::deque<SteadyClockTimePoint> FakeClock::ourTimesToReturn{};
+std::deque<SteadyClockTimePoint> FakeClock::ourTimesToReturn{};*/
 
 enum class PostCallType { kPost, kPostAt, kPostAfter };
 
@@ -87,20 +90,18 @@ class MetricsWrapperTest : public TestWithParam<PostCallType> {
 
         executorController_ = ThreadPoolExecutorController::create(1);
         executor_ = executorController_->get_executor();
-        metricsExecutor_ = MetricsWrapper<FakeClock>::create(executor_);
+        auto metricsWrapper = create_metrics_wrapper(executor_, "");
+        metricsExecutor_ = metricsWrapper.first;
+        metricsCollectable_ = metricsWrapper.second;
     }
 
     IExecutorControllerUPtr executorController_;
     IExecutorPtr executor_;
-    std::shared_ptr<MetricsWrapper<FakeClock>> metricsExecutor_;
+    IExecutorPtr metricsExecutor_;
+    std::shared_ptr<prometheus::Collectable> metricsCollectable_;
 
     std::map<PostCallType, std::string> targetCounterValue_;
 };
-
-TEST_F(MetricsWrapperTest, shouldHaveADefaultClockImplementation)
-{
-    auto metricsWrapper = MetricsWrapper<>::create(executor_);
-}
 
 TEST_F(MetricsWrapperTest, shouldRunPostedTask)
 {
@@ -112,18 +113,18 @@ TEST_F(MetricsWrapperTest, shouldRunPostedTask)
 
 TEST_F(MetricsWrapperTest, shouldNotAcceptInvalidExecutor)
 {
-    auto createMetricsWrapper = []() { auto e = MetricsWrapper<FakeClock>::create({}); };
+    auto createMetricsWrapper = []() { auto e = create_metrics_wrapper({}, ""); };
     EXPECT_THROW(createMetricsWrapper(), std::exception);
 }
 
 TEST_F(MetricsWrapperTest, shouldProvideFourMetricFamilies)
 {
-    EXPECT_GE(4U, metricsExecutor_->Collect().size());
+    EXPECT_GE(4U, metricsCollectable_->Collect().size());
 }
 
 TEST_F(MetricsWrapperTest, shouldProvideMetricFamiliesForQueueAndTimingStatistics)
 {
-    const auto families = metricsExecutor_->Collect();
+    const auto families = metricsCollectable_->Collect();
 
     auto familyNames = std::set<std::string>{};
     std::transform(
@@ -140,7 +141,7 @@ TEST_F(MetricsWrapperTest, shouldProvideMetricFamiliesForQueueAndTimingStatistic
 
 TEST_F(MetricsWrapperTest, shouldProvideImmediateAndTimedMetrics)
 {
-    const auto families = metricsExecutor_->Collect();
+    const auto families = metricsCollectable_->Collect();
 
     for (auto& family : families) {
         EXPECT_THAT(
@@ -187,7 +188,7 @@ TEST_F(MetricsWrapperTest, shouldCountQueuedTasks)
         cancelable->cancel();
     }
 
-    const auto families = metricsExecutor_->Collect();
+    const auto families = metricsCollectable_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Gauge,
@@ -203,7 +204,7 @@ TEST_F(MetricsWrapperTest, shouldCountQueuedTasks)
 
 TEST_P(MetricsWrapperTest, shouldStartWithZeroProcessedTasks)
 {
-    const auto families = metricsExecutor_->Collect();
+    const auto families = metricsCollectable_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Counter,
@@ -216,7 +217,7 @@ TEST_P(MetricsWrapperTest, shouldStartWithZeroProcessedTasks)
 
 TEST_P(MetricsWrapperTest, shouldStartWithZeroQueuedTasks)
 {
-    const auto families = metricsExecutor_->Collect();
+    const auto families = metricsCollectable_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Gauge,
@@ -244,7 +245,7 @@ TEST_P(MetricsWrapperTest, shouldCountProcessedTasks)
     done.get_future().wait();
 
     for (;;) {
-        const auto families = metricsExecutor_->Collect();
+        const auto families = metricsCollectable_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Counter,
@@ -290,7 +291,7 @@ TEST_P(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
     blocked.get_future().wait();
 
     for (;;) {
-        const auto families = metricsExecutor_->Collect();
+        const auto families = metricsCollectable_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Gauge,
@@ -312,7 +313,7 @@ TEST_P(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
     done.get_future().wait();
 }
 
-TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureTaskRuntime) // ACF-119
+/*TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureTaskRuntime) // ASYNCLY-13
 {
     static const auto expectedSummarizedTaskRuntime = 1000;
     static const auto expectedSampleCount = 1;
@@ -356,7 +357,7 @@ TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureTaskRuntime) // ACF-119
     synchronizationTaskRuns.get_future().wait();
 
     for (;;) {
-        const auto families = metricsExecutor_->Collect();
+        const auto families = metricsCollectable_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Histogram,
@@ -403,7 +404,7 @@ TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureQueueingDelay)
     done.get_future().wait();
 
     for (;;) {
-        const auto families = metricsExecutor_->Collect();
+        const auto families = metricsCollectable_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Histogram,
@@ -422,7 +423,7 @@ TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureQueueingDelay)
             result.metric.histogram.sample_sum, static_cast<double>(expectedQueingDelay));
         break;
     }
-}
+}*/
 
 //@todo kPostPeriodically needs to be added when MetricsWrapper is fixed
 INSTANTIATE_TEST_SUITE_P(

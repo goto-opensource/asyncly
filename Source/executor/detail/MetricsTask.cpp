@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "asyncly/executor/detail/MetricsTask.h"
+#include "MetricsTask.h"
 
 namespace asyncly {
 

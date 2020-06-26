@@ -31,9 +31,9 @@
 
 namespace asyncly {
 
-class AsioExecutor : public IExecutor, public std::enable_shared_from_this<AsioExecutor> {
+class AsioExecutor final : public IExecutor, public std::enable_shared_from_this<AsioExecutor> {
   public:
-    explicit AsioExecutor(const ISchedulerPtr& scheduler, bool isSerializing);
+    explicit AsioExecutor(const ISchedulerPtr& scheduler);
     ~AsioExecutor();
     AsioExecutor(AsioExecutor const&) = delete;
     AsioExecutor& operator=(AsioExecutor const&) = delete;
@@ -56,6 +56,5 @@ class AsioExecutor : public IExecutor, public std::enable_shared_from_this<AsioE
     boost::asio::io_context ioContext_;
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
     const ISchedulerPtr m_scheduler;
-    const bool m_isSerializing;
 };
 }

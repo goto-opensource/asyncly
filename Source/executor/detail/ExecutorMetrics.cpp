@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "asyncly/executor/detail/ExecutorMetrics.h"
+#include "ExecutorMetrics.h"
 
 namespace asyncly {
 

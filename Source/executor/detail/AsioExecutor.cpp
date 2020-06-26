@@ -20,10 +20,9 @@
 
 namespace asyncly {
 
-AsioExecutor::AsioExecutor(const ISchedulerPtr& scheduler, bool isSerializing)
+AsioExecutor::AsioExecutor(const ISchedulerPtr& scheduler)
     : work_(boost::asio::make_work_guard(ioContext_.get_executor()))
     , m_scheduler(scheduler)
-    , m_isSerializing(isSerializing)
 {
 }
 
@@ -98,7 +97,7 @@ std::shared_ptr<asyncly::IScheduler> AsioExecutor::get_scheduler() const
 
 bool AsioExecutor::is_serializing() const
 {
-    return m_isSerializing;
+    return true;
 }
 
 }

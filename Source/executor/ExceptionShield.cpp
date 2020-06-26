@@ -16,9 +16,51 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <memory>
+#include <queue>
+#include <thread>
+#include <utility>
+
+#include "asyncly/task/detail/PeriodicTask.h"
+
 #include "asyncly/executor/ExceptionShield.h"
 
 namespace asyncly {
+
+namespace {
+auto createTaskExceptionHandler(
+    Task&& task, std::function<void(std::exception_ptr)> exceptionHandler)
+{
+    return [task{ std::move(task) }, exceptionHandler{ std::move(exceptionHandler) }] {
+        try {
+            task();
+        } catch (...) {
+            exceptionHandler(std::current_exception());
+        }
+    };
+}
+}
+
+class ExceptionShield final : public IExecutor,
+                              public std::enable_shared_from_this<ExceptionShield> {
+  public:
+    ExceptionShield(
+        const std::shared_ptr<IExecutor>& executor,
+        std::function<void(std::exception_ptr)> exceptionHandler);
+
+    clock_type::time_point now() const override;
+    void post(Task&& f) override;
+    std::shared_ptr<Cancelable> post_at(const clock_type::time_point& t, Task&& f) override;
+    std::shared_ptr<Cancelable> post_after(const clock_type::duration& t, Task&& f) override;
+    std::shared_ptr<Cancelable>
+    post_periodically(const clock_type::duration& t, CopyableTask task) override;
+    ISchedulerPtr get_scheduler() const override;
+    bool is_serializing() const override;
+
+  private:
+    const std::shared_ptr<IExecutor> executor_;
+    const std::function<void(std::exception_ptr)> exceptionHandler_;
+};
 
 ExceptionShield::ExceptionShield(
     const std::shared_ptr<IExecutor>& executor,
@@ -34,13 +76,6 @@ ExceptionShield::ExceptionShield(
     }
 }
 
-std::shared_ptr<ExceptionShield> ExceptionShield::create(
-    const std::shared_ptr<IExecutor>& executor,
-    std::function<void(std::exception_ptr)> exceptionHandler)
-{
-    return std::shared_ptr<ExceptionShield>(new ExceptionShield(executor, exceptionHandler));
-}
-
 clock_type::time_point ExceptionShield::now() const
 {
     return executor_->now();
@@ -49,15 +84,14 @@ clock_type::time_point ExceptionShield::now() const
 void ExceptionShield::post(Task&& closure)
 {
     closure.maybe_set_executor(shared_from_this());
-    executor_->post(ExceptionShield::TaskHelper{ std::move(closure), exceptionHandler_ });
+    executor_->post(createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
 std::shared_ptr<Cancelable>
 ExceptionShield::post_at(const clock_type::time_point& t, Task&& closure)
 {
     closure.maybe_set_executor(shared_from_this());
-    return executor_->post_at(
-        t, ExceptionShield::TaskHelper{ std::move(closure), exceptionHandler_ });
+    return executor_->post_at(t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
 std::shared_ptr<Cancelable>
@@ -65,7 +99,7 @@ ExceptionShield::post_after(const clock_type::duration& t, Task&& closure)
 {
     closure.maybe_set_executor(shared_from_this());
     return executor_->post_after(
-        t, ExceptionShield::TaskHelper{ std::move(closure), exceptionHandler_ });
+        t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
 std::shared_ptr<Cancelable>
@@ -82,6 +116,12 @@ std::shared_ptr<asyncly::IScheduler> ExceptionShield::get_scheduler() const
 bool ExceptionShield::is_serializing() const
 {
     return executor_->is_serializing();
+}
+
+IExecutorPtr create_exception_shield(
+    const IExecutorPtr& executor, std::function<void(std::exception_ptr)> exceptionHandler)
+{
+    return std::make_shared<ExceptionShield>(executor, exceptionHandler);
 }
 
 }

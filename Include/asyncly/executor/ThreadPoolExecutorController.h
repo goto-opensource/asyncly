@@ -32,7 +32,7 @@
 
 namespace asyncly {
 
-class ThreadPoolExecutorController : public IExecutorController {
+class ThreadPoolExecutorController final : public IExecutorController {
   public:
     static std::unique_ptr<ThreadPoolExecutorController>
     create(size_t numberOfThreads, const ISchedulerPtr& scheduler = {});

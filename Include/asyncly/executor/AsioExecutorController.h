@@ -30,7 +30,7 @@
 #include <thread>
 
 namespace asyncly {
-class AsioExecutorController : public IExecutorController {
+class AsioExecutorController final : public IExecutorController {
   public:
     static std::unique_ptr<AsioExecutorController>
     create(const ThreadConfig& threadConfig = {}, const ISchedulerPtr& scheduler = {});

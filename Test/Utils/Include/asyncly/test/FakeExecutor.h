@@ -80,8 +80,7 @@ class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeE
 
 inline FakeExecutorPtr FakeExecutor::create()
 {
-    auto fakeExecutor = std::shared_ptr<FakeExecutor>(new FakeExecutor());
-    return fakeExecutor;
+    return std::shared_ptr<FakeExecutor>(new FakeExecutor());
 }
 
 inline FakeExecutor::FakeExecutor()

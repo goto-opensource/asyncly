@@ -26,7 +26,7 @@
 
 namespace asyncly {
 
-class InlineExecutor : public IExecutor, public std::enable_shared_from_this<InlineExecutor> {
+class InlineExecutor final : public IExecutor, public std::enable_shared_from_this<InlineExecutor> {
   private:
     InlineExecutor();
 

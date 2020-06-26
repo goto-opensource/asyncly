@@ -55,15 +55,15 @@ static void executorThreadPoolTest(benchmark::State& state)
 static void metricsWrapperTest(benchmark::State& state)
 {
     auto executorController = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor = asyncly::MetricsWrapper<>::create(executorController->get_executor());
+    auto executor = asyncly::create_metrics_wrapper(executorController->get_executor(), "");
 
-    asyncly::testExecutor(state, executor);
+    asyncly::testExecutor(state, executor.first);
 }
 
 static void exceptionShieldTest(benchmark::State& state)
 {
     auto executorController = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor = asyncly::ExceptionShield::create(
+    auto executor = asyncly::create_exception_shield(
         executorController->get_executor(), [](std::exception_ptr) {});
 
     asyncly::testExecutor(state, executor);

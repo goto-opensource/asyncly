@@ -29,7 +29,7 @@ namespace asyncly {
 
 /// StrandImpl implements a serializing queue used to dispatch tasks that have to be executed
 /// sequentially.
-class StrandImpl : public IExecutor, public std::enable_shared_from_this<StrandImpl> {
+class StrandImpl final : public IExecutor, public std::enable_shared_from_this<StrandImpl> {
   public:
     /// Construct a new StrandImpl.
     /// @param executor The underlying executor tasks are forwarded to.

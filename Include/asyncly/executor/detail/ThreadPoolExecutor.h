@@ -19,6 +19,7 @@
 #pragma once
 
 #include <boost/thread/condition_variable.hpp>
+
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -30,8 +31,8 @@
 
 namespace asyncly {
 
-class ThreadPoolExecutor : public IExecutor,
-                           public std::enable_shared_from_this<ThreadPoolExecutor> {
+class ThreadPoolExecutor final : public IExecutor,
+                                 public std::enable_shared_from_this<ThreadPoolExecutor> {
   public:
     static std::shared_ptr<ThreadPoolExecutor>
     create(const asyncly::ISchedulerPtr& scheduler, bool isSerializing);

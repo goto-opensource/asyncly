@@ -24,14 +24,11 @@
 
 namespace asyncly {
 
-class IExecutor;
-class IScheduler;
-
 class IExecutorController {
   public:
     virtual ~IExecutorController() = default;
     virtual void finish() = 0;
     virtual IExecutorPtr get_executor() const = 0;
-    virtual std::shared_ptr<IScheduler> get_scheduler() const = 0;
+    virtual ISchedulerPtr get_scheduler() const = 0;
 };
 }

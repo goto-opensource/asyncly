@@ -42,7 +42,7 @@ class ExceptionShieldTest : public Test {
 TEST_F(ExceptionShieldTest, shouldRunPostedTask)
 {
     std::promise<void> taskIsRun;
-    auto exceptionShield = ExceptionShield::create(executor_, [](std::exception_ptr) {});
+    auto exceptionShield = create_exception_shield(executor_, [](std::exception_ptr) {});
     exceptionShield->post([&taskIsRun]() { taskIsRun.set_value(); });
 
     taskIsRun.get_future().wait();
@@ -52,7 +52,7 @@ TEST_F(ExceptionShieldTest, shouldCallExceptionHandler)
 {
     std::promise<void> exceptionIsThrown;
     auto exceptionHandler = [&exceptionIsThrown](auto) { exceptionIsThrown.set_value(); };
-    auto exceptionShield = ExceptionShield::create(executor_, exceptionHandler);
+    auto exceptionShield = create_exception_shield(executor_, exceptionHandler);
     exceptionShield->post([]() { throw std::runtime_error(""); });
     exceptionIsThrown.get_future().wait();
 }
@@ -68,19 +68,19 @@ TEST_F(ExceptionShieldTest, shouldCaptureThrownIntegers)
             thrownInteger.set_value(i);
         }
     };
-    auto exceptionShield = ExceptionShield::create(executor_, exceptionHandler);
+    auto exceptionShield = create_exception_shield(executor_, exceptionHandler);
     exceptionShield->post([integerToBeThrown]() { throw integerToBeThrown; });
     EXPECT_EQ(integerToBeThrown, thrownInteger.get_future().get());
 }
 
 TEST_F(ExceptionShieldTest, shouldNotAcceptInvalidExecutor)
 {
-    auto createShield = []() { auto e = ExceptionShield::create({}, [](std::exception_ptr) {}); };
+    auto createShield = []() { auto e = create_exception_shield({}, [](std::exception_ptr) {}); };
     EXPECT_THROW(createShield(), std::exception);
 }
 
 TEST_F(ExceptionShieldTest, shouldNotAcceptNullExceptionHandlers)
 {
-    auto createShield = [this]() { auto e = ExceptionShield::create(this->executor_, {}); };
+    auto createShield = [this]() { auto e = create_exception_shield(this->executor_, {}); };
     EXPECT_THROW(createShield(), std::exception);
 }
