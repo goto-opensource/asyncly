@@ -158,7 +158,7 @@ template <typename T, typename F, typename U> struct FutureVoidBinder {
     {
         auto promise = promise_;
         try {
-            continuation_(std::forward<T>(value_))
+            maybe_unpack_and_call<T>{}(continuation_, std::move(value_))
                 .then([promise]() { promise->set_value(); })
                 .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
         } catch (...) {
@@ -217,7 +217,7 @@ template <typename T, typename F, typename U> struct FutureValueBinder {
     {
         auto promise = promise_;
         try {
-            continuation_(std::forward<T>(value_))
+            maybe_unpack_and_call<T>{}(continuation_, std::move(value_))
                 .then([promise](U result) { promise->set_value(std::forward<U>(result)); })
                 .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
         } catch (...) {
@@ -274,7 +274,7 @@ template <typename T, typename F, typename U> struct NonFutureVoidBinder {
     void operator()()
     {
         try {
-            maybe_unpack_and_call<T>()(continuation_, std::move(value_));
+            maybe_unpack_and_call<T>{}(continuation_, std::move(value_));
             promise_->set_value();
         } catch (...) {
             auto e = std::current_exception();
@@ -329,7 +329,7 @@ template <typename T, typename F, typename U> struct NonFutureValueBinder {
     void operator()()
     {
         try {
-            auto result = continuation_(std::forward<T>(value_));
+            auto result = maybe_unpack_and_call<T>{}(continuation_, std::move(value_));
             promise_->set_value(std::forward<U>(result));
         } catch (...) {
             auto e = std::current_exception();

@@ -137,6 +137,56 @@ TYPED_TEST(WhenAllTest, shouldResolveMultipleMixedVoidValueFutures)
     EXPECT_EQ(std::make_tuple(10, true), allResolved.get_future().get());
 }
 
+TYPED_TEST(WhenAllTest, shouldCompileWhenAllWithContinuationReturningValue)
+{
+    const auto a = 23;
+    const auto b = 42;
+    std::promise<int> sumPromise;
+    this->executor_->post([&]() {
+        auto aFuture = asyncly::make_ready_future<int>(a);
+        auto bFuture = asyncly::make_ready_future<int>(b);
+        when_all(std::move(aFuture), std::move(bFuture))
+            .then([](auto a, auto b) { return a + b; })
+            .then([&sumPromise](auto c) { sumPromise.set_value(c); });
+    });
+    EXPECT_EQ(sumPromise.get_future().get(), a + b);
+}
+
+TYPED_TEST(WhenAllTest, shouldCompileWhenAllWithContinuationReturningVoidFuture)
+{
+    const auto a = 23;
+    const auto b = 42;
+    int sum = 0;
+    std::promise<void> donePromise;
+    this->executor_->post([&]() {
+        auto aFuture = asyncly::make_ready_future<int>(a);
+        auto bFuture = asyncly::make_ready_future<int>(b);
+        when_all(std::move(aFuture), std::move(bFuture))
+            .then([&sum](auto a, auto b) {
+                sum = a + b;
+                return asyncly::make_ready_future();
+            })
+            .then([&donePromise]() { donePromise.set_value(); });
+    });
+    donePromise.get_future().get();
+    EXPECT_EQ(sum, a + b);
+}
+
+TYPED_TEST(WhenAllTest, shouldCompileWhenAllWithContinuationReturningValueFuture)
+{
+    const auto a = 23;
+    const auto b = 42;
+    std::promise<int> sumPromise;
+    this->executor_->post([&]() {
+        auto aFuture = asyncly::make_ready_future<int>(a);
+        auto bFuture = asyncly::make_ready_future<int>(b);
+        when_all(std::move(aFuture), std::move(bFuture))
+            .then([](auto a, auto b) { return asyncly::make_ready_future(a + b); })
+            .then([&sumPromise](auto c) { sumPromise.set_value(c); });
+    });
+    EXPECT_EQ(sumPromise.get_future().get(), a + b);
+}
+
 TYPED_TEST(WhenAllTest, shouldRejectWhenAllOnFirstError)
 {
     struct MyError : public std::exception {

@@ -109,6 +109,40 @@ TYPED_TEST(FutureTest, shouldRunANoncopyableContinuationReturningVoid)
     EXPECT_EQ(42, future.get());
 }
 
+// TODO: remove with ASYNCLY-45
+TYPED_TEST(FutureTest, shouldUnpackReturnedFutureTupleForSubsequentContinuation)
+{
+    const int a = 42;
+    const int b = 23;
+    std::promise<std::tuple<int, int>> tuplePromise;
+
+    this->executor_->post([&]() {
+        make_ready_future(std::make_tuple(a, b)).then([&tuplePromise](int first, int second) {
+            tuplePromise.set_value(std::make_tuple(first, second));
+        });
+    });
+
+    EXPECT_EQ(std::make_tuple(a, b), tuplePromise.get_future().get());
+}
+
+// TODO: remove with ASYNCLY-45
+TYPED_TEST(FutureTest, shouldUnpackReturnedTupleForSubsequentContinuation)
+{
+    const int a = 42;
+    const int b = 23;
+    std::promise<std::tuple<int, int>> tuplePromise;
+
+    this->executor_->post([&]() {
+        make_ready_future()
+            .then([&]() { return std::make_tuple(a, b); })
+            .then([&tuplePromise](auto first, auto second) {
+                tuplePromise.set_value(std::make_tuple(first, second));
+            });
+    });
+
+    EXPECT_EQ(std::make_tuple(a, b), tuplePromise.get_future().get());
+}
+
 TYPED_TEST(FutureTest, shouldRunAChainedContinuationWithFutures)
 {
     std::promise<int> value1;
@@ -1466,5 +1500,4 @@ TEST_F(
     future_.catch_error([](auto) { ADD_FAILURE(); });
     promise_.set_exception("intentional error");
 }
-
 }
