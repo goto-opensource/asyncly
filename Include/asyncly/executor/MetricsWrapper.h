@@ -23,6 +23,7 @@
 #include <prometheus/collectable.h>
 
 #include <memory>
+#include <string>
 
 namespace asyncly {
 
