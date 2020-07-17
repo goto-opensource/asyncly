@@ -67,7 +67,7 @@ void AsioExecutorController::finish()
     }
 }
 
-std::shared_ptr<asyncly::IExecutor> AsioExecutorController::get_executor() const
+asyncly::IExecutorPtr AsioExecutorController::get_executor() const
 {
     return m_executor;
 }

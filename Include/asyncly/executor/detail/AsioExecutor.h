@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "asyncly/executor/IExecutor.h"
+#include "asyncly/executor/IStrand.h"
 
 #include "asyncly/scheduler/IScheduler.h"
 #include "asyncly/task/Task.h"
@@ -31,7 +31,7 @@
 
 namespace asyncly {
 
-class AsioExecutor final : public IExecutor, public std::enable_shared_from_this<AsioExecutor> {
+class AsioExecutor final : public IStrand, public std::enable_shared_from_this<AsioExecutor> {
   public:
     explicit AsioExecutor(const ISchedulerPtr& scheduler);
     ~AsioExecutor();
@@ -50,7 +50,6 @@ class AsioExecutor final : public IExecutor, public std::enable_shared_from_this
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& relTime, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
 
   private:
     boost::asio::io_context ioContext_;

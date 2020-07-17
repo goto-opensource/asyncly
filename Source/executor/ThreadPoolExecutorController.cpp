@@ -18,6 +18,8 @@
 
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 
+#include "asyncly/executor/IStrand.h"
+
 namespace asyncly {
 
 ThreadPoolExecutorController::ThreadPoolExecutorController(
@@ -31,14 +33,22 @@ ThreadPoolExecutorController::ThreadPoolExecutorController(
     }
 
     const bool isSerializingExecutor = (threadPoolConfig.executorInitFunctions.size() == 1);
-    m_executor = ThreadPoolExecutor::create(scheduler, isSerializingExecutor);
+    if (isSerializingExecutor) {
+        const auto executor = ThreadPoolExecutor<IStrand>::create(scheduler);
+        m_executor = executor;
+        m_threadPoolExecutor = executor;
+    } else {
+        const auto executor = ThreadPoolExecutor<IExecutor>::create(scheduler);
+        m_executor = executor;
+        m_threadPoolExecutor = executor;
+    }
 
     for (const auto& threadInitFunction : threadPoolConfig.executorInitFunctions) {
         m_workerThreads.emplace_back([this, threadInitFunction]() {
             if (threadInitFunction) {
                 threadInitFunction();
             }
-            m_executor->run();
+            m_threadPoolExecutor->run();
         });
     }
 }
@@ -57,7 +67,7 @@ void ThreadPoolExecutorController::finish()
         m_schedulerThread.reset();
     }
 
-    m_executor->finish();
+    m_threadPoolExecutor->finish();
     for (auto& thread : m_workerThreads) {
         thread.join();
     }

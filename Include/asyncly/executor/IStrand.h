@@ -16,25 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "asyncly/task/detail/TaskCurrentExecutorGuard.h"
+#pragma once
+
+#include "asyncly/executor/IExecutor.h"
 
 namespace asyncly {
-namespace detail {
-TaskCurrentExecutorGuard::TaskCurrentExecutorGuard(const std::weak_ptr<IExecutor>& executor)
-    : executor_(executor)
-{
-    last_executor_wrapper_rawptr_ = _get_current_executor_wrapper_rawptr();
-    _set_current_executor_wrapper_rawptr(this);
-}
-
-TaskCurrentExecutorGuard::~TaskCurrentExecutorGuard()
-{
-    _set_current_executor_wrapper_rawptr(last_executor_wrapper_rawptr_);
-}
-
-asyncly::IExecutorPtr TaskCurrentExecutorGuard::get_current_executor()
-{
-    return executor_.lock();
-}
-}
+class IStrand : public IExecutor {
+};
 }

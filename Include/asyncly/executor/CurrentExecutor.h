@@ -22,14 +22,14 @@
 
 namespace asyncly {
 
-class IExecutor;
+using IExecutorPtr = std::shared_ptr<class IExecutor>;
 
 namespace detail {
 
 class ICurrentExecutorWrapper {
   public:
     virtual ~ICurrentExecutorWrapper() = default;
-    virtual std::shared_ptr<IExecutor> get_current_executor() = 0;
+    virtual asyncly::IExecutorPtr get_current_executor() = 0;
 };
 
 // This is optimized for the default / standard executors, not the adapters.
@@ -43,7 +43,7 @@ class ICurrentExecutorWrapper {
 asyncly::detail::ICurrentExecutorWrapper* _get_current_executor_wrapper_rawptr();
 void _set_current_executor_wrapper_rawptr(asyncly::detail::ICurrentExecutorWrapper* ptr);
 
-const std::shared_ptr<asyncly::IExecutor> _get_current_executor_sharedptr();
+const asyncly::IExecutorPtr _get_current_executor_sharedptr();
 void _set_current_executor_weakptr(std::weak_ptr<asyncly::IExecutor> wptr);
 
 }
@@ -53,6 +53,6 @@ namespace this_thread {
 /// allows to set a weak_ptr as thread-local storage
 /// required for executor adapters for other frameworks (proxy/impl, ECWorkerThreadExecutor)
 void set_current_executor(std::weak_ptr<IExecutor> executor);
-std::shared_ptr<IExecutor> get_current_executor();
+asyncly::IExecutorPtr get_current_executor();
 }
 }

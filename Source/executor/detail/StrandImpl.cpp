@@ -93,11 +93,6 @@ ISchedulerPtr StrandImpl::get_scheduler() const
     return executor_->get_scheduler();
 }
 
-bool StrandImpl::is_serializing() const
-{
-    return true;
-}
-
 void StrandImpl::notifyDone()
 {
     std::unique_lock<std::mutex> lock(mutex_);

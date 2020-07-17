@@ -43,7 +43,6 @@ class ThrowingExecutor : public IExecutor,
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration&, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
 
   private:
     const ISchedulerPtr _scheduler;
@@ -110,11 +109,6 @@ ThrowingExecutor<E>::post_periodically(const clock_type::duration&, CopyableTask
 template <typename E> inline ISchedulerPtr ThrowingExecutor<E>::get_scheduler() const
 {
     return _scheduler;
-}
-
-template <typename E> inline bool ThrowingExecutor<E>::is_serializing() const
-{
-    return false;
 }
 }
 }

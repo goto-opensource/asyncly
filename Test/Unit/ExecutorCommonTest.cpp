@@ -71,20 +71,20 @@ class SerializingPropertyTest : public ::testing::Test {
 TEST_F(SerializingPropertyTest, singleThreadIsSerializing)
 {
     auto singleThreadExecutorController = ThreadPoolExecutorController::create(1);
-    ASSERT_TRUE(singleThreadExecutorController->get_executor()->is_serializing());
+    ASSERT_TRUE(is_serializing(singleThreadExecutorController->get_executor()));
 }
 
 TEST_F(SerializingPropertyTest, multiThreadIsNotSerializing)
 {
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
-    ASSERT_FALSE(multiThreadExecutorController->get_executor()->is_serializing());
+    ASSERT_FALSE(is_serializing(multiThreadExecutorController->get_executor()));
 }
 
 TEST_F(SerializingPropertyTest, strandIsSerializing)
 {
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
     auto strand = std::make_shared<StrandImpl>(multiThreadExecutorController->get_executor());
-    ASSERT_TRUE(strand->is_serializing());
+    ASSERT_TRUE(is_serializing(strand));
 }
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughExceptionShield1)
@@ -92,7 +92,7 @@ TEST_F(SerializingPropertyTest, maintainPropertyTroughExceptionShield1)
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
     auto wrapper
         = create_exception_shield(multiThreadExecutorController->get_executor(), [](auto) {});
-    ASSERT_FALSE(wrapper->is_serializing());
+    ASSERT_FALSE(is_serializing(wrapper));
 }
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughExceptionShield2)
@@ -100,27 +100,27 @@ TEST_F(SerializingPropertyTest, maintainPropertyTroughExceptionShield2)
     auto singleThreadExecutorController = ThreadPoolExecutorController::create(1);
     auto wrapper
         = create_exception_shield(singleThreadExecutorController->get_executor(), [](auto) {});
-    ASSERT_TRUE(wrapper->is_serializing());
+    ASSERT_TRUE(is_serializing(wrapper));
 }
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughMetricsWrapper1)
 {
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
     auto wrapper = create_metrics_wrapper(multiThreadExecutorController->get_executor(), "");
-    ASSERT_FALSE(wrapper.first->is_serializing());
+    ASSERT_FALSE(is_serializing(wrapper.first));
 }
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughMetricsWrapper2)
 {
     auto singleThreadExecutorController = ThreadPoolExecutorController::create(1);
     auto wrapper = create_metrics_wrapper(singleThreadExecutorController->get_executor(), "");
-    ASSERT_TRUE(wrapper.first->is_serializing());
+    ASSERT_TRUE(is_serializing(wrapper.first));
 }
 
 TEST_F(SerializingPropertyTest, asioExecutorIsCurrentlySerializing)
 {
     auto asioExecutorController = AsioExecutorController::create({}, {});
-    ASSERT_TRUE(asioExecutorController->get_executor()->is_serializing());
+    ASSERT_TRUE(is_serializing(asioExecutorController->get_executor()));
 }
 
 }

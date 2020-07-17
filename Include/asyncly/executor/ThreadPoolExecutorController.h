@@ -53,7 +53,8 @@ class ThreadPoolExecutorController final : public IExecutorController {
         const ThreadPoolConfig& threadPoolConfig, const ISchedulerPtr& scheduler);
 
   private:
-    std::shared_ptr<ThreadPoolExecutor> m_executor;
+    std::shared_ptr<IThreadPoolExecutor> m_threadPoolExecutor;
+    std::shared_ptr<IExecutor> m_executor;
     std::shared_ptr<SchedulerThread> m_schedulerThread;
     std::vector<std::thread> m_workerThreads;
     std::mutex m_stopMutex;

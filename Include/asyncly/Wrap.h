@@ -167,8 +167,7 @@ namespace asyncly {
 ///     connection->createConnection(asyncly::wrap_post(executor_, [this](auto connection) {
 ///     this->connection_ = connection; });
 ///
-template <typename F>
-auto wrap_post(const std::shared_ptr<asyncly::IExecutor>& executor, F function)
+template <typename F> auto wrap_post(const asyncly::IExecutorPtr& executor, F function)
 {
     return [executor, t = std::move(function)](auto&&... args) mutable {
         executor->post([cargs = boost::hana::make_tuple(std::forward<decltype(args)>(args)...),
@@ -270,7 +269,7 @@ auto wrap_weak_ignore(const T& object, F function)
 ///                 [](auto self, auto connection) { self->connection_ = connection; });
 ///
 template <typename T, typename F> // T models std::weak_ptr or std::shared_ptr
-auto wrap_weak_post_ignore(const std::shared_ptr<IExecutor>& executor, const T& object, F function)
+auto wrap_weak_post_ignore(const asyncly::IExecutorPtr& executor, const T& object, F function)
 {
     return wrap_weak_post_with_custom_error(executor, object, std::move(function), []() {});
 }
@@ -286,7 +285,7 @@ template <typename T, typename F> auto wrap_weak_post_current_ignore(const T& ob
 /// wrap_weak_this_post_ignore works similar to wrap_weak_post_ignore, but you can pass `this` to it
 /// and it calls `this->shared_from_this` for you.
 template <typename T, typename F> // T models *std::shared_from_this<T>
-auto wrap_weak_this_post_ignore(const std::shared_ptr<IExecutor>& executor, T self, F function)
+auto wrap_weak_this_post_ignore(const asyncly::IExecutorPtr& executor, T self, F function)
 {
     return wrap_weak_post_with_custom_error(
         executor, self->shared_from_this(), std::move(function), []() {});
@@ -305,7 +304,7 @@ auto wrap_weak_this_post_current_ignore(T self, F function)
 /// what happens should the weak pointer have expired.
 template <typename T, typename F, typename E> // T models std::weak_ptr or std::shared_ptr
 auto wrap_weak_post_with_custom_error(
-    const std::shared_ptr<IExecutor>& executor, const T& object, F function, E errorFunction)
+    const asyncly::IExecutorPtr& executor, const T& object, F function, E errorFunction)
 {
     using U = typename T::element_type;
     return [executor,

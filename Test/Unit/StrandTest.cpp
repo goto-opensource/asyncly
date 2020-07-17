@@ -20,6 +20,7 @@
 
 #include "gmock/gmock.h"
 
+#include "asyncly/executor/ExceptionShield.h"
 #include "asyncly/executor/Strand.h"
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/test/FakeExecutor.h"
@@ -70,25 +71,31 @@ TEST_F(StrandTest, shouldSerializeExecution)
     EXPECT_TRUE(run2);
 }
 
-class StrandFactoryTest : public Test {
+class CreateStrandTest : public Test {
 };
 
-TEST_F(StrandFactoryTest, shouldCreateStrandIfNonserializedExecutor)
+TEST_F(CreateStrandTest, shouldCreateStrandIfNonSerializedExecutor)
 {
-    auto multiThreadPoolController = ThreadPoolExecutorController::create(2);
-    auto multiThreadExecutor = multiThreadPoolController->get_executor();
-    ASSERT_FALSE(multiThreadExecutor->is_serializing());
-    auto strand = asyncly::create_strand(multiThreadExecutor);
-    ASSERT_TRUE(strand->is_serializing());
-    ASSERT_NE(strand, multiThreadExecutor);
+    auto controller = ThreadPoolExecutorController::create(2);
+    auto executor = controller->get_executor();
+    auto strand = asyncly::create_strand(executor);
+    ASSERT_NE(strand, executor);
+    ASSERT_TRUE(std::dynamic_pointer_cast<StrandImpl>(strand) != nullptr);
 }
 
-TEST_F(StrandFactoryTest, shouldNotCreateStrandIfSerializedExecutor)
+TEST_F(CreateStrandTest, shouldPassThroughWhenStaticTypeIsAlreadyStrand)
 {
-    auto multiThreadPoolController = ThreadPoolExecutorController::create(1);
-    auto multiThreadExecutor = multiThreadPoolController->get_executor();
-    ASSERT_TRUE(multiThreadExecutor->is_serializing());
-    auto strand = asyncly::create_strand(multiThreadExecutor);
-    ASSERT_TRUE(strand->is_serializing());
-    ASSERT_EQ(strand, multiThreadExecutor);
+    auto controller = ThreadPoolExecutorController::create(2);
+    auto executor = controller->get_executor();
+    auto strand = asyncly::create_strand(executor);
+    auto strand2 = asyncly::create_strand(strand);
+    ASSERT_EQ(strand, strand2);
+}
+
+TEST_F(CreateStrandTest, shouldPassThroughWhenDynamicTypeIsAlreadyStrand)
+{
+    auto controller = ThreadPoolExecutorController::create(1);
+    auto executor = controller->get_executor();
+    asyncly::IExecutorPtr strand = asyncly::create_strand(executor);
+    ASSERT_EQ(strand, executor);
 }

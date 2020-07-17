@@ -49,7 +49,7 @@ template <typename T> class ObservableImpl {
   public:
     ObservableImpl(
         fu2::unique_function<void(asyncly::Subscriber<T>)> onSubscribe,
-        const std::shared_ptr<asyncly::IExecutor>& providerExecutor);
+        const asyncly::IExecutorPtr& providerExecutor);
 
     asyncly::Subscription subscribe(fu2::unique_function<void(T)> valueFunction);
     asyncly::Subscription subscribe(
@@ -71,14 +71,14 @@ template <typename T> class ObservableImpl {
     };
 
     const std::shared_ptr<ProviderContext> providerContext;
-    const std::shared_ptr<asyncly::IExecutor> providerExecutor;
+    const asyncly::IExecutorPtr providerExecutor;
 };
 
 template <> class ObservableImpl<void> {
   public:
     ObservableImpl(
         fu2::unique_function<void(asyncly::Subscriber<void>)> onSubscribe,
-        const std::shared_ptr<asyncly::IExecutor>& providerExecutor);
+        const asyncly::IExecutorPtr& providerExecutor);
 
     asyncly::Subscription subscribe(fu2::unique_function<void()> valueFunction);
     asyncly::Subscription subscribe(
@@ -100,13 +100,13 @@ template <> class ObservableImpl<void> {
     };
 
     const std::shared_ptr<ProviderContext> providerContext;
-    const std::shared_ptr<asyncly::IExecutor> providerExecutor;
+    const asyncly::IExecutorPtr providerExecutor;
 };
 
 template <typename T>
 ObservableImpl<T>::ObservableImpl(
     fu2::unique_function<void(asyncly::Subscriber<T>)> onSubscribe,
-    const std::shared_ptr<asyncly::IExecutor>& cproviderExecutor)
+    const asyncly::IExecutorPtr& cproviderExecutor)
     : providerContext{ std::make_shared<ProviderContext>(std::move(onSubscribe)) }
     , providerExecutor{ cproviderExecutor }
 {
@@ -145,7 +145,7 @@ asyncly::Subscription ObservableImpl<T>::subscribe(
 
 inline ObservableImpl<void>::ObservableImpl(
     fu2::unique_function<void(asyncly::Subscriber<void>)> onSubscribe,
-    const std::shared_ptr<asyncly::IExecutor>& cproviderExecutor)
+    const asyncly::IExecutorPtr& cproviderExecutor)
     : providerContext{ std::make_shared<ProviderContext>(std::move(onSubscribe)) }
     , providerExecutor{ cproviderExecutor }
 {

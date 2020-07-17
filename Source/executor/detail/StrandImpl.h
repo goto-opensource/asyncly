@@ -22,14 +22,14 @@
 #include <future>
 #include <memory>
 
-#include "asyncly/executor/IExecutor.h"
+#include "asyncly/executor/IStrand.h"
 #include "asyncly/scheduler/IScheduler.h"
 
 namespace asyncly {
 
 /// StrandImpl implements a serializing queue used to dispatch tasks that have to be executed
 /// sequentially.
-class StrandImpl final : public IExecutor, public std::enable_shared_from_this<StrandImpl> {
+class StrandImpl final : public IStrand, public std::enable_shared_from_this<StrandImpl> {
   public:
     /// Construct a new StrandImpl.
     /// @param executor The underlying executor tasks are forwarded to.
@@ -55,7 +55,6 @@ class StrandImpl final : public IExecutor, public std::enable_shared_from_this<S
     post_periodically(const clock_type::duration& period, CopyableTask) override;
 
     ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
 
   private:
     enum class State {

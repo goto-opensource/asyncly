@@ -116,8 +116,8 @@ std::vector<typename std::result_of<F()>::type::value_type>
 collect_observable(const std::shared_ptr<IExecutor>& executor, F functionReturningObservable);
 
 template <typename F>
-std::vector<typename std::result_of<F()>::type::value_type> collect_observable(
-    const std::shared_ptr<asyncly::IExecutor>& executor, F functionReturningObservable)
+std::vector<typename std::result_of<F()>::type::value_type>
+collect_observable(const asyncly::IExecutorPtr& executor, F functionReturningObservable)
 {
     using T = typename std::result_of<F()>::type::value_type;
     std::promise<void> syncPromise;

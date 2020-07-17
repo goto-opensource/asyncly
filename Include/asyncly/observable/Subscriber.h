@@ -65,10 +65,10 @@ template <typename T> class Subscriber {
   private:
     Subscriber(
         const std::shared_ptr<detail::SharedSubscriptionContext<T>>& ccontext,
-        const std::shared_ptr<asyncly::IExecutor>& cexecutor);
+        const asyncly::IExecutorPtr& cexecutor);
 
     std::shared_ptr<detail::SharedSubscriptionContext<T>> context;
-    std::shared_ptr<asyncly::IExecutor> executor;
+    asyncly::IExecutorPtr executor;
     detail::SubscriberState state;
 };
 
@@ -90,17 +90,17 @@ template <> class Subscriber<void> {
   private:
     Subscriber(
         const std::shared_ptr<detail::SharedSubscriptionContext<void>>& ccontext,
-        const std::shared_ptr<asyncly::IExecutor>& cexecutor);
+        const asyncly::IExecutorPtr& cexecutor);
 
     std::shared_ptr<detail::SharedSubscriptionContext<void>> context;
-    std::shared_ptr<asyncly::IExecutor> executor;
+    asyncly::IExecutorPtr executor;
     detail::SubscriberState state;
 };
 
 template <typename T>
 Subscriber<T>::Subscriber(
     const std::shared_ptr<detail::SharedSubscriptionContext<T>>& ccontext,
-    const std::shared_ptr<asyncly::IExecutor>& cexecutor)
+    const asyncly::IExecutorPtr& cexecutor)
     : context{ ccontext }
     , executor{ cexecutor }
     , state{ detail::SubscriberState::Active }
@@ -143,7 +143,7 @@ template <typename T> void Subscriber<T>::pushError(std::exception_ptr e)
 
 inline Subscriber<void>::Subscriber(
     const std::shared_ptr<detail::SharedSubscriptionContext<void>>& ccontext,
-    const std::shared_ptr<asyncly::IExecutor>& cexecutor)
+    const asyncly::IExecutorPtr& cexecutor)
     : context{ ccontext }
     , executor{ cexecutor }
     , state{ detail::SubscriberState::Active }

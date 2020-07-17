@@ -27,7 +27,7 @@
 
 #include "FakeClockScheduler.h"
 #include "asyncly/ExecutorTypes.h"
-#include "asyncly/executor/IExecutor.h"
+#include "asyncly/executor/IStrand.h"
 #include "asyncly/scheduler/IScheduler.h"
 #include "asyncly/task/detail/PeriodicTask.h"
 
@@ -43,7 +43,7 @@ using FakeExecutorPtr = std::shared_ptr<FakeExecutor>;
 /// tasks and return(!). Typically, you would prepare your test by creating objects and proxies, set
 /// your expectations, call one or multiple proxy methods and finally start execution by
 /// advanceClock()/runOnce()
-class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeExecutor> {
+class FakeExecutor : public IStrand, public std::enable_shared_from_this<FakeExecutor> {
   public:
     static FakeExecutorPtr create();
 
@@ -68,7 +68,6 @@ class FakeExecutor : public IExecutor, public std::enable_shared_from_this<FakeE
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& period, CopyableTask) override;
     ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
 
   private:
     FakeExecutor();
@@ -125,11 +124,6 @@ FakeExecutor::post_periodically(const clock_type::duration& period, CopyableTask
 inline asyncly::ISchedulerPtr FakeExecutor::get_scheduler() const
 {
     return m_scheduler;
-}
-
-inline bool FakeExecutor::is_serializing() const
-{
-    return true;
 }
 
 inline void FakeExecutor::post(Task&& closure)

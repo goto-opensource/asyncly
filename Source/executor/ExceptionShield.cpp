@@ -21,6 +21,8 @@
 #include <thread>
 #include <utility>
 
+#include "asyncly/executor/IStrand.h"
+#include "asyncly/executor/Strand.h"
 #include "asyncly/task/detail/PeriodicTask.h"
 
 #include "asyncly/executor/ExceptionShield.h"
@@ -41,8 +43,9 @@ auto createTaskExceptionHandler(
 }
 }
 
-class ExceptionShield final : public IExecutor,
-                              public std::enable_shared_from_this<ExceptionShield> {
+template <typename Base>
+class ExceptionShield final : public Base,
+                              public std::enable_shared_from_this<ExceptionShield<Base>> {
   public:
     ExceptionShield(
         const std::shared_ptr<IExecutor>& executor,
@@ -55,14 +58,14 @@ class ExceptionShield final : public IExecutor,
     std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& t, CopyableTask task) override;
     ISchedulerPtr get_scheduler() const override;
-    bool is_serializing() const override;
 
   private:
     const std::shared_ptr<IExecutor> executor_;
     const std::function<void(std::exception_ptr)> exceptionHandler_;
 };
 
-ExceptionShield::ExceptionShield(
+template <typename Base>
+ExceptionShield<Base>::ExceptionShield(
     const std::shared_ptr<IExecutor>& executor,
     std::function<void(std::exception_ptr)> exceptionHandler)
     : executor_{ executor }
@@ -76,52 +79,59 @@ ExceptionShield::ExceptionShield(
     }
 }
 
-clock_type::time_point ExceptionShield::now() const
+template <typename Base> clock_type::time_point ExceptionShield<Base>::now() const
 {
     return executor_->now();
 }
 
-void ExceptionShield::post(Task&& closure)
+template <typename Base> void ExceptionShield<Base>::post(Task&& closure)
 {
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(this->shared_from_this());
     executor_->post(createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
+template <typename Base>
 std::shared_ptr<Cancelable>
-ExceptionShield::post_at(const clock_type::time_point& t, Task&& closure)
+ExceptionShield<Base>::post_at(const clock_type::time_point& t, Task&& closure)
 {
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(this->shared_from_this());
     return executor_->post_at(t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
+template <typename Base>
 std::shared_ptr<Cancelable>
-ExceptionShield::post_after(const clock_type::duration& t, Task&& closure)
+ExceptionShield<Base>::post_after(const clock_type::duration& t, Task&& closure)
 {
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(this->shared_from_this());
     return executor_->post_after(
         t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
+template <typename Base>
 std::shared_ptr<Cancelable>
-ExceptionShield::post_periodically(const clock_type::duration& period, CopyableTask task)
+ExceptionShield<Base>::post_periodically(const clock_type::duration& period, CopyableTask task)
 {
-    return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
+    return detail::PeriodicTask::create(period, std::move(task), this->shared_from_this());
 }
 
-std::shared_ptr<asyncly::IScheduler> ExceptionShield::get_scheduler() const
+template <typename Base>
+std::shared_ptr<asyncly::IScheduler> ExceptionShield<Base>::get_scheduler() const
 {
     return executor_->get_scheduler();
-}
-
-bool ExceptionShield::is_serializing() const
-{
-    return executor_->is_serializing();
 }
 
 IExecutorPtr create_exception_shield(
     const IExecutorPtr& executor, std::function<void(std::exception_ptr)> exceptionHandler)
 {
-    return std::make_shared<ExceptionShield>(executor, exceptionHandler);
+    if (!executor) {
+        throw std::runtime_error("must pass in non-null executor");
+    }
+
+    if (is_serializing(executor)) {
+        return std::make_shared<ExceptionShield<IStrand>>(executor, exceptionHandler);
+    } else {
+        return std::make_shared<ExceptionShield<IExecutor>>(executor, exceptionHandler);
+    }
 }
 
 }

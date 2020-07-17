@@ -22,13 +22,23 @@
 
 namespace asyncly {
 
-IExecutorPtr create_strand(const IExecutorPtr& executor)
+IStrandPtr create_strand(const IExecutorPtr& executor)
 {
-    if (executor->is_serializing()) {
-        return executor;
+    auto strand = std::dynamic_pointer_cast<IStrand>(executor);
+    if (strand) {
+        return strand;
     } else {
         return std::make_shared<StrandImpl>(executor);
     }
 }
 
+IStrandPtr create_strand(const IStrandPtr& strand)
+{
+    return strand;
+}
+
+bool is_serializing(const IExecutorPtr& executor)
+{
+    return std::dynamic_pointer_cast<IStrand>(executor) != nullptr;
+}
 }

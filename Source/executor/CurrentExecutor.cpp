@@ -38,7 +38,7 @@ void _set_current_executor_wrapper_rawptr(asyncly::detail::ICurrentExecutorWrapp
     current_executor_wrapper_rawptr_ = ptr;
 }
 
-const std::shared_ptr<asyncly::IExecutor> _get_current_executor_sharedptr()
+const asyncly::IExecutorPtr _get_current_executor_sharedptr()
 {
     return current_executor_weakptr_.lock();
 }
@@ -56,7 +56,7 @@ void set_current_executor(std::weak_ptr<IExecutor> executor)
     detail::_set_current_executor_weakptr(executor);
 }
 
-std::shared_ptr<asyncly::IExecutor> get_current_executor()
+asyncly::IExecutorPtr get_current_executor()
 {
     if (auto currentWrapper = detail::_get_current_executor_wrapper_rawptr()) {
         if (auto executor = currentWrapper->get_current_executor()) {

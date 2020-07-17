@@ -26,6 +26,11 @@ namespace asyncly {
  * Strand implements a serializing queue used to dispatch tasks that have to be executed
  * sequentially.
  */
-IExecutorPtr create_strand(const IExecutorPtr& executor);
+IStrandPtr create_strand(const IExecutorPtr& executor);
+IStrandPtr create_strand(const IStrandPtr& strand);
 
+/**
+ * \returns wheter the executor is serializing.
+ */
+bool is_serializing(const IExecutorPtr& executor);
 }

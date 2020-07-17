@@ -18,13 +18,13 @@
 
 #pragma once
 
-#include "asyncly/executor/IExecutor.h"
+#include "asyncly/executor/IStrand.h"
 
 #include "gmock/gmock.h"
 
 namespace asyncly {
 
-class MockIExecutor : public IExecutor {
+class MockIStrand : public IStrand {
   public:
     // gmock mocks doen't work with rvalue references, so forward to lvalue reference overloads
     void post(Task&& task) override
@@ -43,7 +43,7 @@ class MockIExecutor : public IExecutor {
         return post_after(relTime, task);
     }
 
-    // asyncly::IExecutor
+    // asyncly::IStrand
     MOCK_CONST_METHOD0(now, clock_type::time_point());
     MOCK_METHOD1(post, void(const asyncly::Task& arg1));
     MOCK_METHOD2(

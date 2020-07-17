@@ -34,6 +34,9 @@ typedef std::weak_ptr<IExecutor> IExecutorWPtr;
 class IScheduler;
 typedef std::shared_ptr<IScheduler> ISchedulerPtr;
 
+class IStrand;
+typedef std::shared_ptr<IStrand> IStrandPtr;
+
 class IExecutorController;
 typedef std::unique_ptr<IExecutorController> IExecutorControllerUPtr;
 

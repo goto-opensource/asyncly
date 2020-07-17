@@ -65,7 +65,6 @@ add_library(asyncly
   Source/executor/detail/MetricsTaskState.h
   Source/executor/detail/StrandImpl.cpp
   Source/executor/detail/StrandImpl.h
-  Source/executor/detail/ThreadPoolExecutor.cpp
 
   Source/task/detail/PeriodicTask.cpp
   Source/task/detail/TaskCurrentExecutorGuard.cpp

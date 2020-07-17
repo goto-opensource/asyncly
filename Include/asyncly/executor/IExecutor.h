@@ -37,7 +37,6 @@ class IExecutor {
     virtual std::shared_ptr<Cancelable>
     post_periodically(const clock_type::duration& period, CopyableTask) = 0;
     virtual ISchedulerPtr get_scheduler() const = 0;
-    virtual bool is_serializing() const = 0;
 };
 using IExecutorPtr = std::shared_ptr<IExecutor>;
 }
