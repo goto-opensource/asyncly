@@ -20,6 +20,7 @@
 
 #include <queue>
 
+#include "asyncly/executor/ExecutorStoppedException.h"
 #include "asyncly/executor/IExecutor.h"
 #include "asyncly/scheduler/IScheduler.h"
 #include "asyncly/scheduler/PriorityQueue.h"
@@ -97,7 +98,11 @@ inline std::shared_ptr<Cancelable> BaseScheduler::execute_at(
 
     m_timerQueue.push({ absTime, [executor, cancelableTask{ std::move(cancelableTask) }]() mutable {
                            if (auto p = executor.lock()) {
-                               p->post(std::move(cancelableTask));
+                               try {
+                                   p->post(std::move(cancelableTask));
+                               } catch (ExecutorStoppedException) {
+                                   // ignore
+                               }
                            }
                        } });
     return cancelable;

@@ -18,9 +18,11 @@
 
 #include "gmock/gmock.h"
 
+#include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/scheduler/detail/BaseScheduler.h"
 
 #include <algorithm>
+#include <future>
 
 namespace asyncly {
 
@@ -232,6 +234,26 @@ TEST_F(BaseSchedulerTest, shouldGetLastExpiredTime)
 TEST_F(BaseSchedulerTest, shouldGetNowWhenNoLastExpiredTime)
 {
     EXPECT_EQ(now, _scheduler->getLastExpiredTime());
+}
+
+TEST_F(BaseSchedulerTest, shouldNotThrowWhenExecutorIsStopped)
+{
+    auto executorController = asyncly::ThreadPoolExecutorController::create(1);
+    auto executor = executorController->get_executor();
+    executorController->finish();
+
+    std::promise<void> scheduledTaskDestroyed;
+    std::unique_ptr<int, std::function<void(int*)>> taskAlive(
+        new int, [&scheduledTaskDestroyed](int* rawPtr) {
+            delete rawPtr;
+            scheduledTaskDestroyed.set_value();
+        });
+    _scheduler->execute_after(
+        executor, std::chrono::milliseconds(1), [taskAlive{ std::move(taskAlive) }]() {
+            std::ignore = taskAlive;
+        });
+    EXPECT_NO_THROW(advance(clock_type::duration::max()));
+    EXPECT_NO_THROW(scheduledTaskDestroyed.get_future().get());
 }
 
 }

@@ -19,6 +19,7 @@
 #pragma once
 
 #include <algorithm>
+#include <iterator>
 #include <vector>
 
 #include <prometheus/counter.h>

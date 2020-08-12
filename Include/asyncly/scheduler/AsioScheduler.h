@@ -26,6 +26,7 @@
 #include "PriorityQueue.h"
 #include "detail/AsioTimerTask.h"
 
+#include "asyncly/executor/ExecutorStoppedException.h"
 #include "asyncly/executor/IExecutor.h"
 #include "asyncly/task/Task.h"
 
@@ -81,7 +82,11 @@ inline std::shared_ptr<Cancelable> AsioScheduler::execute_after(
     auto timerTask = std::make_shared<detail::AsioTimerTask>(relTime, m_ioContext);
     timerTask->schedule([executor, task{ std::move(task) }]() mutable {
         if (auto p = executor.lock()) {
-            p->post(std::move(task));
+            try {
+                p->post(std::move(task));
+            } catch (ExecutorStoppedException) {
+                // ignore
+            }
         }
     });
     return timerTask;
