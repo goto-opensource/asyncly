@@ -22,6 +22,7 @@ if(OVERRIDE_CXX_STANDARD_FLAGS)
 endif()
 
 if(WIN32)
+  add_definitions("-DNOMINMAX")
   add_definitions("-DWIN32_LEAN_AND_MEAN")
   add_definitions("-D_WIN32_WINNT=0x0601")
   add_compile_options("/bigobj")
