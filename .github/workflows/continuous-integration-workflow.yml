@@ -27,23 +27,23 @@ jobs:
         uses: lukka/run-vcpkg@v3.2
         id: runvcpkg
         with:
-          vcpkgArguments: 'benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2'
-          vcpkgTriplet: '${{ matrix.triplet }}'
-          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-          vcpkgGitCommitId: 'c7ab9d3110813979a873b2dbac630a9ab79850dc' # 2020.04
+          vcpkgArguments: "benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2"
+          vcpkgTriplet: "${{ matrix.triplet }}"
+          vcpkgDirectory: "${{ runner.workspace }}/b/vcpkg"
+          vcpkgGitCommitId: "c7ab9d3110813979a873b2dbac630a9ab79850dc" # 2020.04
 
-      - name: 'Build asyncly'
+      - name: "Build asyncly"
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtBasic
-          cmakeBuildType: 'Release'
-          cmakeGenerator: '${{ matrix.generator }}'
+          cmakeBuildType: "Release"
+          cmakeGenerator: "${{ matrix.generator }}"
           useVcpkgToolchainFile: true
-          buildDirectory: '${{ runner.workspace }}/cmakebuild'
+          buildDirectory: "${{ runner.workspace }}/cmakebuild"
 
-      - name: 'Test asyncly'
+      - name: "Test asyncly"
         run: ctest -C Release -V
-        working-directory: '${{ runner.workspace }}/cmakebuild'
+        working-directory: "${{ runner.workspace }}/cmakebuild"
 
   bazel:
     name: Bazel ${{ matrix.os }}
@@ -54,17 +54,17 @@ jobs:
         os: [macOS-latest, ubuntu-latest, windows-latest]
         include:
           - os: macOS-latest
-            bazel_args: '--cxxopt=-std=c++14'
+            bazel_args: "--cxxopt=-std=c++14"
           - os: ubuntu-latest
-            bazel_args: '--cxxopt=-std=c++14'
+            bazel_args: "--cxxopt=-std=c++14"
           - os: windows-latest
-            bazel_args: ''
+            bazel_args: ""
 
     steps:
       - uses: actions/checkout@main
 
-      - name: 'Build and test asyncly'
+      - name: "Build and test asyncly"
         run: bazel test ${{ matrix.bazel_args }} --test_output=all //...
 
-      - name: 'Run asyncly benchmark'
+      - name: "Run asyncly benchmark"
         run: bazel run ${{ matrix.bazel_args }} -c opt //Test/Performance/...
