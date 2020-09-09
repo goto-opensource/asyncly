@@ -6,6 +6,7 @@ add_library(asyncly_test_utils
   Include/asyncly/test/FakeExecutor.h
   Include/asyncly/test/FakeFutureTest.h
   Include/asyncly/test/FutureTest.h
+  Include/asyncly/test/PostAndWait.h
   Include/asyncly/test/SchedulerProvider.h
   Include/asyncly/test/WaitForFuture.h
   Include/asyncly/test/CurrentExecutorGuard.h
