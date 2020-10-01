@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <iterator>
 #include <numeric>
 
 #include "gmock/gmock.h"
