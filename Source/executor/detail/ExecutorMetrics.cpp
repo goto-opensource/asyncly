@@ -27,7 +27,7 @@ namespace {
 // creates buckets from 1us to 4s with exponential bucket sizes
 inline std::vector<double> createDurationBuckets()
 {
-    const std::size_t size = 32; // Max bucket = 4s
+    const std::size_t size = 23; // Max bucket = 4s
     std::vector<double> result;
     result.reserve(size);
     double start = 500;
