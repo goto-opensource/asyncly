@@ -35,7 +35,8 @@ using ExecutorFactoryTypes = ::testing::Types<
     asyncly::test::AsioExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<>,
     asyncly::test::DefaultExecutorFactory<5>,
-    asyncly::test::StrandImplTestFactory<>>;
+    asyncly::test::StrandImplTestFactory<>,
+    asyncly::test::ExternalEventExecutorFactory<>>;
 
 INSTANTIATE_TYPED_TEST_SUITE_P(ThreadPoolExecutor, ExecutorCommonTest, ExecutorFactoryTypes);
 

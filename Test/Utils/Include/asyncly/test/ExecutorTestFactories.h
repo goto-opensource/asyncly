@@ -23,6 +23,7 @@
 #include "boost/asio/io_context.hpp"
 
 #include "asyncly/executor/AsioExecutorController.h"
+#include "asyncly/executor/ExternalEventExecutorController.h"
 #include "asyncly/executor/IExecutor.h"
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/scheduler/AsioScheduler.h"
@@ -70,5 +71,33 @@ class DefaultExecutorFactory {
     std::unique_ptr<IExecutorController> executorController_;
     SchedulerProvider schedulerProvider_;
 };
+
+template <class SchedulerProvider = SchedulerProviderNone> class ExternalEventExecutorFactory {
+  public:
+    ExternalEventExecutorFactory()
+    {
+        executorControllerExternal_
+            = ThreadPoolExecutorController::create(1, schedulerProvider_.get_scheduler());
+
+        auto externalEventFunction = [this] {
+            executorControllerExternal_->get_executor()->post(
+                [this] { executorController_->runOnce(); });
+        };
+
+        executorController_ = asyncly::ExternalEventExecutorController::create(
+            externalEventFunction, [] {}, schedulerProvider_.get_scheduler());
+    }
+
+    std::shared_ptr<IExecutor> create()
+    {
+        return executorController_->get_executor();
+    }
+
+  private:
+    std::unique_ptr<IExecutorController> executorControllerExternal_;
+    std::unique_ptr<ExternalEventExecutorController> executorController_;
+    SchedulerProvider schedulerProvider_;
+};
+
 }
 }
