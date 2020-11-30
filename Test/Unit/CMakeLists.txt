@@ -43,3 +43,4 @@ target_include_directories(test_asyncly PRIVATE .)
 
 target_link_libraries(test_asyncly asyncly asyncly_test_utils asyncly_mocks)
 target_link_libraries(test_asyncly Boost::chrono Boost::thread Boost::system)
+

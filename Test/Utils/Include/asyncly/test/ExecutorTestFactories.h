@@ -87,6 +87,10 @@ template <class SchedulerProvider = SchedulerProviderNone> class ExternalEventEx
         executorController_ = asyncly::ExternalEventExecutorController::create(
             externalEventFunction, [] {}, schedulerProvider_.get_scheduler());
     }
+    ~ExternalEventExecutorFactory()
+    {
+        executorControllerExternal_->finish();
+    }
 
     std::shared_ptr<IExecutor> create()
     {

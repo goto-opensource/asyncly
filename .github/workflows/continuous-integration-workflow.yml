@@ -24,16 +24,16 @@ jobs:
       - uses: actions/checkout@main
 
       - name: Restore artifacts, or run vcpkg, build and cache artifacts
-        uses: lukka/run-vcpkg@v3.2
+        uses: lukka/run-vcpkg@v6.0
         id: runvcpkg
         with:
           vcpkgArguments: "benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2"
           vcpkgTriplet: "${{ matrix.triplet }}"
           vcpkgDirectory: "${{ runner.workspace }}/b/vcpkg"
-          vcpkgGitCommitId: "c7ab9d3110813979a873b2dbac630a9ab79850dc" # 2020.04
+          vcpkgGitCommitId: "ec6fe06e8da05a8157dc8581fa96b36b571c1bd5" # 2020.11-1
 
       - name: "Build asyncly"
-        uses: lukka/run-cmake@v2.5
+        uses: lukka/run-cmake@v3.2
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtBasic
           cmakeBuildType: "Release"
