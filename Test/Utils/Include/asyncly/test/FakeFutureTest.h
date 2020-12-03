@@ -25,6 +25,7 @@
 
 #include "CurrentExecutorGuard.h"
 #include "FakeExecutor.h"
+#include "IFakeExecutor.h"
 
 #include <future>
 
@@ -38,7 +39,7 @@ namespace test {
 
 class FakeFutureTest : public ::testing::Test {
   public:
-    FakeFutureTest();
+    FakeFutureTest(const std::shared_ptr<IFakeExecutor>& fakeExecutor = {});
 
     /// wait_for_future blockingly waits for a Future given to it and
     /// returns the value the future resolves to. In case the future
@@ -57,20 +58,20 @@ class FakeFutureTest : public ::testing::Test {
     template <typename T> void wait_for_future_failure(asyncly::Future<T>&& future);
 
     /// Returns used FakeExecutor
-    asyncly::test::FakeExecutorPtr get_fake_executor();
+    asyncly::test::IFakeExecutorPtr get_fake_executor();
 
   private:
-    const asyncly::test::FakeExecutorPtr fakeExecutor_;
+    const asyncly::test::IFakeExecutorPtr fakeExecutor_;
     const asyncly::test::CurrentExecutorGuard currentExecutorGuard_;
 };
 
-inline FakeFutureTest::FakeFutureTest()
-    : fakeExecutor_(asyncly::test::FakeExecutor::create())
+inline FakeFutureTest::FakeFutureTest(const std::shared_ptr<IFakeExecutor>& fakeExecutor)
+    : fakeExecutor_(fakeExecutor ? fakeExecutor : asyncly::test::FakeExecutor::create())
     , currentExecutorGuard_(fakeExecutor_)
 {
 }
 
-inline asyncly::test::FakeExecutorPtr FakeFutureTest::get_fake_executor()
+inline asyncly::test::IFakeExecutorPtr FakeFutureTest::get_fake_executor()
 {
     return fakeExecutor_;
 }

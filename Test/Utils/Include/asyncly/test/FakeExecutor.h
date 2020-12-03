@@ -26,6 +26,7 @@
 #include <thread>
 
 #include "FakeClockScheduler.h"
+#include "IFakeExecutor.h"
 #include "asyncly/ExecutorTypes.h"
 #include "asyncly/executor/IStrand.h"
 #include "asyncly/scheduler/IScheduler.h"
@@ -43,24 +44,23 @@ using FakeExecutorPtr = std::shared_ptr<FakeExecutor>;
 /// tasks and return(!). Typically, you would prepare your test by creating objects and proxies, set
 /// your expectations, call one or multiple proxy methods and finally start execution by
 /// advanceClock()/runOnce()
-class FakeExecutor : public IStrand, public std::enable_shared_from_this<FakeExecutor> {
+class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<FakeExecutor> {
   public:
     static FakeExecutorPtr create();
 
     FakeExecutor(FakeExecutor const&) = delete;
     FakeExecutor& operator=(FakeExecutor const&) = delete;
 
-    void advanceClock(clock_type::duration advance);
-    void advanceClock(clock_type::time_point timePoint);
     void advanceClockToCurrentLastEvent();
-    /**
-     * @param maxTasksToExecute default is 0 which means unlimited, > 0 means: execute only a
-     * certain number of tasks in this call
-     */
-    size_t runTasks(size_t maxTasksToExecute = 0);
-    void clear();
-    size_t queuedTasks() const;
 
+    // IFakeExecutor
+    void advanceClock(clock_type::duration advance) override;
+    void advanceClock(clock_type::time_point timePoint) override;
+    size_t runTasks(size_t maxTasksToExecute = 0) override;
+    void clear() override;
+    size_t queuedTasks() const override;
+
+    // IStrand
     clock_type::time_point now() const override;
     void post(Task&&) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) override;
