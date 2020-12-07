@@ -28,7 +28,7 @@ namespace detail {
 template <typename T> class Subscription : public asyncly::Subscription::Unsubscribable {
   public:
     Subscription(const std::shared_ptr<detail::SharedSubscriptionContext<T>>& context);
-    void cancel();
+    void cancel() override;
 
   private:
     std::shared_ptr<detail::SharedSubscriptionContext<T>> context;

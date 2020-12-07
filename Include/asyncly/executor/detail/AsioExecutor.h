@@ -34,7 +34,7 @@ namespace asyncly {
 class AsioExecutor final : public IStrand, public std::enable_shared_from_this<AsioExecutor> {
   public:
     explicit AsioExecutor(const ISchedulerPtr& scheduler);
-    ~AsioExecutor();
+    ~AsioExecutor() override;
     AsioExecutor(AsioExecutor const&) = delete;
     AsioExecutor& operator=(AsioExecutor const&) = delete;
 

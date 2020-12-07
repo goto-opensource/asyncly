@@ -24,7 +24,7 @@ namespace asyncly {
 
 class IRunnableScheduler : public IScheduler {
   public:
-    virtual ~IRunnableScheduler() = default;
+    ~IRunnableScheduler() override = default;
     virtual void run() = 0;
     virtual void stop() = 0;
 };

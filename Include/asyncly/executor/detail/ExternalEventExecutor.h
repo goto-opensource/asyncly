@@ -25,7 +25,7 @@
 #include <thread>
 
 #include "asyncly/ExecutorTypes.h"
-#include "asyncly/executor/IExecutor.h"
+#include "asyncly/executor/IStrand.h"
 #include "asyncly/scheduler/IScheduler.h"
 #include "asyncly/task/detail/PeriodicTask.h"
 
@@ -33,7 +33,7 @@ namespace asyncly {
 
 using ExternalEventFunction = std::function<void()>;
 
-class ExternalEventExecutor final : public IExecutor,
+class ExternalEventExecutor final : public IStrand,
                                     public std::enable_shared_from_this<ExternalEventExecutor> {
   public:
     static std::shared_ptr<ExternalEventExecutor> create(
@@ -67,5 +67,4 @@ class ExternalEventExecutor final : public IExecutor,
     bool m_isStopped;
     const ISchedulerPtr m_scheduler;
 };
-
 }

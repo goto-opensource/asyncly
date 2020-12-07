@@ -31,8 +31,8 @@ namespace detail {
 class TaskCurrentExecutorGuard : public ICurrentExecutorWrapper {
   public:
     explicit TaskCurrentExecutorGuard(const std::weak_ptr<IExecutor>& executor);
-    ~TaskCurrentExecutorGuard();
-    std::shared_ptr<IExecutor> get_current_executor();
+    ~TaskCurrentExecutorGuard() override;
+    std::shared_ptr<IExecutor> get_current_executor() override;
 
   private:
     const std::weak_ptr<asyncly::IExecutor>& executor_;

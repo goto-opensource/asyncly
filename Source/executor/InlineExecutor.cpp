@@ -21,18 +21,18 @@
 namespace asyncly {
 
 class InlineScheduler : public IScheduler {
-    clock_type::time_point now() const
+    clock_type::time_point now() const override
     {
         return clock_type::now();
     }
     std::shared_ptr<Cancelable>
-    execute_at(const IExecutorWPtr&, const clock_type::time_point&, Task&&)
+    execute_at(const IExecutorWPtr&, const clock_type::time_point&, Task&&) override
     {
         assert(false);
         return std::shared_ptr<Cancelable>();
     }
     std::shared_ptr<Cancelable>
-    execute_after(const IExecutorWPtr&, const clock_type::duration&, Task&&)
+    execute_after(const IExecutorWPtr&, const clock_type::duration&, Task&&) override
     {
         assert(false);
         return std::shared_ptr<Cancelable>();

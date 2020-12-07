@@ -35,7 +35,7 @@ class StrandImpl final : public IStrand, public std::enable_shared_from_this<Str
     /// @param executor The underlying executor tasks are forwarded to.
     StrandImpl(const IExecutorPtr& executor);
 
-    ~StrandImpl();
+    ~StrandImpl() override;
 
   public:
     /// get current time

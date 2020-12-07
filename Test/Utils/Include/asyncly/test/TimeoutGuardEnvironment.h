@@ -38,9 +38,9 @@ class TimeoutGuardEnviroment : public ::testing::Environment, boost::noncopyable
   private:
     std::unique_ptr<TimeoutGuard> m_timeoutGuard;
 
-    void SetUp();
+    void SetUp() override;
 
-    void TearDown();
+    void TearDown() override;
 };
 }
 } // namespace asyncly::test

@@ -35,7 +35,7 @@ class AsioExecutorController final : public IExecutorController {
     static std::unique_ptr<AsioExecutorController>
     create(const ThreadConfig& threadConfig = {}, const ISchedulerPtr& scheduler = {});
 
-    ~AsioExecutorController();
+    ~AsioExecutorController() override;
     AsioExecutorController(AsioExecutorController const&) = delete;
     AsioExecutorController& operator=(AsioExecutorController const&) = delete;
 

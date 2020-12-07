@@ -44,7 +44,7 @@ class ExternalEventExecutorController final : public IExecutorController {
         const ThreadInitFunction& schedulerInitFunction,
         const ISchedulerPtr& scheduler = {});
 
-    ~ExternalEventExecutorController();
+    ~ExternalEventExecutorController() override;
 
     ExternalEventExecutorController(ExternalEventExecutorController const&) = delete;
     ExternalEventExecutorController& operator=(ExternalEventExecutorController const&) = delete;

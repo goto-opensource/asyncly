@@ -39,7 +39,7 @@ class ThreadPoolExecutorController final : public IExecutorController {
     static std::unique_ptr<ThreadPoolExecutorController>
     create(const ThreadPoolConfig& threadPoolConfig, const ISchedulerPtr& scheduler = {});
 
-    ~ThreadPoolExecutorController();
+    ~ThreadPoolExecutorController() override;
 
     ThreadPoolExecutorController(ThreadPoolExecutorController const&) = delete;
     ThreadPoolExecutorController& operator=(ThreadPoolExecutorController const&) = delete;

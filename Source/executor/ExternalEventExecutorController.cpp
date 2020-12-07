@@ -23,6 +23,17 @@
 
 namespace asyncly {
 
+std::unique_ptr<ExternalEventExecutorController> ExternalEventExecutorController::create(
+    const ExternalEventFunction& externalEventFunction,
+    const ThreadInitFunction& schedulerInitFunction,
+    const ISchedulerPtr& scheduler)
+{
+    auto executor
+        = std::unique_ptr<ExternalEventExecutorController>(new ExternalEventExecutorController(
+            externalEventFunction, schedulerInitFunction, scheduler));
+    return executor;
+}
+
 ExternalEventExecutorController::ExternalEventExecutorController(
     const ExternalEventFunction& externalEventFunction,
     const ThreadInitFunction& schedulerInitFunction,
@@ -66,17 +77,6 @@ asyncly::IExecutorPtr ExternalEventExecutorController::get_executor() const
 std::shared_ptr<asyncly::IScheduler> ExternalEventExecutorController::get_scheduler() const
 {
     return m_executor->get_scheduler();
-}
-
-std::unique_ptr<ExternalEventExecutorController> ExternalEventExecutorController::create(
-    const ExternalEventFunction& externalEventFunction,
-    const ThreadInitFunction& schedulerInitFunction,
-    const ISchedulerPtr& scheduler)
-{
-    auto executor
-        = std::unique_ptr<ExternalEventExecutorController>(new ExternalEventExecutorController(
-            externalEventFunction, schedulerInitFunction, scheduler));
-    return executor;
 }
 
 }
