@@ -238,6 +238,25 @@ TYPED_TEST(WhenAllTest, shouldIgnoreResolveAfterReject)
     promise2.set_value(1);
 }
 
+TYPED_TEST(WhenAllTest, shouldIgnoreRejectAfterReject)
+{
+    std::promise<void> rejected;
+    auto lazy1 = make_lazy_future<void>();
+    auto future1 = std::get<0>(lazy1);
+    auto promise1 = std::get<1>(lazy1);
+    auto lazy2 = make_lazy_future<int>();
+    auto future2 = std::get<0>(lazy2);
+    auto promise2 = std::get<1>(lazy2);
+    this->executor_->post([&rejected, &future1, &future2]() mutable {
+        when_all(std::move(future1), std::move(future2))
+            .then([](auto) { FAIL(); })
+            .catch_error([&rejected](auto) mutable { rejected.set_value(); });
+    });
+    promise1.set_exception("bla1");
+    EXPECT_NO_THROW(rejected.get_future().get());
+    promise2.set_exception("bla2");
+}
+
 TYPED_TEST(WhenAllTest, shouldResolveMultipleObjectValueFutures)
 {
     auto expect1 = std::string("hello");

@@ -66,22 +66,18 @@ using swap_void_for_bool = boost::mp11::mp_apply<
 //            [&promise, this](auto _) mutable { _(promise)->set_value(get_ready_results_unsafe());
 //            });
 // in VS2019
-template <typename T, typename U> struct maybe_resolve_all_promises_impl {
+template <typename T, typename U> struct resolve_all_promises_impl {
     static void call(T& container, const U& promise)
     {
-        if (container.are_all_results_ready()) {
-            promise->set_value(container.get_ready_results_unsafe());
-        }
+        promise->set_value(container.get_ready_results_unsafe());
     }
 };
 
 template <typename T>
-struct maybe_resolve_all_promises_impl<T, const std::shared_ptr<PromiseImpl<void>>> {
-    static void call(T& container, const std::shared_ptr<PromiseImpl<void>>& promise)
+struct resolve_all_promises_impl<T, const std::shared_ptr<PromiseImpl<void>>> {
+    static void call(T&, const std::shared_ptr<PromiseImpl<void>>& promise)
     {
-        if (container.are_all_results_ready()) {
-            promise->set_value();
-        }
+        promise->set_value();
     }
 };
 
@@ -117,19 +113,32 @@ template <typename... Args> struct when_all_result_container {
 
     template <typename T> void maybe_resolve_promise(T& promise)
     {
+        if (alreadyContinued) {
+            return;
+        }
+
         if (!are_all_results_ready()) {
             return;
         }
 
-        maybe_resolve_all_promises_impl<decltype(*this), T>::call(*this, promise);
+        alreadyContinued = true;
+
+        resolve_all_promises_impl<decltype(*this), T>::call(*this, promise);
     };
 
     template <typename T> void reject_all(std::exception_ptr error, T& promise)
     {
+        if (alreadyContinued) {
+            return;
+        }
+
+        alreadyContinued = true;
+
         promise->set_exception(error);
     }
 
     swap_void_for_bool<Args...> results;
+    bool alreadyContinued = false;
 };
 }
 
