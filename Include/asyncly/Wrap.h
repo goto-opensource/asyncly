@@ -108,21 +108,23 @@ namespace asyncly {
 /// lock error occures, the thrown exception will correctly be handled and the continuation `Future`
 /// will be rejected.
 ///
-/// +----------+--------------------+----------------------------------+
-/// | object   | lock error         | function                         |
-/// +----------+--------------------+----------------------------------+
-/// | weak_ptr | std::runtime_error | wrap_weak                        |
-/// +          +--------------------+----------------------------------+
-/// |          | custom error       | wrap_weak_with_custom_error      |
-/// +          +--------------------+----------------------------------+
-/// |          | ignore             | wrap_weak_ignore                 |
-/// +----------+--------------------+----------------------------------+
-/// | this     | std::runtime_error | wrap_weak_this                   |
-/// +          +--------------------+----------------------------------+
-/// |          | custom error       | wrap_weak_this_with_custom_error |
-/// +          +--------------------+----------------------------------+
-/// |          | ignore             | wrap_weak_this_ignore            |
-/// +----------+--------------------+----------------------------------+
+/// +----------+--------------------+---------------------------------------------+
+/// | object   | lock error         | function                                    |
+/// +----------+--------------------+---------------------------------------------+
+/// | weak_ptr | std::runtime_error | wrap_weak                                   |
+/// +          +--------------------+---------------------------------------------+
+/// |          | custom error       | wrap_weak_with_custom_error                 |
+/// |          |                    | wrap_weak_with_custom_error_and_params      |
+/// +          +--------------------+---------------------------------------------+
+/// |          | ignore             | wrap_weak_ignore                            |
+/// +----------+--------------------+---------------------------------------------+
+/// | this     | std::runtime_error | wrap_weak_this                              |
+/// +          +--------------------+---------------------------------------------+
+/// |          | custom error       | wrap_weak_this_with_custom_error            |
+/// |          |                    | wrap_weak_this_with_custom_error_and_params |
+/// +          +--------------------+---------------------------------------------+
+/// |          | ignore             | wrap_weak_this_ignore                       |
+/// +----------+--------------------+---------------------------------------------+
 ///
 /// weak_post: A combination of the versions above, which return a new function object that, when
 /// executed, posts the user-provided function to the specified executor and invokes the function
@@ -199,6 +201,23 @@ auto wrap_weak_with_custom_error(const T& object, F function, E errorFunction)
             return cfunction(locked, std::forward<decltype(args)>(args)...);
         } else {
             return efunction();
+        }
+    };
+}
+
+/// wrap_weak_with_custom_error_and_params works like wrap_weak_with_custom_error,
+/// but also forwards parameters to the error handler
+template <typename T, typename F, typename E> // T models std::weak_ptr or std::shared_ptr
+auto wrap_weak_with_custom_error_and_params(const T& object, F function, E errorFunction)
+{
+    using U = typename T::element_type;
+    return [weakObject = std::weak_ptr<U>{ object },
+            cfunction = std::move(function),
+            efunction = std::move(errorFunction)](auto&&... args) mutable {
+        if (const auto locked = weakObject.lock()) {
+            return cfunction(locked, std::forward<decltype(args)>(args)...);
+        } else {
+            return efunction(std::forward<decltype(args)>(args)...);
         }
     };
 }
@@ -358,5 +377,16 @@ auto wrap_weak_this_with_custom_error(T self, F function, E errorFunction)
     return wrap_weak_with_custom_error(
         self->shared_from_this(), std::move(function), errorFunction);
 }
+
+/// wrap_weak_this_with_custom_error_and_params works like wrap_weak_this
+/// but allows to specify the error handling callback and forwards parameters to the error handler.
+/// As no value is provided, this only works if F returns void.
+template <typename T, typename F, typename E> // T models *std::shared_from_this<T>
+auto wrap_weak_this_with_custom_error_and_params(T self, F function, E errorFunction)
+{
+    return wrap_weak_with_custom_error_and_params(
+        self->shared_from_this(), std::move(function), errorFunction);
+}
+
 ///@}
 }
