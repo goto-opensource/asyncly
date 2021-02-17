@@ -83,7 +83,7 @@ StrandImpl::post_after(const clock_type::duration& relTime, Task&& task)
 }
 
 std::shared_ptr<asyncly::Cancelable>
-StrandImpl::post_periodically(const clock_type::duration& period, CopyableTask task)
+StrandImpl::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
     return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
 }

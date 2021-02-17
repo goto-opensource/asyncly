@@ -23,7 +23,7 @@
 
 #include "asyncly/ExecutorTypes.h"
 #include "asyncly/task/Cancelable.h"
-#include "asyncly/task/CopyableTask.h"
+#include "asyncly/task/RepeatableTask.h"
 #include "asyncly/task/Task.h"
 
 namespace asyncly {
@@ -35,7 +35,7 @@ class IExecutor {
     virtual std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) = 0;
     virtual std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) = 0;
     virtual std::shared_ptr<Cancelable>
-    post_periodically(const clock_type::duration& period, CopyableTask) = 0;
+    post_periodically(const clock_type::duration& period, RepeatableTask&&) = 0;
     virtual ISchedulerPtr get_scheduler() const = 0;
 };
 using IExecutorPtr = std::shared_ptr<IExecutor>;

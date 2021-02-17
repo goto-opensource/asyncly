@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 LogMeIn
+ * Copyright LogMeIn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,7 @@
 #include <function2/function2.hpp>
 
 namespace asyncly {
-using CopyableTask = fu2::function<void()>;
+
+using RepeatableTask = fu2::unique_function<void()>;
+
 }

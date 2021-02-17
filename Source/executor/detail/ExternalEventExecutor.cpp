@@ -64,7 +64,7 @@ ExternalEventExecutor::post_after(const clock_type::duration& relTime, Task&& ta
 }
 
 std::shared_ptr<Cancelable>
-ExternalEventExecutor::post_periodically(const clock_type::duration& period, CopyableTask task)
+ExternalEventExecutor::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid closure");

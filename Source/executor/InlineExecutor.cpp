@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cassert>
+
 #include "asyncly/executor/InlineExecutor.h"
 
 namespace asyncly {
@@ -73,7 +75,7 @@ std::shared_ptr<Cancelable> InlineExecutor::post_after(const clock_type::duratio
 }
 
 std::shared_ptr<Cancelable>
-InlineExecutor::post_periodically(const clock_type::duration&, CopyableTask)
+InlineExecutor::post_periodically(const clock_type::duration&, RepeatableTask&&)
 {
     assert(false);
     return std::shared_ptr<Cancelable>();

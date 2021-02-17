@@ -20,7 +20,6 @@
 
 #include "asyncly/executor/IExecutor.h"
 
-#include <atomic>
 #include <mutex>
 
 namespace asyncly {
@@ -40,7 +39,7 @@ class PeriodicTask : public Cancelable, public std::enable_shared_from_this<Peri
     // Due to the constructor wanting to schedule, and scheduling relying upon weak_from_this(), we
     // need a creator
     static std::shared_ptr<Cancelable>
-    create(const clock_type::duration& period, CopyableTask task, const IExecutorPtr& executor);
+    create(const clock_type::duration& period, RepeatableTask&& task, const IExecutorPtr& executor);
 
   public:
     void cancel() override;
@@ -48,24 +47,22 @@ class PeriodicTask : public Cancelable, public std::enable_shared_from_this<Peri
   public:
     PeriodicTask(
         const clock_type::duration& period,
-        CopyableTask task,
+        RepeatableTask&& task,
         const IExecutorPtr& executor,
         Token token);
 
   private:
     void scheduleTask_();
-    void cancel_();
     void onTimer_();
     void cancelAndClean_();
-    void execute();
 
   private:
     std::mutex mutex_;
     const clock_type::duration period_;
-    CopyableTask task_;
+    std::shared_ptr<RepeatableTask> task_;
     const std::weak_ptr<IExecutor> executor_;
 
-    std::atomic<bool> cancelled_;
+    bool cancelled_;
     std::shared_ptr<Cancelable> currentDelayedTask_;
     clock_type::time_point expiry_;
 };

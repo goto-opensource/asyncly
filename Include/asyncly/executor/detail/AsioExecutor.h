@@ -48,7 +48,7 @@ class AsioExecutor final : public IStrand, public std::enable_shared_from_this<A
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) override;
     std::shared_ptr<Cancelable>
-    post_periodically(const clock_type::duration& relTime, CopyableTask) override;
+    post_periodically(const clock_type::duration& relTime, RepeatableTask&&) override;
     ISchedulerPtr get_scheduler() const override;
 
   private:

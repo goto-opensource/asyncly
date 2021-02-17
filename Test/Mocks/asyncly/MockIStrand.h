@@ -56,7 +56,8 @@ class MockIStrand : public IStrand {
             const clock_type::duration& relTime, const asyncly::Task& arg1));
     MOCK_METHOD2(
         post_periodically,
-        std::shared_ptr<Cancelable>(const clock_type::duration& period, CopyableTask task));
+        std::shared_ptr<Cancelable>(
+            const clock_type::duration& period, asyncly::RepeatableTask&& task));
     MOCK_CONST_METHOD0(get_scheduler, ISchedulerPtr());
 };
 }

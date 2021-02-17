@@ -50,7 +50,7 @@ class MetricsWrapper final : public Base,
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& t, Task&& f) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& t, Task&& f) override;
     std::shared_ptr<Cancelable>
-    post_periodically(const clock_type::duration& t, CopyableTask f) override;
+    post_periodically(const clock_type::duration& t, RepeatableTask&& f) override;
     ISchedulerPtr get_scheduler() const override;
 
     std::vector<prometheus::MetricFamily> Collect() const override;
@@ -140,7 +140,7 @@ MetricsWrapper<Base>::post_after(const clock_type::duration& t, Task&& closure)
 
 template <typename Base>
 std::shared_ptr<Cancelable>
-MetricsWrapper<Base>::post_periodically(const clock_type::duration& period, CopyableTask task)
+MetricsWrapper<Base>::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
     return detail::PeriodicTask::create(period, std::move(task), this->shared_from_this());
 }

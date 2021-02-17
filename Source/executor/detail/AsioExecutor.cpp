@@ -82,7 +82,7 @@ AsioExecutor::post_after(const clock_type::duration& period, Task&& task)
 }
 
 std::shared_ptr<asyncly::Cancelable>
-AsioExecutor::post_periodically(const clock_type::duration& relTime, CopyableTask task)
+AsioExecutor::post_periodically(const clock_type::duration& relTime, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid closure");
