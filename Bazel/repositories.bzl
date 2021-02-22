@@ -5,10 +5,10 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_google_benchmark",
-        sha256 = "f8e525db3c42efc9c7f3bc5176a8fa893a9a9920bbd08cef30fb56a51854d60d",
-        strip_prefix = "benchmark-1.4.1",
+        sha256 = "dccbdab796baa1043f04982147e67bb6e118fe610da2c65f88912d73987e700c",
+        strip_prefix = "benchmark-1.5.2",
         urls = [
-            "https://github.com/google/benchmark/archive/v1.4.1.tar.gz",
+            "https://github.com/google/benchmark/archive/v1.5.2.tar.gz",
         ],
     )
 
@@ -25,10 +25,10 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_jupp0r_prometheus_cpp",
-        sha256 = "85ad6fea0f0dcb413104366b7d6109acdb015aff8767945511c5cad8202a28a6",
-        strip_prefix = "prometheus-cpp-0.9.0",
+        sha256 = "2102609457f812dbeaaafd55736461fd0538fc7e7568174b1cdec43399dbded4",
+        strip_prefix = "prometheus-cpp-0.12.1",
         urls = [
-            "https://github.com/jupp0r/prometheus-cpp/archive/v0.9.0.tar.gz",
+            "https://github.com/jupp0r/prometheus-cpp/archive/v0.12.1.tar.gz",
         ],
     )
 
@@ -46,9 +46,9 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_nelhage_rules_boost",
-        sha256 = "1ea1cefb01d7dda89557a0c0f275ce684c7fc88bf19e91d35ec694cbd83c60e5",
-        strip_prefix = "rules_boost-c425c956ffc94edaf4e0314cdd002dc0bdf23142",
+        sha256 = "ec2b32e5dba50b80c58d5800234cd3e16ccd218f2f074ecddf27532b5e9a71be",
+        strip_prefix = "rules_boost-c839cd7130a2aabe1d514805a47f3e7ffa2d9d9e",
         urls = [
-            "https://github.com/nelhage/rules_boost/archive/c425c956ffc94edaf4e0314cdd002dc0bdf23142.tar.gz",
+            "https://github.com/nelhage/rules_boost/archive/c839cd7130a2aabe1d514805a47f3e7ffa2d9d9e.tar.gz",
         ],
     )
