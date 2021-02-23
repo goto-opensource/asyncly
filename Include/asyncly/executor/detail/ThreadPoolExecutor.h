@@ -173,7 +173,7 @@ template <typename Base> void ThreadPoolExecutor<Base>::run()
         boost::unique_lock<boost::mutex> lock{ m_mutex };
 
         m_condition.wait(lock, [this] {
-            return !m_taskQueue.empty() || (m_isShutdownActive && m_taskQueue.empty());
+            return !m_taskQueue.empty() || m_isShutdownActive;
         }); // wait does not throw since C++14
 
         if (m_isShutdownActive && m_taskQueue.empty()) {
@@ -189,5 +189,4 @@ template <typename Base> void ThreadPoolExecutor<Base>::run()
         task();
     }
 }
-
 }
