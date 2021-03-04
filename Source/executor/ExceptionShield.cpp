@@ -86,7 +86,7 @@ template <typename Base> clock_type::time_point ExceptionShield<Base>::now() con
 
 template <typename Base> void ExceptionShield<Base>::post(Task&& closure)
 {
-    closure.maybe_set_executor(this->shared_from_this());
+    closure.maybe_set_executor(this->weak_from_this());
     executor_->post(createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
@@ -94,7 +94,7 @@ template <typename Base>
 std::shared_ptr<Cancelable>
 ExceptionShield<Base>::post_at(const clock_type::time_point& t, Task&& closure)
 {
-    closure.maybe_set_executor(this->shared_from_this());
+    closure.maybe_set_executor(this->weak_from_this());
     return executor_->post_at(t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }
 
@@ -102,7 +102,7 @@ template <typename Base>
 std::shared_ptr<Cancelable>
 ExceptionShield<Base>::post_after(const clock_type::duration& t, Task&& closure)
 {
-    closure.maybe_set_executor(this->shared_from_this());
+    closure.maybe_set_executor(this->weak_from_this());
     return executor_->post_after(
         t, createTaskExceptionHandler(std::move(closure), exceptionHandler_));
 }

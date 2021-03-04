@@ -105,8 +105,8 @@ ThreadPoolExecutor<Base>::post_at(const clock_type::time_point& absTime, Task&& 
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(this->shared_from_this());
-    return m_scheduler->execute_at(this->shared_from_this(), absTime, std::move(task));
+    task.maybe_set_executor(this->weak_from_this());
+    return m_scheduler->execute_at(this->weak_from_this(), absTime, std::move(task));
 }
 
 template <typename Base>
@@ -116,8 +116,8 @@ ThreadPoolExecutor<Base>::post_after(const clock_type::duration& relTime, Task&&
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(this->shared_from_this());
-    return m_scheduler->execute_after(this->shared_from_this(), relTime, std::move(task));
+    task.maybe_set_executor(this->weak_from_this());
+    return m_scheduler->execute_after(this->weak_from_this(), relTime, std::move(task));
 }
 
 template <typename Base>
@@ -140,7 +140,7 @@ template <typename Base> void ThreadPoolExecutor<Base>::post(Task&& closure)
     if (!closure) {
         throw std::runtime_error("invalid closure");
     }
-    closure.maybe_set_executor(this->shared_from_this());
+    closure.maybe_set_executor(this->weak_from_this());
     {
         std::lock_guard<boost::mutex> lock(m_mutex);
         if (m_isStopped) {

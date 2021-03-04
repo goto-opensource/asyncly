@@ -49,8 +49,8 @@ ExternalEventExecutor::post_at(const clock_type::time_point& absTime, Task&& tas
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_at(shared_from_this(), absTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_at(weak_from_this(), absTime, std::move(task));
 }
 
 std::shared_ptr<Cancelable>
@@ -59,8 +59,8 @@ ExternalEventExecutor::post_after(const clock_type::duration& relTime, Task&& ta
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_after(shared_from_this(), relTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
 std::shared_ptr<Cancelable>
@@ -82,7 +82,7 @@ void ExternalEventExecutor::post(Task&& closure)
     if (!closure) {
         throw std::runtime_error("invalid closure");
     }
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(weak_from_this());
     bool signalExternalEvent = false;
     {
         std::lock_guard<boost::mutex> lock{ m_mutex };

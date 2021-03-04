@@ -58,7 +58,7 @@ clock_type::time_point InlineExecutor::now() const
 
 void InlineExecutor::post(Task&& closure)
 {
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(weak_from_this());
     closure();
 }
 

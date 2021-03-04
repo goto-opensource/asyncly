@@ -98,8 +98,8 @@ FakeExecutor::post_at(const clock_type::time_point& absTime, Task&& task)
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_at(shared_from_this(), absTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_at(weak_from_this(), absTime, std::move(task));
 }
 
 inline std::shared_ptr<Cancelable>
@@ -108,8 +108,8 @@ FakeExecutor::post_after(const clock_type::duration& relTime, Task&& task)
     if (!task) {
         throw std::runtime_error("invalid task");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_after(shared_from_this(), relTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
 inline std::shared_ptr<Cancelable>
@@ -131,7 +131,7 @@ inline void FakeExecutor::post(Task&& closure)
     if (!closure) {
         throw std::runtime_error("invalid task");
     }
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(weak_from_this());
     m_taskQueue.push(std::move(closure));
 }
 

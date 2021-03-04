@@ -233,7 +233,7 @@ auto wrap_weak_with_custom_error_and_params(const T& object, F function, E error
 ///     connection->createConnection()
 ///           .then(
 ///                  asyncly::wrap_weak(
-///                           shared_from_this(),
+///                           weak_from_this(),
 ///                           [](auto self, auto connection) {
 ///                                 self->connection_ = connection;
 ///                           }));
@@ -284,7 +284,7 @@ auto wrap_weak_ignore(const T& object, F function)
 ///     // in not capturing this compared to the documentation of the `wrap` function above.
 ///     connection->createConnection(asyncly::wrap_weak_post_ignore(
 ///                 executor_,
-///                 shared_from_this(),
+///                 weak_from_this(),
 ///                 [](auto self, auto connection) { self->connection_ = connection; });
 ///
 template <typename T, typename F> // T models std::weak_ptr or std::shared_ptr
@@ -302,21 +302,21 @@ template <typename T, typename F> auto wrap_weak_post_current_ignore(const T& ob
 }
 
 /// wrap_weak_this_post_ignore works similar to wrap_weak_post_ignore, but you can pass `this` to it
-/// and it calls `this->shared_from_this` for you.
-template <typename T, typename F> // T models *std::shared_from_this<T>
+/// and it calls `this->weak_from_this` for you.
+template <typename T, typename F> // T models *std::weak_from_this<T>
 auto wrap_weak_this_post_ignore(const asyncly::IExecutorPtr& executor, T self, F function)
 {
     return wrap_weak_post_with_custom_error(
-        executor, self->shared_from_this(), std::move(function), []() {});
+        executor, self->weak_from_this(), std::move(function), []() {});
 }
 
 /// wrap_weak_this_post_current_ignore works similar to wrap_weak_post_ignore, but gets the executor
 /// executing the current task as a convenience and you can pass `this` to it and it calls
-/// `this->shared_from_this` for you.
-template <typename T, typename F> // T models *std::shared_from_this<T>
+/// `this->weak_from_this` for you.
+template <typename T, typename F> // T models *std::weak_from_this<T>
 auto wrap_weak_this_post_current_ignore(T self, F function)
 {
-    return wrap_weak_post_current_ignore(self->shared_from_this(), std::move(function));
+    return wrap_weak_post_current_ignore(self->weak_from_this(), std::move(function));
 }
 
 /// wrap_weak_post_with_custom_error works like wrap_weak_post_ignore, but allows you to specify
@@ -352,40 +352,39 @@ auto wrap_weak_post_with_custom_error(
     };
 }
 
-/// wrap_weak_this is a convenience function for objects who use std::shared_from_this. It works
-/// similar to wrap_weak, but you can pass `this` to it and it calls `this->shared_from_this` for
+/// wrap_weak_this is a convenience function for objects who use std::weak_from_this. It works
+/// similar to wrap_weak, but you can pass `this` to it and it calls `this->weak_from_this` for
 /// you. In case the pointer is expired when the function throws, an std::runtime_error is thrown.
-template <typename T, typename F> // T models *std::shared_from_this<T>
+template <typename T, typename F> // T models *std::weak_from_this<T>
 auto wrap_weak_this(T self, F function)
 {
-    return wrap_weak(self->shared_from_this(), std::move(function));
+    return wrap_weak(self->weak_from_this(), std::move(function));
 }
 
 /// wrap_weak_this_ignore works like wrap_weak_this, but ignores expired weak_ptrs instead of
 /// throwing. As no value is provided, this only works if F returns void.
-template <typename T, typename F> // T models *std::shared_from_this<T>
+template <typename T, typename F> // T models *std::weak_from_this<T>
 auto wrap_weak_this_ignore(T self, F function)
 {
-    return wrap_weak_with_custom_error(self->shared_from_this(), std::move(function), []() {});
+    return wrap_weak_with_custom_error(self->weak_from_this(), std::move(function), []() {});
 }
 
 /// wrap_weak_this_with_custom_error works like wrap_weak_this but allows to specify
 /// the error handling callback. As no value is provided, this only works if F returns void.
-template <typename T, typename F, typename E> // T models *std::shared_from_this<T>
+template <typename T, typename F, typename E> // T models *std::weak_from_this<T>
 auto wrap_weak_this_with_custom_error(T self, F function, E errorFunction)
 {
-    return wrap_weak_with_custom_error(
-        self->shared_from_this(), std::move(function), errorFunction);
+    return wrap_weak_with_custom_error(self->weak_from_this(), std::move(function), errorFunction);
 }
 
 /// wrap_weak_this_with_custom_error_and_params works like wrap_weak_this
 /// but allows to specify the error handling callback and forwards parameters to the error handler.
 /// As no value is provided, this only works if F returns void.
-template <typename T, typename F, typename E> // T models *std::shared_from_this<T>
+template <typename T, typename F, typename E> // T models *std::weak_from_this<T>
 auto wrap_weak_this_with_custom_error_and_params(T self, F function, E errorFunction)
 {
     return wrap_weak_with_custom_error_and_params(
-        self->shared_from_this(), std::move(function), errorFunction);
+        self->weak_from_this(), std::move(function), errorFunction);
 }
 
 ///@}

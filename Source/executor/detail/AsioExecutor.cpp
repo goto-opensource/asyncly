@@ -57,7 +57,7 @@ void AsioExecutor::post(Task&& closure)
         throw std::runtime_error("invalid closure");
     }
 
-    closure.maybe_set_executor(shared_from_this());
+    closure.maybe_set_executor(weak_from_this());
     boost::asio::post(ioContext_.get_executor(), std::move(closure));
 }
 
@@ -67,8 +67,8 @@ AsioExecutor::post_at(const clock_type::time_point& absTime, Task&& task)
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_at(shared_from_this(), absTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_at(weak_from_this(), absTime, std::move(task));
 }
 
 std::shared_ptr<asyncly::Cancelable>
@@ -77,8 +77,8 @@ AsioExecutor::post_after(const clock_type::duration& period, Task&& task)
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    task.maybe_set_executor(shared_from_this());
-    return m_scheduler->execute_after(shared_from_this(), period, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return m_scheduler->execute_after(weak_from_this(), period, std::move(task));
 }
 
 std::shared_ptr<asyncly::Cancelable>

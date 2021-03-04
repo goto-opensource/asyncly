@@ -49,7 +49,7 @@ void StrandImpl::post(Task&& task)
         throw std::runtime_error("invalid closure");
     }
 
-    task.maybe_set_executor(shared_from_this());
+    task.maybe_set_executor(weak_from_this());
 
     std::unique_lock<std::mutex> lock(mutex_);
     switch (state_) {
@@ -71,15 +71,15 @@ void StrandImpl::post(Task&& task)
 std::shared_ptr<asyncly::Cancelable>
 StrandImpl::post_at(const clock_type::time_point& absTime, Task&& task)
 {
-    task.maybe_set_executor(shared_from_this());
-    return get_scheduler()->execute_at(shared_from_this(), absTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return get_scheduler()->execute_at(weak_from_this(), absTime, std::move(task));
 }
 
 std::shared_ptr<asyncly::Cancelable>
 StrandImpl::post_after(const clock_type::duration& relTime, Task&& task)
 {
-    task.maybe_set_executor(shared_from_this());
-    return get_scheduler()->execute_after(shared_from_this(), relTime, std::move(task));
+    task.maybe_set_executor(weak_from_this());
+    return get_scheduler()->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
 std::shared_ptr<asyncly::Cancelable>
