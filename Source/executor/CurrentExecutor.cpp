@@ -17,6 +17,7 @@
  */
 
 #include "asyncly/executor/CurrentExecutor.h"
+#include "asyncly/executor/IStrand.h"
 
 #include <stdexcept>
 
@@ -67,5 +68,16 @@ asyncly::IExecutorPtr get_current_executor()
     }
     throw std::runtime_error("current executor stale");
 }
+
+asyncly::IStrandPtr get_current_strand()
+{
+    auto executor = get_current_executor();
+    auto strand = std::dynamic_pointer_cast<IStrand>(executor);
+    if (!strand) {
+        throw std::runtime_error("current executor is not a strand");
+    }
+    return strand;
+}
+
 }
 }

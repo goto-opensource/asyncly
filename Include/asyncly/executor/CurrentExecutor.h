@@ -23,6 +23,7 @@
 namespace asyncly {
 
 using IExecutorPtr = std::shared_ptr<class IExecutor>;
+using IStrandPtr = std::shared_ptr<class IStrand>;
 
 namespace detail {
 
@@ -54,5 +55,6 @@ namespace this_thread {
 /// required for executor adapters for other frameworks (proxy/impl, ECWorkerThreadExecutor)
 void set_current_executor(std::weak_ptr<IExecutor> executor);
 asyncly::IExecutorPtr get_current_executor();
+asyncly::IStrandPtr get_current_strand();
 }
 }
