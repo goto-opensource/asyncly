@@ -168,8 +168,8 @@ when_all_impl(std::shared_ptr<FutureImpl<Args>>... args)
         auto future = boost::hana::at(futures, index);
         future
             ->then([result_container, promise, index](
-                       typename std::add_const<typename std::decay<decltype(
-                           future)>::type::element_type::value_type>::type v) {
+                       typename std::add_const<typename std::decay<
+                           decltype(future)>::type::element_type::value_type>::type v) {
                 std::get<index.value>(result_container->results).reset(v);
                 result_container->maybe_resolve_promise(promise);
             })
