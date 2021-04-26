@@ -5,6 +5,7 @@ add_library(asyncly_mocks EXCLUDE_FROM_ALL
   dummy.cpp
   
   asyncly/MockIExecutor.h
+  asyncly/MockIStrand.h
   asyncly/MockCancelable.h
 )
 
