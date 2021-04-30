@@ -39,7 +39,7 @@ void _set_current_executor_wrapper_rawptr(asyncly::detail::ICurrentExecutorWrapp
     current_executor_wrapper_rawptr_ = ptr;
 }
 
-const asyncly::IExecutorPtr _get_current_executor_sharedptr()
+asyncly::IExecutorPtr _get_current_executor_sharedptr()
 {
     return current_executor_weakptr_.lock();
 }
@@ -47,6 +47,18 @@ const asyncly::IExecutorPtr _get_current_executor_sharedptr()
 void _set_current_executor_weakptr(std::weak_ptr<asyncly::IExecutor> wptr)
 {
     current_executor_weakptr_ = wptr;
+}
+
+asyncly::IExecutorPtr _get_current_executor_noexcept()
+{
+    if (auto currentWrapper = detail::_get_current_executor_wrapper_rawptr()) {
+        if (auto executor = currentWrapper->get_current_executor()) {
+            return executor;
+        }
+    } else if (auto currentSharedPtr = detail::_get_current_executor_sharedptr()) {
+        return currentSharedPtr;
+    }
+    return nullptr;
 }
 
 }
@@ -59,12 +71,8 @@ void set_current_executor(std::weak_ptr<IExecutor> executor)
 
 asyncly::IExecutorPtr get_current_executor()
 {
-    if (auto currentWrapper = detail::_get_current_executor_wrapper_rawptr()) {
-        if (auto executor = currentWrapper->get_current_executor()) {
-            return executor;
-        }
-    } else if (auto currentSharedPtr = detail::_get_current_executor_sharedptr()) {
-        return currentSharedPtr;
+    if (auto executor = detail::_get_current_executor_noexcept()) {
+        return executor;
     }
     throw std::runtime_error("current executor stale");
 }

@@ -44,9 +44,10 @@ class ICurrentExecutorWrapper {
 asyncly::detail::ICurrentExecutorWrapper* _get_current_executor_wrapper_rawptr();
 void _set_current_executor_wrapper_rawptr(asyncly::detail::ICurrentExecutorWrapper* ptr);
 
-const asyncly::IExecutorPtr _get_current_executor_sharedptr();
+asyncly::IExecutorPtr _get_current_executor_sharedptr();
 void _set_current_executor_weakptr(std::weak_ptr<asyncly::IExecutor> wptr);
 
+asyncly::IExecutorPtr _get_current_executor_noexcept();
 }
 
 namespace this_thread {
