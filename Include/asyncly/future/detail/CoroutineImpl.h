@@ -240,7 +240,7 @@ inline Future<void> coro_promise<void>::get_return_object()
     return promise_->get_future();
 }
 
-std::experimental::suspend_never coro_promise<void>::initial_suspend()
+inline std::experimental::suspend_never coro_promise<void>::initial_suspend()
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::initial_suspend"
@@ -249,7 +249,7 @@ std::experimental::suspend_never coro_promise<void>::initial_suspend()
     return {};
 }
 
-std::experimental::suspend_never coro_promise<void>::final_suspend()
+inline std::experimental::suspend_never coro_promise<void>::final_suspend()
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::final_suspend"
@@ -258,7 +258,7 @@ std::experimental::suspend_never coro_promise<void>::final_suspend()
     return {};
 }
 
-void coro_promise<void>::unhandled_exception()
+inline void coro_promise<void>::unhandled_exception()
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::set_exception"
@@ -267,7 +267,7 @@ void coro_promise<void>::unhandled_exception()
     promise_->set_exception(std::current_exception());
 }
 
-void coro_promise<void>::return_void()
+inline void coro_promise<void>::return_void()
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::return_void"
