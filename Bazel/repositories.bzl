@@ -5,30 +5,30 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_google_benchmark",
-        sha256 = "dccbdab796baa1043f04982147e67bb6e118fe610da2c65f88912d73987e700c",
-        strip_prefix = "benchmark-1.5.2",
+        sha256 = "e4fbb85eec69e6668ad397ec71a3a3ab165903abe98a8327db920b94508f720e",
+        strip_prefix = "benchmark-1.5.3",
         urls = [
-            "https://github.com/google/benchmark/archive/v1.5.2.tar.gz",
+            "https://github.com/google/benchmark/archive/v1.5.3.tar.gz",
         ],
     )
 
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
+        sha256 = "b4870bf121ff7795ba20d20bcdd8627b8e088f2d1dab299a031c1034eddc93d5",
+        strip_prefix = "googletest-release-1.11.0",
         urls = [
-            "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
+            "https://github.com/google/googletest/archive/release-1.11.0.tar.gz",
         ],
     )
 
     maybe(
         http_archive,
         name = "com_github_jupp0r_prometheus_cpp",
-        sha256 = "2102609457f812dbeaaafd55736461fd0538fc7e7568174b1cdec43399dbded4",
-        strip_prefix = "prometheus-cpp-0.12.1",
+        sha256 = "e021e76e8e933672f1af0d223307282004f585a054354f8d894db39debddff8e",
+        strip_prefix = "prometheus-cpp-0.12.3",
         urls = [
-            "https://github.com/jupp0r/prometheus-cpp/archive/v0.12.1.tar.gz",
+            "https://github.com/jupp0r/prometheus-cpp/archive/v0.12.3.tar.gz",
         ],
     )
 
