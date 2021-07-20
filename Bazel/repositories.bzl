@@ -5,10 +5,10 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_google_benchmark",
-        sha256 = "e4fbb85eec69e6668ad397ec71a3a3ab165903abe98a8327db920b94508f720e",
-        strip_prefix = "benchmark-1.5.3",
+        sha256 = "3bff5f237c317ddfd8d5a9b96b3eede7c0802e799db520d38ce756a2a46a18a0",
+        strip_prefix = "benchmark-1.5.5",
         urls = [
-            "https://github.com/google/benchmark/archive/v1.5.3.tar.gz",
+            "https://github.com/google/benchmark/archive/v1.5.5.tar.gz",
         ],
     )
 
