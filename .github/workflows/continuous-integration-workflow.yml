@@ -12,38 +12,59 @@ jobs:
         include:
           - os: macOS-latest
             triplet: x64-osx
-            generator: Ninja
           - os: ubuntu-18.04
             triplet: x64-linux
-            generator: Ninja
           - os: windows-2019
-            triplet: x86-windows
-            generator: VS16Win32
+            triplet: x64-windows
 
     steps:
       - uses: actions/checkout@main
 
-      - name: Restore artifacts, or run vcpkg, build and cache artifacts
-        uses: lukka/run-vcpkg@v6.0
-        id: runvcpkg
+      - name: Mount vcpkg cache
+        uses: actions/cache@v2
         with:
-          vcpkgArguments: "benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2"
-          vcpkgTriplet: "${{ matrix.triplet }}"
-          vcpkgDirectory: "${{ runner.workspace }}/b/vcpkg"
-          vcpkgGitCommitId: "ec6fe06e8da05a8157dc8581fa96b36b571c1bd5" # 2020.11-1
+          path: "~/.cache/vcpkg/archives"
+          key: vcpkg-${{ matrix.os }}-${{ matrix.triplet }}
 
-      - name: "Build asyncly"
-        uses: lukka/run-cmake@v3.2
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtBasic
-          cmakeBuildType: "Release"
-          cmakeGenerator: "${{ matrix.generator }}"
-          useVcpkgToolchainFile: true
-          buildDirectory: "${{ runner.workspace }}/cmakebuild"
+      - name: Install vcpkg dependencies
+        run: vcpkg install --triplet=${{ matrix.triplet }} benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2
 
-      - name: "Test asyncly"
+      - name: Install ninja on Ubuntu
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y ninja-build
+
+      - name: Install ninja on macOS
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: "Configure for Unix with vcpkg dependencies"
+        if: runner.os != 'Windows'
+        run: cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/_install "-DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" -DCMAKE_DEBUG_POSTFIX=_d -DCMAKE_CONFIGURATION_TYPES='Release;Debug' -G"Ninja Multi-Config" -S ${{ github.workspace }} -B ${{ github.workspace }}/_build
+
+      - name: "Configure for Windows with vcpkg dependencies"
+        if: runner.os == 'Windows'
+        run: cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/_install "-DCMAKE_TOOLCHAIN_FILE=${Env:VCPKG_INSTALLATION_ROOT}\scripts\buildsystems\vcpkg.cmake" -DCMAKE_DEBUG_POSTFIX=_d -S ${{ github.workspace }} -B ${{ github.workspace }}/_build
+
+      - name: "Build Debug"
+        run: cmake --build ${{ github.workspace }}/_build --config Debug
+
+      - name: "Build Release"
+        run: cmake --build ${{ github.workspace }}/_build --config Release
+
+      - name: "Test Debug"
+        run: ctest -C Debug -V
+        working-directory: "${{ github.workspace }}/_build"
+
+      - name: "Test Release"
         run: ctest -C Release -V
-        working-directory: "${{ runner.workspace }}/cmakebuild"
+        working-directory: "${{ github.workspace }}/_build"
+
+      - name: "Install Debug"
+        run: cmake --install ${{ github.workspace }}/_build --config Debug
+
+      - name: "Install Release"
+        run: cmake --install ${{ github.workspace }}/_build --config Release
 
   bazel:
     name: Bazel ${{ matrix.os }}
