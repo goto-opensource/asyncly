@@ -44,20 +44,21 @@ class MockIStrand : public IStrand {
     }
 
     // asyncly::IStrand
-    MOCK_CONST_METHOD0(now, clock_type::time_point());
-    MOCK_METHOD1(post, void(const asyncly::Task& arg1));
-    MOCK_METHOD2(
+    MOCK_METHOD(clock_type::time_point, now, (), (const, override));
+    MOCK_METHOD(void, post, (const asyncly::Task& arg1));
+    MOCK_METHOD(
+        std::shared_ptr<Cancelable>,
         post_at,
-        std::shared_ptr<Cancelable>(
-            const clock_type::time_point& absTime, const asyncly::Task& arg1));
-    MOCK_METHOD2(
+        (const clock_type::time_point& absTime, const asyncly::Task& arg1));
+    MOCK_METHOD(
+        std::shared_ptr<Cancelable>,
         post_after,
-        std::shared_ptr<Cancelable>(
-            const clock_type::duration& relTime, const asyncly::Task& arg1));
-    MOCK_METHOD2(
+        (const clock_type::duration& relTime, const asyncly::Task& arg1));
+    MOCK_METHOD(
+        std::shared_ptr<Cancelable>,
         post_periodically,
-        std::shared_ptr<Cancelable>(
-            const clock_type::duration& period, asyncly::RepeatableTask&& task));
-    MOCK_CONST_METHOD0(get_scheduler, ISchedulerPtr());
+        (const clock_type::duration& period, asyncly::RepeatableTask&& task),
+        (override));
+    MOCK_METHOD(ISchedulerPtr, get_scheduler, (), (const, override));
 };
 }
