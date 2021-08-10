@@ -20,6 +20,7 @@
 
 #include "asyncly/executor/InlineExecutor.h"
 #include "asyncly/future/Future.h"
+#include "asyncly/future/WhenAll.h"
 
 #include <future>
 
@@ -99,6 +100,24 @@ template <typename T> T blocking_wait(asyncly::Future<T>&& future)
 
     executor->post([&future, &syncPromise]() mutable {
         future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
+            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+    });
+
+    return syncFuture.get();
+}
+
+template <typename... Args>
+detail::when_all_return_types<Args...> blocking_wait_all(Future<Args>&&... args)
+{
+    const auto executor = InlineExecutor::create();
+    std::promise<detail::when_all_return_types<Args...>> syncPromise;
+    auto syncFuture = syncPromise.get_future();
+
+    executor->post([&]() mutable {
+        when_all(std::move(args)...)
+            .then([&syncPromise](auto... result) {
+                syncPromise.set_value(std::make_tuple(result...));
+            })
             .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
     });
 

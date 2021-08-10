@@ -102,4 +102,28 @@ TYPED_TEST(BlockingWaitTest, shouldWaitForNonVoidFuture)
 
     EXPECT_TRUE(check);
 }
+
+TYPED_TEST(BlockingWaitTest, shouldWaitForMultipleNonVoidFuture)
+{
+    std::atomic<bool> check0 = false;
+    auto promise0 = std::make_shared<Promise<bool>>();
+    this->executor_->post_after(std::chrono::milliseconds(20), [&check0, promise0]() {
+        check0 = true;
+        promise0->set_value(true);
+    });
+
+    std::atomic<bool> check1 = false;
+    auto promise1 = std::make_shared<Promise<bool>>();
+    this->executor_->post_after(std::chrono::milliseconds(20), [&check1, promise1]() {
+        check1 = true;
+        promise1->set_value(true);
+    });
+
+    auto [res0, res1] = blocking_wait_all(promise0->get_future(), promise1->get_future());
+
+    EXPECT_TRUE(res0);
+    EXPECT_TRUE(res1);
+    EXPECT_TRUE(check0);
+    EXPECT_TRUE(check1);
+}
 }
