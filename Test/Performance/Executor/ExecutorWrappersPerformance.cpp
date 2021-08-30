@@ -54,10 +54,12 @@ static void executorThreadPoolTest(benchmark::State& state)
 
 static void metricsWrapperTest(benchmark::State& state)
 {
+    auto registry = std::make_shared<prometheus::Registry>();
     auto executorController = asyncly::ThreadPoolExecutorController::create(1);
-    auto executor = asyncly::create_metrics_wrapper(executorController->get_executor(), "");
+    auto executor
+        = asyncly::create_metrics_wrapper(executorController->get_executor(), "", registry);
 
-    asyncly::testExecutor(state, executor.first);
+    asyncly::testExecutor(state, executor);
 }
 
 static void exceptionShieldTest(benchmark::State& state)

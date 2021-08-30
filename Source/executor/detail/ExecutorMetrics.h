@@ -76,9 +76,11 @@ struct TaskQueueingDelayMetrics {
 };
 
 struct ExecutorMetrics {
-    ExecutorMetrics(const std::string& executorLabel = "");
+    ExecutorMetrics(
+        const std::shared_ptr<prometheus::Registry>& registry,
+        const std::string& executorLabel = "");
 
-    prometheus::Registry registry_;
+    std::shared_ptr<prometheus::Registry> registry_;
     ProcessedTasksMetrics processedTasks;
     EnqueuedTasksMetrics queuedTasks;
     TaskExecutionDurationMetrics taskExecution;

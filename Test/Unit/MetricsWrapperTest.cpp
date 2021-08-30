@@ -90,15 +90,14 @@ class MetricsWrapperTest : public TestWithParam<PostCallType> {
 
         executorController_ = ThreadPoolExecutorController::create(1);
         executor_ = executorController_->get_executor();
-        auto metricsWrapper = create_metrics_wrapper(executor_, "");
-        metricsExecutor_ = metricsWrapper.first;
-        metricsCollectable_ = metricsWrapper.second;
+        registry_ = std::make_shared<prometheus::Registry>();
+        metricsExecutor_ = create_metrics_wrapper(executor_, "", registry_);
     }
 
     IExecutorControllerUPtr executorController_;
     IExecutorPtr executor_;
+    std::shared_ptr<prometheus::Registry> registry_;
     IExecutorPtr metricsExecutor_;
-    std::shared_ptr<prometheus::Collectable> metricsCollectable_;
 
     std::map<PostCallType, std::string> targetCounterValue_;
 };
@@ -113,18 +112,18 @@ TEST_F(MetricsWrapperTest, shouldRunPostedTask)
 
 TEST_F(MetricsWrapperTest, shouldNotAcceptInvalidExecutor)
 {
-    auto createMetricsWrapper = []() { auto e = create_metrics_wrapper({}, ""); };
+    auto createMetricsWrapper = [this]() { auto e = create_metrics_wrapper({}, "", registry_); };
     EXPECT_THROW(createMetricsWrapper(), std::exception);
 }
 
 TEST_F(MetricsWrapperTest, shouldProvideFourMetricFamilies)
 {
-    EXPECT_GE(4U, metricsCollectable_->Collect().size());
+    EXPECT_GE(4U, registry_->Collect().size());
 }
 
 TEST_F(MetricsWrapperTest, shouldProvideMetricFamiliesForQueueAndTimingStatistics)
 {
-    const auto families = metricsCollectable_->Collect();
+    const auto families = registry_->Collect();
 
     auto familyNames = std::set<std::string>{};
     std::transform(
@@ -141,7 +140,7 @@ TEST_F(MetricsWrapperTest, shouldProvideMetricFamiliesForQueueAndTimingStatistic
 
 TEST_F(MetricsWrapperTest, shouldProvideImmediateAndTimedMetrics)
 {
-    const auto families = metricsCollectable_->Collect();
+    const auto families = registry_->Collect();
 
     for (auto& family : families) {
         EXPECT_THAT(
@@ -188,7 +187,7 @@ TEST_F(MetricsWrapperTest, shouldCountQueuedTasks)
         cancelable->cancel();
     }
 
-    const auto families = metricsCollectable_->Collect();
+    const auto families = registry_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Gauge,
@@ -204,7 +203,7 @@ TEST_F(MetricsWrapperTest, shouldCountQueuedTasks)
 
 TEST_P(MetricsWrapperTest, shouldStartWithZeroProcessedTasks)
 {
-    const auto families = metricsCollectable_->Collect();
+    const auto families = registry_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Counter,
@@ -217,7 +216,7 @@ TEST_P(MetricsWrapperTest, shouldStartWithZeroProcessedTasks)
 
 TEST_P(MetricsWrapperTest, shouldStartWithZeroQueuedTasks)
 {
-    const auto families = metricsCollectable_->Collect();
+    const auto families = registry_->Collect();
     const auto result = detail::grabMetric(
         families,
         prometheus::MetricType::Gauge,
@@ -245,7 +244,7 @@ TEST_P(MetricsWrapperTest, shouldCountProcessedTasks)
     done.get_future().wait();
 
     for (;;) {
-        const auto families = metricsCollectable_->Collect();
+        const auto families = registry_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Counter,
@@ -291,7 +290,7 @@ TEST_P(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
     blocked.get_future().wait();
 
     for (;;) {
-        const auto families = metricsCollectable_->Collect();
+        const auto families = registry_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Gauge,
@@ -357,7 +356,7 @@ TEST_P(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
     synchronizationTaskRuns.get_future().wait();
 
     for (;;) {
-        const auto families = metricsCollectable_->Collect();
+        const auto families = registry_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Histogram,
@@ -404,7 +403,7 @@ TEST_P(MetricsWrapperTest, DISABLED_shouldMeasureQueueingDelay)
     done.get_future().wait();
 
     for (;;) {
-        const auto families = metricsCollectable_->Collect();
+        const auto families = registry_->Collect();
         const auto result = detail::grabMetric(
             families,
             prometheus::MetricType::Histogram,

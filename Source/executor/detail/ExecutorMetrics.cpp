@@ -93,11 +93,13 @@ TaskQueueingDelayMetrics::TaskQueueingDelayMetrics(
 {
 }
 
-ExecutorMetrics::ExecutorMetrics(const std::string& executorLabel)
-    : processedTasks{ registry_, executorLabel }
-    , queuedTasks{ registry_, executorLabel }
-    , taskExecution{ registry_, executorLabel }
-    , taskDelay{ registry_, executorLabel }
+ExecutorMetrics::ExecutorMetrics(
+    const std::shared_ptr<prometheus::Registry>& registry, const std::string& executorLabel)
+    : registry_(registry)
+    , processedTasks{ *registry_, executorLabel }
+    , queuedTasks{ *registry_, executorLabel }
+    , taskExecution{ *registry_, executorLabel }
+    , taskDelay{ *registry_, executorLabel }
 {
 }
 }

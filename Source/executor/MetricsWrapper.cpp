@@ -37,10 +37,12 @@ namespace asyncly {
 ///
 template <typename Base>
 class MetricsWrapper final : public Base,
-                             public prometheus::Collectable,
                              public std::enable_shared_from_this<MetricsWrapper<Base>> {
   public:
-    explicit MetricsWrapper(const IExecutorPtr& executor, const std::string& executorLabel);
+    explicit MetricsWrapper(
+        const IExecutorPtr& executor,
+        const std::string& executorLabel,
+        const std::shared_ptr<prometheus::Registry>& registry);
 
     clock_type::time_point now() const override
     {
@@ -53,11 +55,9 @@ class MetricsWrapper final : public Base,
     post_periodically(const clock_type::duration& t, RepeatableTask&& f) override;
     ISchedulerPtr get_scheduler() const override;
 
-    std::vector<prometheus::MetricFamily> Collect() const override;
-
   private:
     const IExecutorPtr executor_;
-    ExecutorMetricsPtr metrics_;
+    const ExecutorMetricsPtr metrics_;
 };
 
 namespace {
@@ -83,9 +83,12 @@ class MetricsCancelable final : public Cancelable {
 }
 
 template <typename Base>
-MetricsWrapper<Base>::MetricsWrapper(const IExecutorPtr& executor, const std::string& executorLabel)
+MetricsWrapper<Base>::MetricsWrapper(
+    const IExecutorPtr& executor,
+    const std::string& executorLabel,
+    const std::shared_ptr<prometheus::Registry>& registry)
     : executor_{ executor }
-    , metrics_(std::make_shared<ExecutorMetrics>(executorLabel))
+    , metrics_(std::make_shared<ExecutorMetrics>(registry, executorLabel))
 {
     if (!executor_) {
         throw std::runtime_error("must pass in non-null executor");
@@ -151,24 +154,19 @@ std::shared_ptr<asyncly::IScheduler> MetricsWrapper<Base>::get_scheduler() const
     return executor_->get_scheduler();
 }
 
-template <typename Base> std::vector<prometheus::MetricFamily> MetricsWrapper<Base>::Collect() const
-{
-    return metrics_->registry_.Collect();
-}
-
-std::pair<IExecutorPtr, std::shared_ptr<prometheus::Collectable>>
-create_metrics_wrapper(const IExecutorPtr& executor, const std::string& executorLabel)
+IExecutorPtr create_metrics_wrapper(
+    const IExecutorPtr& executor,
+    const std::string& executorLabel,
+    const std::shared_ptr<prometheus::Registry>& registry)
 {
     if (!executor) {
         throw std::runtime_error("must pass in non-null executor");
     }
 
     if (is_serializing(executor)) {
-        auto metricsWrapper = std::make_shared<MetricsWrapper<IStrand>>(executor, executorLabel);
-        return { metricsWrapper, metricsWrapper };
+        return std::make_shared<MetricsWrapper<IStrand>>(executor, executorLabel, registry);
     } else {
-        auto metricsWrapper = std::make_shared<MetricsWrapper<IExecutor>>(executor, executorLabel);
-        return { metricsWrapper, metricsWrapper };
+        return std::make_shared<MetricsWrapper<IExecutor>>(executor, executorLabel, registry);
     }
 }
 }

@@ -106,16 +106,20 @@ TEST_F(SerializingPropertyTest, maintainPropertyTroughExceptionShield2)
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughMetricsWrapper1)
 {
+    auto registry = std::make_shared<prometheus::Registry>();
     auto multiThreadExecutorController = ThreadPoolExecutorController::create(2);
-    auto wrapper = create_metrics_wrapper(multiThreadExecutorController->get_executor(), "");
-    ASSERT_FALSE(is_serializing(wrapper.first));
+    auto wrapper
+        = create_metrics_wrapper(multiThreadExecutorController->get_executor(), "", registry);
+    ASSERT_FALSE(is_serializing(wrapper));
 }
 
 TEST_F(SerializingPropertyTest, maintainPropertyTroughMetricsWrapper2)
 {
+    auto registry = std::make_shared<prometheus::Registry>();
     auto singleThreadExecutorController = ThreadPoolExecutorController::create(1);
-    auto wrapper = create_metrics_wrapper(singleThreadExecutorController->get_executor(), "");
-    ASSERT_TRUE(is_serializing(wrapper.first));
+    auto wrapper
+        = create_metrics_wrapper(singleThreadExecutorController->get_executor(), "", registry);
+    ASSERT_TRUE(is_serializing(wrapper));
 }
 
 TEST_F(SerializingPropertyTest, asioExecutorIsCurrentlySerializing)

@@ -19,15 +19,15 @@
 #pragma once
 
 #include "asyncly/executor/IExecutor.h"
+#include "prometheus/registry.h"
 
-#include <prometheus/collectable.h>
-
-#include <memory>
 #include <string>
 
 namespace asyncly {
 
-std::pair<IExecutorPtr, std::shared_ptr<prometheus::Collectable>>
-create_metrics_wrapper(const IExecutorPtr& executor, const std::string& executorLabel);
+IExecutorPtr create_metrics_wrapper(
+    const IExecutorPtr& executor,
+    const std::string& executorLabel,
+    const std::shared_ptr<prometheus::Registry>& registry);
 
 }
