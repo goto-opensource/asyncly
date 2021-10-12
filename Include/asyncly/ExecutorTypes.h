@@ -27,18 +27,20 @@ namespace asyncly {
 
 using clock_type = std::chrono::steady_clock;
 
+using CancelablePtr = std::shared_ptr<class Cancelable>;
+
 class IExecutor;
-typedef std::shared_ptr<IExecutor> IExecutorPtr;
-typedef std::weak_ptr<IExecutor> IExecutorWPtr;
+using IExecutorPtr = std::shared_ptr<IExecutor>;
+using IExecutorWPtr = std::weak_ptr<IExecutor>;
 
 class IScheduler;
-typedef std::shared_ptr<IScheduler> ISchedulerPtr;
+using ISchedulerPtr = std::shared_ptr<IScheduler>;
 
 class IStrand;
-typedef std::shared_ptr<IStrand> IStrandPtr;
+using IStrandPtr = std::shared_ptr<IStrand>;
 
 class IExecutorController;
-typedef std::unique_ptr<IExecutorController> IExecutorControllerUPtr;
+using IExecutorControllerUPtr = std::unique_ptr<IExecutorController>;
 
 class SchedulerThread;
 
