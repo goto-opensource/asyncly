@@ -4,8 +4,6 @@ add_library(asyncly_mocks EXCLUDE_FROM_ALL
   # Enforce creation of a library for iOS, Mac
   dummy.cpp
   
-  asyncly/MockIExecutor.h
-  asyncly/MockIStrand.h
   asyncly/MockCancelable.h
 )
 
