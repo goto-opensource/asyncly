@@ -23,7 +23,7 @@
 #include <prometheus/counter.h>
 #include <prometheus/gauge.h>
 
-#include "ExecutorMetrics.h"
+#include "asyncly/executor/detail/ExecutorMetrics.h"
 
 namespace asyncly {
 namespace detail {

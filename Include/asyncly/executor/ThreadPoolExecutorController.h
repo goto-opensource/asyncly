@@ -27,7 +27,6 @@
 #include "IExecutorController.h"
 
 #include "asyncly/ExecutorTypes.h"
-#include "asyncly/scheduler/DefaultScheduler.h"
 #include "asyncly/scheduler/SchedulerThread.h"
 
 namespace asyncly {

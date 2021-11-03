@@ -19,6 +19,7 @@
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 
 #include "asyncly/executor/IStrand.h"
+#include "asyncly/scheduler/DefaultScheduler.h"
 
 namespace asyncly {
 

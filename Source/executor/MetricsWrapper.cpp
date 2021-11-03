@@ -23,9 +23,9 @@
 #include "asyncly/executor/IStrand.h"
 #include "asyncly/executor/MetricsWrapper.h"
 #include "asyncly/executor/Strand.h"
+#include "asyncly/executor/detail/ExecutorMetrics.h"
 #include "asyncly/task/detail/PeriodicTask.h"
 
-#include "detail/ExecutorMetrics.h"
 #include "detail/MetricsTask.h"
 #include "detail/MetricsTaskState.h"
 

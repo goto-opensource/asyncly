@@ -60,7 +60,6 @@ add_library(asyncly
 
   Source/executor/detail/AsioExecutor.cpp
   Source/executor/detail/ExecutorMetrics.cpp
-  Source/executor/detail/ExecutorMetrics.h
   Source/executor/detail/ExternalEventExecutor.cpp
   Source/executor/detail/MetricsTask.cpp
   Source/executor/detail/MetricsTask.h
