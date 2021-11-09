@@ -27,13 +27,13 @@ namespace {
 // creates buckets from 1us to 4s with exponential bucket sizes
 inline std::vector<double> createDurationBuckets()
 {
-    const std::size_t size = 23; // Max bucket = 4s
+    const std::size_t size = 12; // Max bucket = 4s
     std::vector<double> result;
     result.reserve(size);
-    double start = 500;
+    double start = 250;
 
     std::generate_n(std::back_inserter(result), size, [&start] {
-        start = 2.0 * start;
+        start = 4.0 * start;
         return start;
     });
 
