@@ -23,17 +23,14 @@
 namespace asyncly {
 
 namespace {
-
-// creates buckets from 1us to 4s with exponential bucket sizes
-inline std::vector<double> createDurationBuckets()
+// creates buckets with exponential bucket sizes
+inline std::vector<double> createDurationBuckets(std::size_t buckets, double start, double factor)
 {
-    const std::size_t size = 12; // Max bucket = 4s
     std::vector<double> result;
-    result.reserve(size);
-    double start = 250;
+    result.reserve(buckets);
 
-    std::generate_n(std::back_inserter(result), size, [&start] {
-        start = 4.0 * start;
+    std::generate_n(std::back_inserter(result), buckets, [&start, &factor] {
+        start = factor * start;
         return start;
     });
 
@@ -73,9 +70,14 @@ TaskExecutionDurationMetrics::TaskExecutionDurationMetrics(
                          "have been taken out of the queue and started.")
                    .Register(registry) }
     , immediate_{ family_.Add(
-          { { "executor", executorLabel }, { "type", "immediate" } }, createDurationBuckets()) }
+          { { "executor", executorLabel } },
+          createDurationBuckets(12u, 250.0, 4.0) // 1us to 4s with exponential bucket sizes
+          ) }
+
     , timed_{ family_.Add(
-          { { "executor", executorLabel }, { "type", "timed" } }, createDurationBuckets()) }
+          { { "executor", executorLabel } },
+          createDurationBuckets(12u, 250.0, 4.0) // 1us to 4s with exponential bucket sizes
+          ) }
 {
 }
 
@@ -87,9 +89,13 @@ TaskQueueingDelayMetrics::TaskQueueingDelayMetrics(
                          "their creation to their execution.")
                    .Register(registry) }
     , immediate_{ family_.Add(
-          { { "executor", executorLabel }, { "type", "immediate" } }, createDurationBuckets()) }
+          { { "executor", executorLabel }, { "type", "immediate" } },
+          createDurationBuckets(15u, 250.0, 4.0) // 1us to 4m with exponential bucket sizes
+          ) }
     , timed_{ family_.Add(
-          { { "executor", executorLabel }, { "type", "timed" } }, createDurationBuckets()) }
+          { { "executor", executorLabel }, { "type", "timed" } },
+          createDurationBuckets(15u, 250.0, 4.0) // 1us to 4m with exponential bucket sizes
+          ) }
 {
 }
 

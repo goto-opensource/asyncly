@@ -143,20 +143,22 @@ TEST_F(MetricsWrapperTest, shouldProvideImmediateAndTimedMetrics)
     const auto families = registry_->Collect();
 
     for (auto& family : families) {
-        EXPECT_THAT(
-            family.metric,
-            Contains(Field(
-                &prometheus::ClientMetric::label,
-                Contains(AllOf(
-                    Field(&prometheus::ClientMetric::Label::name, "type"),
-                    Field(&prometheus::ClientMetric::Label::value, "immediate"))))));
-        EXPECT_THAT(
-            family.metric,
-            Contains(Field(
-                &prometheus::ClientMetric::label,
-                Contains(AllOf(
-                    Field(&prometheus::ClientMetric::Label::name, "type"),
-                    Field(&prometheus::ClientMetric::Label::value, "timed"))))));
+        if (family.name != "task_execution_duration_ns") {
+            EXPECT_THAT(
+                family.metric,
+                Contains(Field(
+                    &prometheus::ClientMetric::label,
+                    Contains(AllOf(
+                        Field(&prometheus::ClientMetric::Label::name, "type"),
+                        Field(&prometheus::ClientMetric::Label::value, "immediate"))))));
+            EXPECT_THAT(
+                family.metric,
+                Contains(Field(
+                    &prometheus::ClientMetric::label,
+                    Contains(AllOf(
+                        Field(&prometheus::ClientMetric::Label::name, "type"),
+                        Field(&prometheus::ClientMetric::Label::value, "timed"))))));
+        }
     }
 }
 
