@@ -40,6 +40,7 @@ namespace test {
 class FakeFutureTest : public ::testing::Test {
   public:
     FakeFutureTest(const std::shared_ptr<IFakeExecutor>& fakeExecutor = {});
+    ~FakeFutureTest();
 
     /// wait_for_future blockingly waits for a Future given to it and
     /// returns the value the future resolves to. In case the future
@@ -69,6 +70,11 @@ inline FakeFutureTest::FakeFutureTest(const std::shared_ptr<IFakeExecutor>& fake
     : fakeExecutor_(fakeExecutor ? fakeExecutor : asyncly::test::FakeExecutor::create())
     , currentExecutorGuard_(fakeExecutor_)
 {
+}
+
+inline FakeFutureTest::~FakeFutureTest()
+{
+    fakeExecutor_->runTasks();
 }
 
 inline asyncly::test::IFakeExecutorPtr FakeFutureTest::get_fake_executor()
