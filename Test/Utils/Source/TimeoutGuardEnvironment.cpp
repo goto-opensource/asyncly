@@ -20,8 +20,7 @@
 
 #include "TimeoutGuard.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 TimeoutGuardEnviroment::TimeoutGuardEnviroment(std::time_t timeoutInSec)
     : m_timeoutGuard(new TimeoutGuard(timeoutInSec))
@@ -36,6 +35,5 @@ void TimeoutGuardEnviroment::SetUp()
 void TimeoutGuardEnviroment::TearDown()
 {
     m_timeoutGuard->stop();
-}
 }
 } // namespace asyncly::test

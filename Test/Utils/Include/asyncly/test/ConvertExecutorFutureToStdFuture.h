@@ -22,8 +22,7 @@
 
 #include <future>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 template <typename T>
 std::future<T> convertExecutorFutureToStdFuture(asyncly::Future<T>& executorFuture)
 {
@@ -60,5 +59,4 @@ inline std::future<void> convertExecutorFutureToStdFuture(asyncly::Future<void>&
         .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
     return future;
 }
-}
-}
+} // namespace asyncly::test

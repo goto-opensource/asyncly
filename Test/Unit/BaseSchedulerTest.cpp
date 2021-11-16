@@ -256,4 +256,4 @@ TEST_F(BaseSchedulerTest, shouldNotThrowWhenExecutorIsStopped)
     EXPECT_NO_THROW(scheduledTaskDestroyed.get_future().get());
 }
 
-}
+} // namespace asyncly

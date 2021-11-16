@@ -56,4 +56,4 @@ struct ThreadConfig {
     ThreadInitFunction schedulerInitFunction;
 };
 
-}
+} // namespace asyncly

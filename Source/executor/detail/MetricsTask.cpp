@@ -49,4 +49,4 @@ void MetricsTask::operator()()
             .count());
 }
 
-}
+} // namespace asyncly

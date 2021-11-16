@@ -79,4 +79,4 @@ std::shared_ptr<asyncly::IScheduler> ExternalEventExecutorController::get_schedu
     return m_executor->get_scheduler();
 }
 
-}
+} // namespace asyncly

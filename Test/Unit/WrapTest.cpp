@@ -373,4 +373,4 @@ TYPED_TEST(WrapWeakThisPostTest, shouldNotCallExpiredWeakWrapThisPost)
     this->executor_->post([called{ this->called_ }]() { called->set_value(5); });
     EXPECT_EQ(this->called_->get_future().get(), 5);
 }
-}
+} // namespace asyncly

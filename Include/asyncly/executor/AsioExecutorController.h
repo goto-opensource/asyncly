@@ -55,4 +55,4 @@ class AsioExecutorController final : public IExecutorController {
     std::mutex m_stopMutex;
 };
 
-}
+} // namespace asyncly

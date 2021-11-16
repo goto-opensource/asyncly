@@ -96,4 +96,4 @@ inline void AsioScheduler::run()
 {
     m_ioContext.run();
 }
-}
+} // namespace asyncly

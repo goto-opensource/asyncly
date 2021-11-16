@@ -41,8 +41,7 @@
 #include "asyncly/detail/TypeUtils.h"
 #include "asyncly/future/detail/Future.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 template <typename T> class PromiseImpl;
 template <typename T> class FutureImpl;
@@ -108,7 +107,7 @@ template <typename... Args> struct when_any_resolver {
         }
     }
 };
-}
+} // namespace
 
 template <typename... Args>
 std::shared_ptr<FutureImpl<when_any_return_types<Args...>>> when_any_impl(Args... args)
@@ -131,5 +130,4 @@ std::shared_ptr<FutureImpl<when_any_return_types<Args...>>> when_any_impl(Args..
 
     return future;
 }
-}
-}
+} // namespace asyncly::detail

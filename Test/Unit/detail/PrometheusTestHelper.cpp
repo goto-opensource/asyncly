@@ -25,8 +25,7 @@
 
 #include "PrometheusTestHelper.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 MetricSearchResult grabMetric(
     const std::vector<prometheus::MetricFamily>& families,
@@ -69,5 +68,4 @@ MetricSearchResult grabMetric(
     }
     return { true, *metric, "" };
 }
-}
-}
+} // namespace asyncly::detail

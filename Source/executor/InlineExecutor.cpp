@@ -86,4 +86,4 @@ ISchedulerPtr InlineExecutor::get_scheduler() const
     return _scheduler;
 }
 
-}
+} // namespace asyncly

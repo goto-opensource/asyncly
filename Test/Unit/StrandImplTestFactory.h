@@ -23,8 +23,7 @@
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 #include "asyncly/test/SchedulerProvider.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 template <class SchedulerProvider = SchedulerProviderNone> class StrandImplTestFactory {
   public:
@@ -43,5 +42,4 @@ template <class SchedulerProvider = SchedulerProviderNone> class StrandImplTestF
     std::unique_ptr<IExecutorController> executorController_;
     SchedulerProvider schedulerProvider_;
 };
-}
-}
+} // namespace asyncly::test

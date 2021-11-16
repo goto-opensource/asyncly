@@ -81,4 +81,4 @@ boost::asio::io_context& AsioExecutorController::get_io_context()
     return m_executor->get_io_context();
 }
 
-}
+} // namespace asyncly

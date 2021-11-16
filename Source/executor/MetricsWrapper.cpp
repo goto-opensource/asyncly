@@ -80,7 +80,7 @@ class MetricsCancelable final : public Cancelable {
     const std::shared_ptr<Cancelable> cancelable_;
     const std::shared_ptr<detail::MetricsTaskState> taskState_;
 };
-}
+} // namespace
 
 template <typename Base>
 MetricsWrapper<Base>::MetricsWrapper(
@@ -169,4 +169,4 @@ IExecutorPtr create_metrics_wrapper(
         return std::make_shared<MetricsWrapper<IExecutor>>(executor, executorLabel, registry);
     }
 }
-}
+} // namespace asyncly

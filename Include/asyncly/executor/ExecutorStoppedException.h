@@ -30,4 +30,4 @@ class ExecutorStoppedException : public std::runtime_error {
     }
 };
 
-}
+} // namespace asyncly

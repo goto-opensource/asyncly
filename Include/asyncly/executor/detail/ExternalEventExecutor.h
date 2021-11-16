@@ -67,4 +67,4 @@ class ExternalEventExecutor final : public IStrand,
     bool m_isStopped;
     const ISchedulerPtr m_scheduler;
 };
-}
+} // namespace asyncly

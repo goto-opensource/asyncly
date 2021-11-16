@@ -24,8 +24,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 template <typename E = std::runtime_error>
 class ThrowingExecutor : public IExecutor,
@@ -110,5 +109,4 @@ template <typename E> inline ISchedulerPtr ThrowingExecutor<E>::get_scheduler() 
 {
     return _scheduler;
 }
-}
-}
+} // namespace asyncly::detail

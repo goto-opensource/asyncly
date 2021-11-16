@@ -29,8 +29,7 @@
 
 #include <future>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 // see FutureTest for documentation
 
@@ -142,5 +141,4 @@ template <> inline void FakeFutureTest::wait_for_future_failure<>(asyncly::Futur
     syncFuture.get();
 }
 
-}
-}
+} // namespace asyncly::test

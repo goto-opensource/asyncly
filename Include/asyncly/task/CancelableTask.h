@@ -45,4 +45,4 @@ class CancelableTask {
     std::shared_ptr<Task> task_;
     std::shared_ptr<TaskCancelable> cancelable_;
 };
-}
+} // namespace asyncly

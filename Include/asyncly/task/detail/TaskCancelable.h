@@ -63,4 +63,4 @@ class TaskCancelable : public Cancelable {
     std::mutex mtx_;
 };
 
-}
+} // namespace asyncly

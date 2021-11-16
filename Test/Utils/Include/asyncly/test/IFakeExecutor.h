@@ -21,8 +21,7 @@
 #include "asyncly/executor/IStrand.h"
 
 #include <memory>
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class IFakeExecutor : public IStrand {
   public:
@@ -39,5 +38,4 @@ class IFakeExecutor : public IStrand {
 };
 using IFakeExecutorPtr = std::shared_ptr<IFakeExecutor>;
 
-}
-}
+} // namespace asyncly::test

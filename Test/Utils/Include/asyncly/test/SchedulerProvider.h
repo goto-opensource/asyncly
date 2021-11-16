@@ -24,8 +24,7 @@
 #include "asyncly/ExecutorTypes.h"
 #include "asyncly/scheduler/SchedulerThread.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class SchedulerProviderNone {
   public:
@@ -57,5 +56,4 @@ template <class SchedulerImpl> class SchedulerProviderExternal {
   private:
     std::shared_ptr<SchedulerThread> schedulerThread_;
 };
-}
-}
+} // namespace asyncly::test

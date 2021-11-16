@@ -126,4 +126,4 @@ TYPED_TEST(BlockingWaitTest, shouldWaitForMultipleNonVoidFuture)
     EXPECT_TRUE(check0);
     EXPECT_TRUE(check1);
 }
-}
+} // namespace asyncly

@@ -27,8 +27,7 @@ namespace prometheus {
 struct MetricFamily;
 }
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 struct MetricSearchResult {
     bool success;
@@ -41,5 +40,4 @@ MetricSearchResult grabMetric(
     prometheus::MetricType type,
     const std::string& familyName,
     const std::string& labelValue);
-}
-}
+} // namespace asyncly::detail  // namespace asyncly::detail

@@ -71,5 +71,5 @@ template <typename... Args> struct future_traits<std::shared_ptr<FutureImpl<std:
     using contains_tuple = std::true_type;
     using value_type = std::tuple<Args...>;
 };
-}
-}
+} // namespace detail
+} // namespace asyncly

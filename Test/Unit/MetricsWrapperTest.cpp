@@ -76,7 +76,7 @@ postTaskNow(const IExecutorPtr& executor, PostCallType postType, Task&& task)
     }
     throw std::logic_error("enum value not handled in switch");
 }
-}
+} // namespace
 
 class MetricsWrapperTest : public TestWithParam<PostCallType> {
   public:

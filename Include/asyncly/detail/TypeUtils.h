@@ -26,8 +26,7 @@
 
 #include <asyncly/future/detail/FutureTraits.h>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 template <typename T> struct is_tuple {
     using type = boost::mp11::mp_false;
@@ -143,5 +142,4 @@ static_assert(
 static_assert(
     std::is_same<when_all_return_types<int, void, int>, std::tuple<int, int>>::value,
     "when_all_return_types<int, void, int> == std::tuple<int, int>");
-}
-}
+} // namespace asyncly::detail

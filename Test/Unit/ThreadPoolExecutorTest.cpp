@@ -187,4 +187,4 @@ TEST_F(ThreadPoolExecutorTest, shouldNotThrowOnGetCurrentExecutorInNestedTasks)
     });
     promiseFinished.get_future().wait();
 }
-}
+} // namespace asyncly

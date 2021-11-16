@@ -332,7 +332,7 @@ template <typename T> struct SetException<T, char const*> {
         SetException<T, std::runtime_error>::dispatch(promise, std::runtime_error{ e });
     }
 };
-}
+} // namespace detail
 template <typename T> class Promise {
   public:
     friend std::tuple<Future<T>, Promise<T>> make_lazy_future<T>();
@@ -449,7 +449,7 @@ template <typename T> struct MakeExceptionalFuture<T, char const*> {
         return MakeExceptionalFuture<T, std::runtime_error>::dispatch(std::runtime_error{ e });
     }
 };
-}
+} // namespace
 
 template <typename T, typename E> Future<T> make_exceptional_future(E e)
 {
@@ -476,8 +476,8 @@ Future<T> make_future_from_impl(const std::shared_ptr<detail::FutureImpl<T>>& fu
 {
     return { futureImpl };
 }
-}
-}
+} // namespace detail
+} // namespace asyncly
 
 #include "asyncly/future/detail/CoroutineImpl.h"
 

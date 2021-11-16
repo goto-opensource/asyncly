@@ -32,8 +32,7 @@
 #include "asyncly/scheduler/IScheduler.h"
 #include "asyncly/task/detail/PeriodicTask.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class FakeExecutor;
 using FakeExecutorPtr = std::shared_ptr<FakeExecutor>;
@@ -193,5 +192,4 @@ inline size_t FakeExecutor::queuedTasks() const
 {
     return m_taskQueue.size();
 }
-}
-}
+} // namespace asyncly::test

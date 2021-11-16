@@ -60,4 +60,4 @@ inline asyncly::ISchedulerPtr SchedulerThread::get_scheduler() const
 {
     return m_runableScheduler;
 }
-}
+} // namespace asyncly

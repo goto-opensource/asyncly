@@ -113,4 +113,4 @@ void StrandImpl::notifyDone()
         self->notifyDone();
     });
 }
-}
+} // namespace asyncly

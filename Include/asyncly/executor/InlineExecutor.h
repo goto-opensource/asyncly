@@ -44,4 +44,4 @@ class InlineExecutor final : public IExecutor, public std::enable_shared_from_th
   private:
     const ISchedulerPtr _scheduler;
 };
-}
+} // namespace asyncly

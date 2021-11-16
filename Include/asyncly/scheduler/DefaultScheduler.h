@@ -102,4 +102,4 @@ inline void DefaultScheduler::run()
         asyncly::this_thread::sleep_for(m_timerGranularity);
     }
 }
-}
+} // namespace asyncly

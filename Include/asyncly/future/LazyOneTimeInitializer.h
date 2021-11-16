@@ -90,4 +90,4 @@ template <typename F> auto createLazyOneTimeInitializer(F&& fn)
 
     return LazyOneTimeInitializer<T>(std::forward<F>(fn));
 }
-}
+} // namespace asyncly

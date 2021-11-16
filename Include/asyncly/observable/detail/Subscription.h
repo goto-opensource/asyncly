@@ -22,8 +22,7 @@
 
 #include "asyncly/observable/detail/SharedSubscriptionContext.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 template <typename T> class Subscription : public asyncly::Subscription::Unsubscribable {
   public:
@@ -49,5 +48,4 @@ Subscription<T>::Subscription(const std::shared_ptr<detail::SharedSubscriptionCo
     : context{ ccontext }
 {
 }
-}
-}
+} // namespace asyncly::detail

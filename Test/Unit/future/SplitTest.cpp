@@ -146,4 +146,4 @@ TYPED_TEST(SplitTest, shouldSplitErrorVoidFutures)
     EXPECT_THROW(called1.get_future().get(), MyError);
     EXPECT_THROW(called2.get_future().get(), MyError);
 }
-}
+} // namespace asyncly

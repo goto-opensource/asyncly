@@ -23,8 +23,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 // preserve validation checking for closures that support it, ie
 // std::function<void()> bound to a shared_ptr
@@ -71,5 +70,4 @@ template <typename T> struct TaskWrapper : public TaskConcept {
 
     T closure_;
 };
-}
-}
+} // namespace asyncly::detail

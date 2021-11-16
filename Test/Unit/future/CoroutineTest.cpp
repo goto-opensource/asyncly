@@ -211,4 +211,4 @@ TYPED_TEST(CoroutineTest, shouldThrowOnSecondCoroutineAsyncAwaitOfReadyVoidFutur
     EXPECT_ANY_THROW(value->get_future().get());
 }
 #endif
-}
+} // namespace asyncly

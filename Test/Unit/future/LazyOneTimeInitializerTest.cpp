@@ -201,4 +201,4 @@ TYPED_TEST(LazyOneTimeInitializerTest, should_LazyOneTimeInitializer_WithinClass
     });
     EXPECT_EQ(42 - 2, value1.get_future().get());
 }
-}
+} // namespace asyncly

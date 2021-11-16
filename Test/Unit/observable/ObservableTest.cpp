@@ -541,4 +541,4 @@ TYPED_TEST(ObservableTest, shouldSupportScanValueObservables)
 
     EXPECT_EQ(complete.get_future().get(), expectedSum);
 }
-}
+} // namespace asyncly

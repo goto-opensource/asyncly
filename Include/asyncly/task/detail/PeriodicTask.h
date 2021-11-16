@@ -22,8 +22,7 @@
 
 #include <mutex>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 /**
  * Implementation of a periodic task, using the IExecutor framework. Until cancelled, it will
@@ -67,5 +66,4 @@ class PeriodicTask : public Cancelable, public std::enable_shared_from_this<Peri
     clock_type::time_point expiry_;
 };
 
-} // detail namespace
-} // executor namespace
+} // namespace asyncly::detail

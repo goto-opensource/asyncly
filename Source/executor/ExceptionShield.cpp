@@ -41,7 +41,7 @@ auto createTaskExceptionHandler(
         }
     };
 }
-}
+} // namespace
 
 template <typename Base>
 class ExceptionShield final : public Base,
@@ -134,4 +134,4 @@ IExecutorPtr create_exception_shield(
     }
 }
 
-}
+} // namespace asyncly

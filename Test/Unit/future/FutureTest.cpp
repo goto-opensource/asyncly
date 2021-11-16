@@ -1500,4 +1500,4 @@ TEST_F(
     future_.catch_error([](auto) { ADD_FAILURE(); });
     promise_.set_exception("intentional error");
 }
-}
+} // namespace asyncly

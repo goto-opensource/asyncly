@@ -24,8 +24,7 @@
 
 #include "WaitForFuture.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 // see FutureTest for documentation
 
@@ -89,5 +88,4 @@ FutureTest::collect_observable(F functionReturningObservable)
 {
     return asyncly::test::collect_observable(waitExecutor_, std::move(functionReturningObservable));
 }
-}
-}
+} // namespace asyncly::test

@@ -61,7 +61,7 @@ using ScheduledExecutorFactoryTypes = ::testing::Types<
 
 INSTANTIATE_TYPED_TEST_SUITE_P(
     ThreadPoolExecutor, ScheduledExecutorCommonTest, ScheduledExecutorFactoryTypes);
-}
+} // namespace test
 
 /**
  * Test of the IExecutor::is_serializing property
@@ -128,4 +128,4 @@ TEST_F(SerializingPropertyTest, asioExecutorIsCurrentlySerializing)
     ASSERT_TRUE(is_serializing(asioExecutorController->get_executor()));
 }
 
-}
+} // namespace asyncly

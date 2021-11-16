@@ -48,7 +48,7 @@ asyncly::IExecutorPtr _get_current_executor_sharedptr();
 void _set_current_executor_weakptr(std::weak_ptr<asyncly::IExecutor> wptr);
 
 asyncly::IExecutorPtr _get_current_executor_noexcept();
-}
+} // namespace detail
 
 namespace this_thread {
 
@@ -58,4 +58,4 @@ void set_current_executor(std::weak_ptr<IExecutor> executor);
 asyncly::IExecutorPtr get_current_executor();
 asyncly::IStrandPtr get_current_strand();
 }
-}
+} // namespace asyncly

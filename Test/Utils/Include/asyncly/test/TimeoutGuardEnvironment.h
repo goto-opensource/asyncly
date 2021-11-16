@@ -25,8 +25,7 @@
 
 #include <gtest/gtest.h>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class TimeoutGuard;
 
@@ -42,5 +41,4 @@ class TimeoutGuardEnviroment : public ::testing::Environment, boost::noncopyable
 
     void TearDown() override;
 };
-}
 } // namespace asyncly::test

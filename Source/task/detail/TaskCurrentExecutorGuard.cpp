@@ -18,8 +18,7 @@
 
 #include "asyncly/task/detail/TaskCurrentExecutorGuard.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 TaskCurrentExecutorGuard::TaskCurrentExecutorGuard(const std::weak_ptr<IExecutor>& executor)
     : executor_(executor)
 {
@@ -36,5 +35,4 @@ asyncly::IExecutorPtr TaskCurrentExecutorGuard::get_current_executor()
 {
     return executor_.lock();
 }
-}
-}
+} // namespace asyncly::detail

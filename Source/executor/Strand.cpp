@@ -41,4 +41,4 @@ bool is_serializing(const IExecutorPtr& executor)
 {
     return std::dynamic_pointer_cast<IStrand>(executor) != nullptr;
 }
-}
+} // namespace asyncly

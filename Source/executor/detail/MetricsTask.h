@@ -53,4 +53,4 @@ class MetricsTask {
     const std::shared_ptr<detail::MetricsTaskState> taskState_;
     const clock_type::time_point postTimePoint_;
 };
-}
+} // namespace asyncly

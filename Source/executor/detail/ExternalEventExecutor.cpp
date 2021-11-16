@@ -114,4 +114,4 @@ void ExternalEventExecutor::runOnce()
         }
     }
 }
-}
+} // namespace asyncly

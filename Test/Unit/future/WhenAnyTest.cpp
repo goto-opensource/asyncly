@@ -262,4 +262,4 @@ TYPED_TEST(WhenAnyTest, shouldIgnoreResolveAfterRejectForWhenAny)
     EXPECT_NO_THROW(rejected.get_future().get());
     promise2.set_value(1);
 }
-}
+} // namespace asyncly

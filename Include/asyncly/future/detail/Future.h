@@ -121,7 +121,7 @@ struct Rejected {
 
 struct Continued {
 };
-}
+} // namespace future_state
 
 template <typename T> class FutureImplBase : public ErrorSink {
   public:
@@ -183,5 +183,5 @@ template <> class FutureImpl<void> : public FutureImplBase<void> {
     // called by Promise<T>
     void notify_value_ready();
 };
-}
-}
+} // namespace detail
+} // namespace asyncly

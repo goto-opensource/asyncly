@@ -20,8 +20,7 @@
 
 #include <chrono>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class WindowsTimerResolution {
   public:
@@ -36,5 +35,4 @@ class WindowsTimerResolution {
   private:
     const std::chrono::milliseconds timerResolution_;
 };
-}
 } // namespace asyncly::test

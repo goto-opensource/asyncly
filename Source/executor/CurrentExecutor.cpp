@@ -61,7 +61,7 @@ asyncly::IExecutorPtr _get_current_executor_noexcept()
     return nullptr;
 }
 
-}
+} // namespace detail
 
 namespace this_thread {
 void set_current_executor(std::weak_ptr<IExecutor> executor)
@@ -87,5 +87,5 @@ asyncly::IStrandPtr get_current_strand()
     return strand;
 }
 
-}
-}
+} // namespace this_thread
+} // namespace asyncly

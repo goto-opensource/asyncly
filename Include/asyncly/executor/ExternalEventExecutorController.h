@@ -67,4 +67,4 @@ class ExternalEventExecutorController final : public IExecutorController {
     std::mutex m_stopMutex;
 };
 
-}
+} // namespace asyncly

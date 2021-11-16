@@ -26,8 +26,7 @@
 #include <future>
 #include <vector>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 /// Blockingly waits in the calling thread for the Future given and returns the value the future
 /// resolves to. In case the future is rejected, the exception it is rejected with is thrown.
@@ -137,5 +136,4 @@ collect_observable(const asyncly::IExecutorPtr& executor, F functionReturningObs
 
     return result;
 }
-}
-}
+} // namespace asyncly::test

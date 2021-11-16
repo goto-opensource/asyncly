@@ -18,8 +18,7 @@
 
 #include "asyncly/task/detail/PeriodicTask.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 std::shared_ptr<Cancelable> PeriodicTask::create(
     const clock_type::duration& period, RepeatableTask&& task, const IExecutorPtr& executor)
@@ -89,5 +88,4 @@ void PeriodicTask::cancelAndClean_()
     task_.reset();
 }
 
-} // detail namespace
-} // executor namespace
+} // namespace asyncly::detail

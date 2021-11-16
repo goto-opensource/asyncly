@@ -39,4 +39,4 @@ class IExecutor {
     virtual ISchedulerPtr get_scheduler() const = 0;
 };
 using IExecutorPtr = std::shared_ptr<IExecutor>;
-}
+} // namespace asyncly

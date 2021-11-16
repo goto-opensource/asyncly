@@ -25,8 +25,7 @@
 #include <boost/core/enable_if.hpp>
 #include <boost/hana/functional/overload.hpp>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 namespace {
 template <typename T, typename D = void> struct maybe_pack_and_save;
@@ -65,7 +64,7 @@ struct maybe_pack_and_save<
 
     const std::shared_ptr<PromiseImpl<T>> promise_;
 };
-}
+} // namespace
 
 template <typename T>
 PromiseImplBase<T>::PromiseImplBase(const std::shared_ptr<FutureImpl<T>>& future)
@@ -417,7 +416,7 @@ template <typename C> struct make_continuation<void, C> {
     }
 };
 
-}
+} // namespace
 
 template <typename T>
 FutureImplBase<T>::FutureImplBase()
@@ -655,5 +654,4 @@ inline void future_state::Resolved<void>::callContinuation(resolve_handler_t<voi
 {
     continuation();
 }
-}
-}
+} // namespace asyncly::detail

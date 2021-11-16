@@ -24,8 +24,7 @@
 
 #include <function2/function2.hpp>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 enum class SubscriptionState {
     /// Active means there is a subscriber and values can be pushed
@@ -155,5 +154,4 @@ template <> struct SharedSubscriptionContext<void> {
     fu2::unique_function<void()> completionFunction;
     std::mutex mutex;
 };
-}
-}
+} // namespace asyncly::detail

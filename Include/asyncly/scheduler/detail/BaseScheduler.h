@@ -162,4 +162,4 @@ inline void BaseScheduler::clear()
         m_elapsedQueue.pop();
     }
 }
-}
+} // namespace asyncly

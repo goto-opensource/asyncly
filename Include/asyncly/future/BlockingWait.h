@@ -70,7 +70,7 @@ struct BlockingWait<
         syncFuture.get();
     }
 };
-}
+} // namespace detail
 
 /// Blockingly waits in the calling thread for the Future returning function to be executed in the
 /// given executor.
@@ -137,4 +137,4 @@ template <> inline void blocking_wait<>(asyncly::Future<void>&& future)
 
     syncFuture.get();
 }
-}
+} // namespace asyncly

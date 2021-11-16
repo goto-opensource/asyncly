@@ -415,4 +415,4 @@ TYPED_TEST(WhenAllTest, shouldRejectContainerOfVoidFuturesWithMultipleErrors)
     });
     EXPECT_THROW(resultsFuture.get(), CustomError);
 }
-}
+} // namespace asyncly

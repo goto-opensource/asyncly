@@ -49,4 +49,4 @@ template <typename... Args> Future<detail::when_any_return_types<Args...>> when_
 {
     return { detail::when_any_impl(args...) };
 }
-}
+} // namespace asyncly

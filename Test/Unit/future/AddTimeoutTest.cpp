@@ -203,4 +203,4 @@ TYPED_TEST(AddTimeoutTest, shouldNotTimeoutErrorValueFuturesWithIndefiniteTimeou
     EXPECT_THROW(succeeded.get_future().get(), MyError);
 }
 
-}
+} // namespace asyncly

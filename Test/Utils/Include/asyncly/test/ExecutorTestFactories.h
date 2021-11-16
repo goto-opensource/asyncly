@@ -29,8 +29,7 @@
 #include "asyncly/scheduler/AsioScheduler.h"
 #include "asyncly/test/SchedulerProvider.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 using SchedulerProviderDefault = SchedulerProviderExternal<DefaultScheduler>;
 using SchedulerProviderAsio = SchedulerProviderExternal<AsioScheduler>;
@@ -103,5 +102,4 @@ template <class SchedulerProvider = SchedulerProviderNone> class ExternalEventEx
     SchedulerProvider schedulerProvider_;
 };
 
-}
-}
+} // namespace asyncly::test

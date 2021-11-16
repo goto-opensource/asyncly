@@ -388,4 +388,4 @@ auto wrap_weak_this_with_custom_error_and_params(T self, F function, E errorFunc
 }
 
 ///@}
-}
+} // namespace asyncly

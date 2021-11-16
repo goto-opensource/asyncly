@@ -43,5 +43,5 @@ class CurrentExecutorGuard {
     CurrentExecutorGuard(const CurrentExecutorGuard&) = delete;
     CurrentExecutorGuard& operator=(const CurrentExecutorGuard&) = delete;
 };
-}
-} // namespace asyncly::test
+} // namespace test
+} // namespace asyncly

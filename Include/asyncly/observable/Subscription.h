@@ -47,4 +47,4 @@ class Subscription {
   private:
     const std::shared_ptr<Unsubscribable> impl;
 };
-}
+} // namespace asyncly

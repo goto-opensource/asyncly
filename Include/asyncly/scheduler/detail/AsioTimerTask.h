@@ -26,8 +26,7 @@
 
 #include <boost/asio.hpp>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 class AsioTimerTask : public asyncly::Cancelable,
                       public std::enable_shared_from_this<AsioTimerTask> {
@@ -52,5 +51,4 @@ class AsioTimerTask : public asyncly::Cancelable,
   private:
     boost::asio::steady_timer timer_;
 };
-}
-}
+} // namespace asyncly::detail

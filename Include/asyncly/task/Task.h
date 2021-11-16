@@ -78,4 +78,4 @@ struct Task {
     mutable std::unique_ptr<detail::TaskConcept> task_;
 };
 
-}
+} // namespace asyncly

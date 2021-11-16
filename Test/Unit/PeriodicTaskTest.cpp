@@ -73,7 +73,7 @@ class Synchronizer {
 const auto startTimePoint = std::chrono::steady_clock::time_point(0ms);
 const auto period = 10ms;
 
-}
+} // namespace
 
 struct DestructionSentinel {
   public:
@@ -145,4 +145,4 @@ TEST(
     synchronizer.wait();
 }
 
-}
+} // namespace asyncly

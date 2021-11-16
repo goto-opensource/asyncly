@@ -95,4 +95,4 @@ std::shared_ptr<asyncly::IScheduler> AsioExecutor::get_scheduler() const
     return m_scheduler;
 }
 
-}
+} // namespace asyncly

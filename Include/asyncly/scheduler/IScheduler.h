@@ -37,4 +37,4 @@ class IScheduler {
     virtual std::shared_ptr<Cancelable>
     execute_after(const IExecutorWPtr& executor, const clock_type::duration& relTime, Task&&) = 0;
 };
-}
+} // namespace asyncly

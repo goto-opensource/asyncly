@@ -20,12 +20,10 @@
 
 #include <type_traits>
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 struct TaskConcept {
     virtual ~TaskConcept() = default;
     virtual void run() = 0;
     virtual explicit operator bool() const = 0;
 };
-}
 }

@@ -25,8 +25,7 @@
 
 #include "asyncly/executor/detail/ExecutorMetrics.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 /// MetricsTaskState offers thread safe synchronization about the state of timer tasks
 /// needed for deciding whether tasks have been executed already when cancelled. This
@@ -50,5 +49,4 @@ class MetricsTaskState {
     bool hasRun_ = false;
     bool wasCancelled_ = false;
 };
-}
-}
+} // namespace asyncly::detail

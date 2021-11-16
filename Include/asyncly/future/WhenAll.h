@@ -71,4 +71,4 @@ when_all(I begin, I end)
             typename std::iterator_traits<I>::value_type::value_type>{}) };
 }
 
-}
+} // namespace asyncly

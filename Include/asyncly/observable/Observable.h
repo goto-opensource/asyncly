@@ -290,4 +290,4 @@ auto Observable<void>::scan(F function, boost::callable_traits::return_type_t<F>
                 [subscriber]() mutable { subscriber.complete(); });
         });
 }
-}
+} // namespace asyncly

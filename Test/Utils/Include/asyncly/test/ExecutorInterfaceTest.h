@@ -26,8 +26,7 @@
 
 #include "asyncly/executor/IExecutor.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 using namespace ::testing;
 
@@ -438,5 +437,4 @@ REGISTER_TYPED_TEST_SUITE_P(
     shouldNotCrashThroughCancelAfterFinishedTask,
     shouldCancelAndDeleteClosureAndReleaseExecutorReferenceSoThatThreadsFinish,
     shouldCancelAndDeleteClosureAndReleaseExecutorReferenceSoThatThreadsFinishWithPeriodic);
-}
-}
+} // namespace asyncly::test

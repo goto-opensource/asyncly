@@ -73,4 +73,4 @@ template <> inline std::tuple<Future<void>, Future<void>> split(Future<void>&& f
 
     return std::make_tuple(future1, future2);
 }
-}
+} // namespace asyncly

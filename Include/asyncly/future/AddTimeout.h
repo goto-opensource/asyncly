@@ -113,5 +113,5 @@ template <> struct TimeoutVisitor<void> {
                                  "should always be rejected");
     }
 };
-}
-}
+} // namespace
+} // namespace asyncly

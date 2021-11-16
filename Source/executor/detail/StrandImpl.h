@@ -71,4 +71,4 @@ class StrandImpl final : public IStrand, public std::enable_shared_from_this<Str
     std::promise<void> destroyed_;
     std::shared_future<void> destroyedFuture_;
 };
-}
+} // namespace asyncly

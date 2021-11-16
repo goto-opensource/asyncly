@@ -38,5 +38,5 @@ class TaskCurrentExecutorGuard : public ICurrentExecutorWrapper {
     const std::weak_ptr<asyncly::IExecutor>& executor_;
     asyncly::detail::ICurrentExecutorWrapper* last_executor_wrapper_rawptr_;
 };
-}
-}
+} // namespace detail
+} // namespace asyncly

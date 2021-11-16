@@ -25,8 +25,7 @@
 #include <windows.h>
 #endif
 
-namespace asyncly {
-namespace this_thread {
+namespace asyncly::this_thread {
 
 /*! Implements platform specific sleep_for.
  *
@@ -57,5 +56,4 @@ void sleep_for(const std::chrono::duration<Rep, Period>& sleep_duration)
     std::this_thread::sleep_for(sleep_duration);
 #endif
 }
-}
-}
+} // namespace asyncly::this_thread

@@ -22,9 +22,7 @@
 #include <functional>
 #include <vector>
 
-namespace asyncly {
-
-namespace detail {
+namespace asyncly::detail {
 
 // PriorityQueue implements a priority queue with
 // move-capable pop()
@@ -69,5 +67,4 @@ class PriorityQueue {
     Container container;
     Compare compare;
 };
-}
-}
+} // namespace asyncly::detail

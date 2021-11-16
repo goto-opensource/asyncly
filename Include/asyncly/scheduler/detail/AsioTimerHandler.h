@@ -22,8 +22,7 @@
 
 #include "asyncly/task/Task.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 class AsioTimerTask;
 
@@ -48,5 +47,4 @@ class AsioTimerHandler {
     asyncly::Task m_task;
     const std::shared_ptr<AsioTimerTask> m_timerTask;
 };
-}
-}
+} // namespace asyncly::detail

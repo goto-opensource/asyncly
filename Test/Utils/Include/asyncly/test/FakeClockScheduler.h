@@ -25,8 +25,7 @@
 #include "asyncly/scheduler/detail/BaseScheduler.h"
 #include "asyncly/task/Task.h"
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 class FakeClockScheduler : public IScheduler {
   public:
@@ -103,5 +102,4 @@ inline std::shared_ptr<Cancelable> FakeClockScheduler::execute_after(
     std::unique_lock<std::mutex> lock(m_scheduledMutex);
     return m_baseScheduler.execute_after(executor, relTime, std::move(task));
 }
-}
-}
+} // namespace asyncly::test

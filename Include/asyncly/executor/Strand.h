@@ -33,4 +33,4 @@ IStrandPtr create_strand(const IStrandPtr& strand);
  * \returns wheter the executor is serializing.
  */
 bool is_serializing(const IExecutorPtr& executor);
-}
+} // namespace asyncly

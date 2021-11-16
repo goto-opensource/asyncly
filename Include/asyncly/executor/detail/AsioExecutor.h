@@ -56,4 +56,4 @@ class AsioExecutor final : public IStrand, public std::enable_shared_from_this<A
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
     const ISchedulerPtr m_scheduler;
 };
-}
+} // namespace asyncly

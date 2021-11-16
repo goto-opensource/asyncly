@@ -50,8 +50,8 @@ send(std::shared_ptr<IExecutor> executorToCallIn, std::shared_ptr<IExecutor> exe
         result.fetch_add(counter_increment, std::memory_order_relaxed);
     }
 }
-}
-}
+} // namespace
+} // namespace asyncly
 
 using namespace asyncly;
 

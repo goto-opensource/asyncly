@@ -22,8 +22,7 @@
 
 #include <future>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 inline void postAndWait(
     const asyncly::IStrandPtr& strand,
@@ -61,5 +60,4 @@ T postWaitGet(
     return future.get();
 }
 
-}
-}
+} // namespace asyncly::test

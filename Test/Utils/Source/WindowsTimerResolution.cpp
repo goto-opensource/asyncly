@@ -26,8 +26,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 WindowsTimerResolution::WindowsTimerResolution(const std::chrono::milliseconds& timerResolution)
     : timerResolution_(timerResolution)
@@ -58,6 +57,5 @@ WindowsTimerResolution::~WindowsTimerResolution()
     auto resolution = static_cast<UINT>(timerResolution_.count());
     ::timeEndPeriod(resolution);
 #endif // _WIN32
-}
 }
 } // namespace asyncly::test

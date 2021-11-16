@@ -21,8 +21,7 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 TimeoutGuard::TimeoutGuard(std::time_t timeoutInSec)
     : timeout_{ boost::chrono::seconds(timeoutInSec) }
@@ -65,6 +64,5 @@ void TimeoutGuard::worker()
         std::cerr << std::endl << "ERROR: Test Guard timed out" << std::endl;
         std::abort();
     }
-}
 }
 } // namespace asyncly::test

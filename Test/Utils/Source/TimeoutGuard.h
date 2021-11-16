@@ -26,8 +26,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-namespace asyncly {
-namespace test {
+namespace asyncly::test {
 
 /// Allows to kill an application after a certain timeout
 class TimeoutGuard : boost::noncopyable {
@@ -53,5 +52,4 @@ class TimeoutGuard : boost::noncopyable {
     boost::mutex mutex_;
     boost::condition_variable conditionVariable_;
 };
-}
 } // namespace asyncly::test

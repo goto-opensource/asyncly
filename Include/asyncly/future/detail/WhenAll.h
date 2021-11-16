@@ -43,8 +43,7 @@
 #include "asyncly/detail/TypeUtils.h"
 #include "asyncly/future/detail/Future.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 template <typename T> class FutureImpl;
 template <typename T> class PromiseImpl;
@@ -140,7 +139,7 @@ template <typename... Args> struct when_all_result_container {
     swap_void_for_bool<Args...> results;
     bool alreadyContinued = false;
 };
-}
+} // namespace
 
 template <typename... Args>
 std::shared_ptr<FutureImpl<when_all_return_types<Args...>>>
@@ -359,5 +358,4 @@ when_all_iterator_impl(I begin, I end, when_all_iterator_tag<T>)
     return resultFuture;
 }
 
-}
-}
+} // namespace asyncly::detail

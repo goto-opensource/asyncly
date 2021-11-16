@@ -180,5 +180,5 @@ inline asyncly::Subscription ObservableImpl<void>::subscribe(
     });
     return asyncly::Subscription{ std::make_shared<detail::Subscription<void>>(subscriberContext) };
 }
-}
-}
+} // namespace detail
+} // namespace asyncly

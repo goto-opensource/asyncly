@@ -189,4 +189,4 @@ template <typename Base> void ThreadPoolExecutor<Base>::run()
         task();
     }
 }
-}
+} // namespace asyncly

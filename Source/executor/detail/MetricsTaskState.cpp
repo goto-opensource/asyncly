@@ -18,8 +18,7 @@
 
 #include "MetricsTaskState.h"
 
-namespace asyncly {
-namespace detail {
+namespace asyncly::detail {
 
 MetricsTaskState::MetricsTaskState(
     ExecutorMetricsPtr metrics,
@@ -67,5 +66,4 @@ void MetricsTaskState::onTaskCancelled()
     enqueuedTasks_.Decrement();
 }
 
-}
-}
+} // namespace asyncly::detail

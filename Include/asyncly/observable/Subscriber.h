@@ -38,7 +38,7 @@ enum class SubscriberState {
     // invokation of callbacks is allowed afterwards
     Completed,
 };
-}
+} // namespace detail
 
 template <typename T> class Subscriber;
 template <typename T> class Observable;
@@ -183,4 +183,4 @@ inline void Subscriber<void>::pushError(std::exception_ptr e)
 
     executor->post([ccontext = this->context, e]() { ccontext->onError(e); });
 }
-}
+} // namespace asyncly

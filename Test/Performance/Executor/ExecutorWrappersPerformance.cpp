@@ -42,7 +42,7 @@ static void testExecutor(benchmark::State& state, const IExecutorPtr& executor)
     }
     state.SetItemsProcessed(state.iterations() * kBatchSize);
 }
-}
+} // namespace asyncly
 
 static void executorThreadPoolTest(benchmark::State& state)
 {

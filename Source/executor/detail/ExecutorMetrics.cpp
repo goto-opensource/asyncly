@@ -36,7 +36,7 @@ inline std::vector<double> createDurationBuckets(std::size_t buckets, double sta
 
     return result;
 }
-}
+} // namespace
 
 ProcessedTasksMetrics::ProcessedTasksMetrics(
     prometheus::Registry& registry, const std::string& executorLabel)
@@ -108,4 +108,4 @@ ExecutorMetrics::ExecutorMetrics(
     , taskDelay{ *registry_, executorLabel }
 {
 }
-}
+} // namespace asyncly
