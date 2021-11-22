@@ -40,4 +40,4 @@ MetricSearchResult grabMetric(
     prometheus::MetricType type,
     const std::string& familyName,
     const std::string& labelValue);
-} // namespace asyncly::detail  // namespace asyncly::detail
+} // namespace asyncly::detail

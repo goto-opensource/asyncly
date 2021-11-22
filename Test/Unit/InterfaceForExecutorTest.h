@@ -34,4 +34,4 @@ class InterfaceForExecutorTest {
     virtual Future<void> methodReturningVoidFuture(bool b) = 0;
     virtual Observable<int> methodReturningObservable(bool b) = 0;
 };
-} // namespace asyncly  // namespace asyncly
+} // namespace asyncly
