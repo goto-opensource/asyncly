@@ -28,4 +28,4 @@ namespace asyncly {
 IExecutorPtr create_exception_shield(
     const IExecutorPtr& executor, std::function<void(std::exception_ptr)> exceptionHandler);
 
-}
+} // namespace asyncly

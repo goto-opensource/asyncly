@@ -57,5 +57,5 @@ namespace this_thread {
 void set_current_executor(std::weak_ptr<IExecutor> executor);
 asyncly::IExecutorPtr get_current_executor();
 asyncly::IStrandPtr get_current_strand();
-}
+} // namespace this_thread
 } // namespace asyncly

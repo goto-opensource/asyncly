@@ -29,4 +29,4 @@ class IObservableInterface {
     virtual ~IObservableInterface() = default;
     virtual Observable<int> method() = 0;
 };
-}
+} // namespace asyncly

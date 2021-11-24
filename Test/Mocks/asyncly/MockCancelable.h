@@ -28,4 +28,4 @@ class MockCancelable : public Cancelable {
   public:
     MOCK_METHOD0(cancel, void());
 };
-}
+} // namespace asyncly

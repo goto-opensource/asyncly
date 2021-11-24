@@ -23,4 +23,4 @@
 namespace asyncly {
 class IStrand : public IExecutor {
 };
-}
+} // namespace asyncly

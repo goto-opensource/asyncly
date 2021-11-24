@@ -26,4 +26,4 @@ class Cancelable {
     virtual void cancel() = 0;
 };
 
-}
+} // namespace asyncly

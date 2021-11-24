@@ -31,4 +31,4 @@ class IExecutorController {
     virtual IExecutorPtr get_executor() const = 0;
     virtual ISchedulerPtr get_scheduler() const = 0;
 };
-}
+} // namespace asyncly

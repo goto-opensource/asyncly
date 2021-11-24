@@ -26,7 +26,7 @@ namespace asyncly {
 
 namespace {
 template <typename T> struct TimeoutVisitor;
-}
+} // namespace
 
 /// Timeout is thrown when a timeout augmented future times out.
 struct Timeout : public std::exception {

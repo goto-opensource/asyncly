@@ -25,7 +25,7 @@
 
 namespace prometheus {
 struct MetricFamily;
-}
+} // namespace prometheus
 
 namespace asyncly::detail {
 

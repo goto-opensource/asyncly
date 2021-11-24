@@ -26,4 +26,4 @@ struct TaskConcept {
     virtual void run() = 0;
     virtual explicit operator bool() const = 0;
 };
-}
+} // namespace asyncly::detail

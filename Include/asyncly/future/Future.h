@@ -108,7 +108,7 @@ Future<T> make_future_from_impl(const std::shared_ptr<detail::FutureImpl<T>>& fu
 #ifdef ASYNCLY_HAS_COROUTINES
 template <typename T> struct coro_awaiter;
 #endif
-}
+} // namespace detail
 
 ///
 /// Future is a container for a value that will potentially available at a later point in time.

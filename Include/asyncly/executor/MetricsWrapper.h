@@ -30,4 +30,4 @@ IExecutorPtr create_metrics_wrapper(
     const std::string& executorLabel,
     const std::shared_ptr<prometheus::Registry>& registry);
 
-}
+} // namespace asyncly

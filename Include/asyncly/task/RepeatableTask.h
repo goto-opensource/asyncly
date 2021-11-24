@@ -24,4 +24,4 @@ namespace asyncly {
 
 using RepeatableTask = fu2::unique_function<void()>;
 
-}
+} // namespace asyncly

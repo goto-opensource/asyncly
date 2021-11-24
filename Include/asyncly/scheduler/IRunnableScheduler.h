@@ -28,4 +28,4 @@ class IRunnableScheduler : public IScheduler {
     virtual void run() = 0;
     virtual void stop() = 0;
 };
-}
+} // namespace asyncly
