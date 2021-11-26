@@ -2,7 +2,7 @@ EXTRA_SOURCES = []
 
 cc_test(
     name = "test_asyncly",
-    size = "small",
+    size = "medium",
     srcs = EXTRA_SOURCES + glob(
         [
             "**/*.cpp",
