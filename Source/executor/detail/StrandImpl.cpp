@@ -29,13 +29,7 @@ namespace asyncly {
 StrandImpl::StrandImpl(const IExecutorPtr& executor)
     : executor_{ executor }
     , state_{ StrandImpl::State::Waiting }
-    , destroyedFuture_{ destroyed_.get_future() }
 {
-}
-
-StrandImpl::~StrandImpl()
-{
-    destroyed_.set_value();
 }
 
 clock_type::time_point StrandImpl::now() const

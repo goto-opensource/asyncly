@@ -35,8 +35,6 @@ class StrandImpl final : public IStrand, public std::enable_shared_from_this<Str
     /// @param executor The underlying executor tasks are forwarded to.
     StrandImpl(const IExecutorPtr& executor);
 
-    ~StrandImpl() override;
-
   public:
     /// get current time
     clock_type::time_point now() const override;
@@ -68,7 +66,5 @@ class StrandImpl final : public IStrand, public std::enable_shared_from_this<Str
     std::deque<Task> taskQueue_;
     std::mutex mutex_;
     State state_;
-    std::promise<void> destroyed_;
-    std::shared_future<void> destroyedFuture_;
 };
 } // namespace asyncly

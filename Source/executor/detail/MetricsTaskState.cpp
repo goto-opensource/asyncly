@@ -32,7 +32,7 @@ MetricsTaskState::MetricsTaskState(
 
 void MetricsTaskState::onTaskEnqueued()
 {
-    std::unique_lock<std::mutex> lock{ mutex_ };
+    std::lock_guard<std::mutex> lock{ mutex_ };
 
     if (hasRun_) {
         return;
