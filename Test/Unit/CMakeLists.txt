@@ -22,6 +22,7 @@ asyncly_add_google_test(test_asyncly
   InterfaceForExecutorTest.h
   MetricsWrapperTest.cpp
   PeriodicTaskTest.cpp
+  ProxyAssertionsTest.cpp
   StrandTest.cpp
   ThreadPoolExecutorTest.cpp
   WrapTest.cpp
