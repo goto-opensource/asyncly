@@ -49,7 +49,7 @@ class StrandImpl final : public IStrand, public std::enable_shared_from_this<Str
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) override;
 
     /// post a task to the underlying Strand periodically
-    std::shared_ptr<Cancelable>
+    [[nodiscard]] std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration& period, RepeatableTask&&) override;
 
     ISchedulerPtr get_scheduler() const override;

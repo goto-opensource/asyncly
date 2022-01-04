@@ -35,10 +35,10 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_naios_function2",
-        sha256 = "c3aaeaf93bf90c0f4505a18f1094b51fe28881ce202c3bf78ec4efb336c51981",
-        strip_prefix = "function2-4.1.0",
+        sha256 = "fd1194b236e55f695c3a0c17f2440d6965b800c9309d0d5937e0185bcfe7ae6e",
+        strip_prefix = "function2-4.2.0",
         urls = [
-            "https://github.com/Naios/function2/archive/4.1.0.tar.gz",
+            "https://github.com/Naios/function2/archive/4.2.0.tar.gz",
         ],
         build_file = "@com_github_logmein_asyncly//Bazel:function2.BUILD",
     )
@@ -46,9 +46,9 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_nelhage_rules_boost",
-        sha256 = "5b7dbeadf66ae330d660359115f518d012082feec26402af26a7c540f6d0af9f",
-        strip_prefix = "rules_boost-d104cb7beba996d67ae5826be07aab2d9ca0ee38",
+        sha256 = "c3264642c6f77a894c19432fed9b0c0d1ad156b56f8e32c13abac4c682bd0873",
+        strip_prefix = "rules_boost-c8b9b4a75c4301778d2e256b8d72ce47a6c9a1a4",
         urls = [
-            "https://github.com/nelhage/rules_boost/archive/d104cb7beba996d67ae5826be07aab2d9ca0ee38.tar.gz",
+            "https://github.com/nelhage/rules_boost/archive/c8b9b4a75c4301778d2e256b8d72ce47a6c9a1a4.tar.gz",
         ],
     )

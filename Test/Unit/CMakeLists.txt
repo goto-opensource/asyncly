@@ -15,6 +15,7 @@ asyncly_add_google_test(test_asyncly
   future/WhenAnyTest.cpp
   observable/IObservableInterface.h
   observable/ObservableTest.cpp
+  task/AutoCancellableTest.cpp
 
   BaseSchedulerTest.cpp
   ExceptionShieldTest.cpp

@@ -53,7 +53,6 @@ class PeriodicTask : public Cancelable, public std::enable_shared_from_this<Peri
   private:
     void scheduleTask_();
     void onTimer_();
-    void cancelAndClean_();
 
   private:
     std::mutex mutex_;

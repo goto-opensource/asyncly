@@ -58,7 +58,7 @@ class ThreadPoolExecutor final : public Base,
     void post(Task&&) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) override;
-    std::shared_ptr<Cancelable>
+    [[nodiscard]] std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration& period, RepeatableTask&&) override;
     ISchedulerPtr get_scheduler() const override;
 
@@ -121,13 +121,14 @@ ThreadPoolExecutor<Base>::post_after(const clock_type::duration& relTime, Task&&
 }
 
 template <typename Base>
-std::shared_ptr<Cancelable> ThreadPoolExecutor<Base>::post_periodically(
+std::shared_ptr<AutoCancelable> ThreadPoolExecutor<Base>::post_periodically(
     const clock_type::duration& period, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    return detail::PeriodicTask::create(period, std::move(task), this->shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(period, std::move(task), this->shared_from_this()));
 }
 
 template <typename Base> asyncly::ISchedulerPtr ThreadPoolExecutor<Base>::get_scheduler() const

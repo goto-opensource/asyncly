@@ -17,6 +17,7 @@
  */
 
 #include "asyncly/task/detail/PeriodicTask.h"
+#include "asyncly/Wrap.h"
 
 namespace asyncly::detail {
 
@@ -49,15 +50,21 @@ void PeriodicTask::cancel()
         return;
     }
     cancelled_ = true;
-    cancelAndClean_();
+
+    if (currentDelayedTask_) {
+        currentDelayedTask_->cancel();
+    }
+    currentDelayedTask_.reset();
+
+    task_.reset();
 }
 
 void PeriodicTask::scheduleTask_()
 {
     expiry_ += period_;
     if (auto executor = executor_.lock()) {
-        currentDelayedTask_
-            = executor->post_at(expiry_, [self = shared_from_this()]() { self->onTimer_(); });
+        currentDelayedTask_ = executor->post_at(
+            expiry_, asyncly::wrap_weak_this_ignore(this, [this](auto) { onTimer_(); }));
     }
 }
 
@@ -76,16 +83,6 @@ void PeriodicTask::onTimer_()
     }
 
     (*task)();
-}
-
-void PeriodicTask::cancelAndClean_()
-{
-    if (currentDelayedTask_) {
-        currentDelayedTask_->cancel();
-    }
-    currentDelayedTask_.reset();
-
-    task_.reset();
 }
 
 } // namespace asyncly::detail

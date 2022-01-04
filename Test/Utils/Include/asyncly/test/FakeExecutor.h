@@ -64,7 +64,7 @@ class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<F
     void post(Task&&) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) override;
-    std::shared_ptr<Cancelable>
+    [[nodiscard]] std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration& period, RepeatableTask&&) override;
     ISchedulerPtr get_scheduler() const override;
 
@@ -111,13 +111,14 @@ FakeExecutor::post_after(const clock_type::duration& relTime, Task&& task)
     return m_scheduler->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
-inline std::shared_ptr<Cancelable>
+inline std::shared_ptr<AutoCancelable>
 FakeExecutor::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid task");
     }
-    return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(period, std::move(task), shared_from_this()));
 }
 
 inline asyncly::ISchedulerPtr FakeExecutor::get_scheduler() const

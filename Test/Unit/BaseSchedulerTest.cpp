@@ -51,7 +51,7 @@ class ImmediatePostExecutor : public IExecutor {
     {
         throw;
     }
-    std::shared_ptr<Cancelable>
+    std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration&, RepeatableTask&&) override
     {
         throw;

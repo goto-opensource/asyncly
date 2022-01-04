@@ -39,7 +39,7 @@ class ThrowingExecutor : public IExecutor,
     void post(Task&& closure) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point&, Task&&) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration&, Task&&) override;
-    std::shared_ptr<Cancelable>
+    [[nodiscard]] std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration&, RepeatableTask&&) override;
     ISchedulerPtr get_scheduler() const override;
 
@@ -99,7 +99,7 @@ ThrowingExecutor<E>::post_after(const clock_type::duration&, Task&&)
 }
 
 template <typename E>
-inline std::shared_ptr<Cancelable>
+inline std::shared_ptr<AutoCancelable>
 ThrowingExecutor<E>::post_periodically(const clock_type::duration&, RepeatableTask&&)
 {
     throw E("throwing executor always throws");

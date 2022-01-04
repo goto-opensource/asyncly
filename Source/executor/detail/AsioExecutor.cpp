@@ -81,13 +81,14 @@ AsioExecutor::post_after(const clock_type::duration& period, Task&& task)
     return m_scheduler->execute_after(weak_from_this(), period, std::move(task));
 }
 
-std::shared_ptr<asyncly::Cancelable>
+std::shared_ptr<asyncly::AutoCancelable>
 AsioExecutor::post_periodically(const clock_type::duration& relTime, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    return detail::PeriodicTask::create(relTime, std::move(task), shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(relTime, std::move(task), shared_from_this()));
 }
 
 std::shared_ptr<asyncly::IScheduler> AsioExecutor::get_scheduler() const

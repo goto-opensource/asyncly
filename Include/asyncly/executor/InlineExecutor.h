@@ -37,7 +37,7 @@ class InlineExecutor final : public IExecutor, public std::enable_shared_from_th
     void post(Task&& closure) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point&, Task&&) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration&, Task&&) override;
-    std::shared_ptr<Cancelable>
+    [[nodiscard]] std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration&, RepeatableTask&&) override;
     ISchedulerPtr get_scheduler() const override;
 

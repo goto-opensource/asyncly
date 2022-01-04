@@ -55,7 +55,7 @@ class ExceptionShield final : public Base,
     void post(Task&& f) override;
     std::shared_ptr<Cancelable> post_at(const clock_type::time_point& t, Task&& f) override;
     std::shared_ptr<Cancelable> post_after(const clock_type::duration& t, Task&& f) override;
-    std::shared_ptr<Cancelable>
+    std::shared_ptr<AutoCancelable>
     post_periodically(const clock_type::duration& t, RepeatableTask&& task) override;
     ISchedulerPtr get_scheduler() const override;
 
@@ -108,10 +108,11 @@ ExceptionShield<Base>::post_after(const clock_type::duration& t, Task&& closure)
 }
 
 template <typename Base>
-std::shared_ptr<Cancelable>
+std::shared_ptr<AutoCancelable>
 ExceptionShield<Base>::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
-    return detail::PeriodicTask::create(period, std::move(task), this->shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(period, std::move(task), this->shared_from_this()));
 }
 
 template <typename Base>

@@ -74,11 +74,11 @@ std::shared_ptr<Cancelable> InlineExecutor::post_after(const clock_type::duratio
     return std::shared_ptr<Cancelable>();
 }
 
-std::shared_ptr<Cancelable>
+std::shared_ptr<AutoCancelable>
 InlineExecutor::post_periodically(const clock_type::duration&, RepeatableTask&&)
 {
     assert(false);
-    return std::shared_ptr<Cancelable>();
+    return std::shared_ptr<AutoCancelable>();
 }
 
 ISchedulerPtr InlineExecutor::get_scheduler() const

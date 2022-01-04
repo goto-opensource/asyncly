@@ -76,10 +76,11 @@ StrandImpl::post_after(const clock_type::duration& relTime, Task&& task)
     return get_scheduler()->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
-std::shared_ptr<asyncly::Cancelable>
+std::shared_ptr<asyncly::AutoCancelable>
 StrandImpl::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
-    return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(period, std::move(task), shared_from_this()));
 }
 
 ISchedulerPtr StrandImpl::get_scheduler() const

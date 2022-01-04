@@ -63,13 +63,14 @@ ExternalEventExecutor::post_after(const clock_type::duration& relTime, Task&& ta
     return m_scheduler->execute_after(weak_from_this(), relTime, std::move(task));
 }
 
-std::shared_ptr<Cancelable>
+std::shared_ptr<AutoCancelable>
 ExternalEventExecutor::post_periodically(const clock_type::duration& period, RepeatableTask&& task)
 {
     if (!task) {
         throw std::runtime_error("invalid closure");
     }
-    return detail::PeriodicTask::create(period, std::move(task), shared_from_this());
+    return std::make_shared<AutoCancelable>(
+        detail::PeriodicTask::create(period, std::move(task), shared_from_this()));
 }
 
 asyncly::ISchedulerPtr ExternalEventExecutor::get_scheduler() const

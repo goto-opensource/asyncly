@@ -265,7 +265,7 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldScheduleClosureWithPeriodicTime)
 
     auto state = std::make_shared<State>();
 
-    auto cancelable
+    auto autoCancelable
         = this->executor_->post_periodically(this->delay_, [&timeAtExecutionPromise, state]() {
               if (state->compareAndSwap()) {
                   timeAtExecutionPromise.set_value(clock_type::now());
@@ -274,7 +274,7 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldScheduleClosureWithPeriodicTime)
 
     auto timeAtExecution = timeAtExecutionPromise.get_future().get();
     EXPECT_GE(timeAtExecution - timeAtDispatch, this->delay_);
-    cancelable->cancel();
+    autoCancelable.reset();
 }
 
 TYPED_TEST_P(ScheduledExecutorCommonTest, shouldExecuteBeforeNewestExpires)
@@ -340,9 +340,9 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldCancelClosureWithPeriodic)
     std::promise<void> actionPerformed;
 
     this->executor_->post([continueQueueFuture]() { continueQueueFuture.get(); });
-    auto cancelable = this->executor_->post_periodically(
+    auto autoCancelable = this->executor_->post_periodically(
         this->delay_, [&actionPerformed]() { actionPerformed.set_value(); });
-    cancelable->cancel();
+    autoCancelable.reset();
     continueQueue.set_value();
     EXPECT_EQ(
         std::future_status::timeout,
@@ -367,15 +367,16 @@ TYPED_TEST_P(ScheduledExecutorCommonTest, shouldReschedulePeriodic)
 
     auto state = std::make_shared<State>();
 
-    auto cancelable = this->executor_->post_periodically(this->delay_, [&actionPerformed, state]() {
-        if (state->incrementAndGet() == 2) {
-            actionPerformed.set_value(2);
-        }
-    });
+    auto autoCancelable
+        = this->executor_->post_periodically(this->delay_, [&actionPerformed, state]() {
+              if (state->incrementAndGet() == 2) {
+                  actionPerformed.set_value(2);
+              }
+          });
 
     auto result = actionPerformed.get_future().get();
     ASSERT_GE(result, 2);
-    cancelable->cancel();
+    autoCancelable.reset();
 }
 
 TYPED_TEST_P(ScheduledExecutorCommonTest, shouldNotCrashThroughCancelAfterFinishedTask)
@@ -414,11 +415,11 @@ TYPED_TEST_P(
     std::promise<void> actionPerformed;
     auto executor = this->executor_;
 
-    auto cancelable = this->executor_->post_periodically(
+    auto autoCancelable = this->executor_->post_periodically(
         std::chrono::hours(1),
         [&actionPerformed, executor{ std::move(executor) }]() { actionPerformed.set_value(); });
 
-    cancelable->cancel();
+    autoCancelable.reset();
     EXPECT_EQ(
         std::future_status::timeout,
         actionPerformed.get_future().wait_for(

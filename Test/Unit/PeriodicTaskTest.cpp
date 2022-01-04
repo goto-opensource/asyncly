@@ -31,45 +31,6 @@ using namespace std::chrono_literals;
 namespace asyncly {
 
 namespace {
-class Synchronizer {
-  public:
-    Synchronizer()
-    {
-        p.emplace_back(std::make_shared<std::promise<void>>());
-    }
-
-    void wait()
-    {
-        const auto id = std::this_thread::get_id();
-        auto currentPromise = getCurrentPromise(id);
-        currentPromise->get_future().get();
-    }
-
-    void notify()
-    {
-        const auto id = std::this_thread::get_id();
-        auto currentPromise = getCurrentPromise(id);
-        currentPromise->set_value();
-    }
-
-  private:
-    std::shared_ptr<std::promise<void>> getCurrentPromise(std::thread::id id)
-    {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (indexPerThread.count(id) == 0) {
-            indexPerThread[id] = 0;
-        }
-        if (indexPerThread[id] > p.size() - 1) {
-            p.emplace_back(std::make_shared<std::promise<void>>());
-        }
-        return p[indexPerThread[id]++];
-    }
-
-    std::mutex mutex;
-    std::vector<std::shared_ptr<std::promise<void>>> p;
-    std::unordered_map<std::thread::id, size_t> indexPerThread;
-};
-
 const auto startTimePoint = std::chrono::steady_clock::time_point(0ms);
 const auto period = 10ms;
 
@@ -77,18 +38,18 @@ const auto period = 10ms;
 
 struct DestructionSentinel {
   public:
-    DestructionSentinel(Synchronizer& s)
-        : m_synchronizer(s)
+    DestructionSentinel(std::promise<void>& destroyed)
+        : _destroyed(destroyed)
     {
     }
     ~DestructionSentinel()
     {
         destroy();
-        m_synchronizer.notify();
+        _destroyed.set_value();
     }
     MOCK_CONST_METHOD0(destroy, void());
 
-    Synchronizer& m_synchronizer;
+    std::promise<void>& _destroyed;
 };
 
 TEST(
@@ -99,25 +60,28 @@ TEST(
     auto controller = ThreadPoolExecutorController::create(2, fakeScheduler);
     auto executor = controller->get_executor();
 
-    auto synchronizer = Synchronizer{};
+    auto taskStarted = std::promise<void>();
+    auto taskUnblocked = std::promise<void>();
+    auto taskDestroyed = std::promise<void>();
 
     auto periodicTask = executor->post_periodically(
         period,
-        [&synchronizer,
-         destructionSentinel = std::make_unique<DestructionSentinel>(synchronizer)]() mutable {
+        [&taskStarted,
+         &taskUnblocked,
+         destructionSentinel = std::make_unique<DestructionSentinel>(taskDestroyed)]() mutable {
             EXPECT_CALL(*destructionSentinel, destroy).Times(0);
-            synchronizer.notify();
-            synchronizer.wait();
+            taskStarted.set_value();
+            taskUnblocked.get_future().get();
             EXPECT_CALL(*destructionSentinel, destroy).Times(1);
         });
 
     fakeScheduler->advanceClockToNextEvent(startTimePoint + period);
 
     // wait for the async task to start, cancel it and then unblock it
-    synchronizer.wait();
-    periodicTask->cancel();
-    synchronizer.notify();
-    synchronizer.wait();
+    taskStarted.get_future().get();
+    periodicTask.reset();
+    taskUnblocked.set_value();
+    taskDestroyed.get_future().get();
 }
 
 TEST(
@@ -128,21 +92,21 @@ TEST(
     auto controller = ThreadPoolExecutorController::create(2, fakeScheduler);
     auto executor = controller->get_executor();
 
-    auto synchronizer = Synchronizer{};
+    auto taskDestroyed = std::promise<void>();
 
-    std::shared_ptr<asyncly::Cancelable> periodicTask;
+    std::shared_ptr<asyncly::AutoCancelable> periodicTask;
     periodicTask = executor->post_periodically(
         period,
         [&periodicTask,
-         destructionSentinel = std::make_unique<DestructionSentinel>(synchronizer)]() mutable {
+         destructionSentinel = std::make_unique<DestructionSentinel>(taskDestroyed)]() mutable {
             EXPECT_CALL(*destructionSentinel, destroy).Times(0);
-            periodicTask->cancel();
+            periodicTask.reset();
             EXPECT_CALL(*destructionSentinel, destroy).Times(1);
         });
 
     fakeScheduler->advanceClockToNextEvent(startTimePoint + period);
 
-    synchronizer.wait();
+    taskDestroyed.get_future().get();
 }
 
 } // namespace asyncly

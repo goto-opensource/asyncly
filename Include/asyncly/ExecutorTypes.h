@@ -27,6 +27,7 @@ namespace asyncly {
 
 using clock_type = std::chrono::steady_clock;
 
+using AutoCancelablePtr = std::shared_ptr<class AutoCancelable>;
 using CancelablePtr = std::shared_ptr<class Cancelable>;
 
 class IExecutor;
