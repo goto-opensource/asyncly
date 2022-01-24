@@ -76,6 +76,7 @@ add_library(asyncly
 if(RTC_OS_MSWIN)
   # silence deprecation warnings triggered by Boost Hana
   target_compile_definitions(asyncly PUBLIC _SILENCE_CXX17_IS_LITERAL_TYPE_DEPRECATION_WARNING _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+  target_compile_definitions(asyncly PUBLIC _SILENCE_CLANG_COROUTINE_MESSAGE)
 endif()
 
 target_include_directories(asyncly PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>)
