@@ -20,7 +20,7 @@
 
 // Eric Niebler contributed this detection macro to Folly:
 // https://github.com/facebook/folly/blob/master/folly/Portability.h#L407
-#if defined(__cpp_coroutines) && __cpp_coroutines >= 201703L
+#if defined(__cpp_coroutines) && __cpp_coroutines >= 201703L && __cplusplus < 202002L
 #if defined(__has_include) && __has_include(<experimental/coroutine>)
 #define ASYNCLY_HAS_COROUTINES 1
 #endif

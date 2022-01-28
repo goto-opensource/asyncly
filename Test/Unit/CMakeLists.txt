@@ -29,7 +29,7 @@ asyncly_add_google_test(test_asyncly
 )
 
 
-if(NOT )
+if(NOT  AND NOT CMAKE_CXX_STANDARD EQUAL "20")
   set(COROUTINE_AWARE_SOURCES future/CoroutineTest.cpp observable/ObservableTest.cpp)
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND NOT MSVC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 5 AND NOT RTC_OS_ANDROID)
