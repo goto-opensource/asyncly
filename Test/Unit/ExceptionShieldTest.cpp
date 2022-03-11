@@ -69,7 +69,7 @@ TEST_F(ExceptionShieldTest, shouldCaptureThrownIntegers)
         }
     };
     auto exceptionShield = create_exception_shield(executor_, exceptionHandler);
-    exceptionShield->post([integerToBeThrown]() { throw integerToBeThrown; });
+    exceptionShield->post([integerToBeThrown]() { throw int{ integerToBeThrown }; });
     EXPECT_EQ(integerToBeThrown, thrownInteger.get_future().get());
 }
 

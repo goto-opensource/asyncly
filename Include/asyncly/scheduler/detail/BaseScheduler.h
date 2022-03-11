@@ -100,7 +100,7 @@ inline std::shared_ptr<Cancelable> BaseScheduler::execute_at(
                            if (auto p = executor.lock()) {
                                try {
                                    p->post(std::move(cancelableTask));
-                               } catch (ExecutorStoppedException) {
+                               } catch (const ExecutorStoppedException&) {
                                    // ignore
                                }
                            }

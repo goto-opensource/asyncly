@@ -84,7 +84,7 @@ inline std::shared_ptr<Cancelable> AsioScheduler::execute_after(
         if (auto p = executor.lock()) {
             try {
                 p->post(std::move(task));
-            } catch (ExecutorStoppedException) {
+            } catch (const ExecutorStoppedException&) {
                 // ignore
             }
         }

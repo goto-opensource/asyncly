@@ -500,7 +500,7 @@ template <typename T> template <typename F> void FutureImplBase<T>::catch_error(
             [this, &errorCallback](future_state::Rejected& rejected) {
                 this_thread::get_current_executor()->post(
                     [error{ rejected.error_ },
-                     errorCallback{ std::move(errorCallback) }]() mutable {
+                     errorCallback{ std::forward<F>(errorCallback) }]() mutable {
                         errorCallback(error);
                     });
                 state_ = future_state::Continued{};
@@ -545,7 +545,7 @@ void FutureImplBase<T>::catch_and_forward_error(F&& errorCallback)
             [&errorCallback](future_state::Rejected& rejected) {
                 this_thread::get_current_executor()->post(
                     [error{ rejected.error_ },
-                     errorCallback{ std::move(errorCallback) }]() mutable {
+                     errorCallback{ std::forward<F>(errorCallback) }]() mutable {
                         errorCallback(error);
                     });
             },
@@ -568,7 +568,7 @@ template <typename T> void FutureImplBase<T>::notify_error_ready(std::exception_
     if (ready->onError_) {
         try {
             ready->onError_(error);
-        } catch (ExecutorStoppedException) {
+        } catch (const ExecutorStoppedException&) {
         }
         if (!errorBreaksContinuationChain_) {
             if (auto errorObserver = ready->errorObserver_.lock()) {
@@ -596,7 +596,7 @@ template <typename T> void FutureImpl<T>::notify_value_ready(const T& value)
     if (ready->continuation_) {
         try {
             ready->continuation_(value);
-        } catch (ExecutorStoppedException) {
+        } catch (const ExecutorStoppedException&) {
         }
         this->state_ = future_state::Continued{};
     } else {
@@ -616,7 +616,7 @@ template <typename T> void FutureImpl<T>::notify_value_ready(T&& value)
     if (ready->continuation_) {
         try {
             ready->continuation_(std::forward<T>(value));
-        } catch (ExecutorStoppedException) {
+        } catch (const ExecutorStoppedException&) {
         }
         this->state_ = future_state::Continued{};
     } else {
@@ -636,7 +636,7 @@ inline void FutureImpl<void>::notify_value_ready()
     if (ready->continuation_) {
         try {
             ready->continuation_();
-        } catch (ExecutorStoppedException) {
+        } catch (const ExecutorStoppedException&) {
         }
         state_ = future_state::Continued{};
     } else {
