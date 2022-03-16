@@ -23,6 +23,8 @@
 
 #include <boost/optional.hpp>
 
+#include <type_traits>
+
 namespace asyncly {
 
 /// LazyOneTimeInitializer takes a function that returns a future. It allows getting multiple
@@ -39,7 +41,7 @@ template <typename T> class LazyOneTimeInitializer {
     {
         assert(_fn && "The initialization function has to be valid!");
 
-        using R = typename std::result_of<F()>::type;
+        using R = typename std::invoke_result<F>::type;
         static_assert(
             detail::future_traits<R>::is_future::value,
             "The function has to return an asyncly::Future!");
@@ -82,7 +84,7 @@ template <typename T> class LazyOneTimeInitializer {
 /// \snippet LazyOneTimeInitializerTest.cpp LazyOneTimeInitializer WithinClass
 template <typename F> auto createLazyOneTimeInitializer(F&& fn)
 {
-    using R = typename std::result_of<F()>::type;
+    using R = typename std::invoke_result<F>::type;
     static_assert(
         detail::future_traits<R>::is_future::value,
         "The function has to return an asyncly::Future!");

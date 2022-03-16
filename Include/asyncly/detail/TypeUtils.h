@@ -20,7 +20,7 @@
 
 #include <memory>
 #include <tuple>
-#include <utility>
+#include <type_traits>
 
 #include <boost/mp11.hpp>
 
@@ -72,11 +72,11 @@ struct maybe_unpack_and_call<
 };
 
 template <typename F, typename T> struct continuation_result_type {
-    using type = typename std::result_of<maybe_unpack_and_call<T>(F, T)>::type;
+    using type = typename std::invoke_result<maybe_unpack_and_call<T>, F, T>::type;
 };
 
 template <typename F> struct continuation_result_type<F, void> {
-    using type = typename std::result_of<F && ()>::type;
+    using type = typename std::invoke_result<F&&>::type;
 };
 
 template <typename T> class FutureImpl;

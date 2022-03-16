@@ -45,7 +45,7 @@ template <typename T> struct TaskWrapper : public TaskConcept {
     TaskWrapper(T&& closure)
         : closure_(std::move(closure))
     {
-        using R = typename std::result_of<T()>::type;
+        using R = typename std::invoke_result<T>::type;
         static_assert(
             std::is_same<R, void>::value, "Posted function objects can not return values!");
     }
@@ -53,7 +53,7 @@ template <typename T> struct TaskWrapper : public TaskConcept {
     TaskWrapper(const T& closure)
         : closure_(closure)
     {
-        using R = typename std::result_of<T()>::type;
+        using R = typename std::invoke_result<T>::type;
         static_assert(
             std::is_same<R, void>::value, "Posted function objects can not return values!");
     }

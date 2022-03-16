@@ -23,9 +23,11 @@
 #include "asyncly/future/WhenAll.h"
 
 #include <future>
+#include <type_traits>
 
 namespace asyncly {
-template <typename F> using FutureReturnValueType = typename std::result_of<F()>::type::value_type;
+template <typename F>
+using FutureReturnValueType = typename std::invoke_result<F>::type::value_type;
 
 namespace detail {
 template <typename F, typename R = void> struct BlockingWait;

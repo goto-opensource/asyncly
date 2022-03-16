@@ -24,6 +24,8 @@
 
 #include "WaitForFuture.h"
 
+#include <type_traits>
+
 namespace asyncly::test {
 
 // see FutureTest for documentation
@@ -58,7 +60,7 @@ class FutureTest : public ::testing::Test {
     /// Example usage:
     /// \snippet ExecutorProyTest.cpp Collect Observable
     template <typename F>
-    std::vector<typename std::result_of<F()>::type::value_type>
+    std::vector<typename std::invoke_result<F>::type::value_type>
     collect_observable(F functionReturningObservable);
 
   private:
@@ -83,7 +85,7 @@ template <typename T> void FutureTest::wait_for_future_failure(asyncly::Future<T
 }
 
 template <typename F>
-std::vector<typename std::result_of<F()>::type::value_type>
+std::vector<typename std::invoke_result<F>::type::value_type>
 FutureTest::collect_observable(F functionReturningObservable)
 {
     return asyncly::test::collect_observable(waitExecutor_, std::move(functionReturningObservable));

@@ -25,6 +25,8 @@
 #include <boost/core/enable_if.hpp>
 #include <boost/hana/functional/overload.hpp>
 
+#include <type_traits>
+
 namespace asyncly::detail {
 
 namespace {
@@ -479,7 +481,7 @@ template <typename T> template <typename F> void FutureImplBase<T>::catch_error(
     onErrorSet_ = true;
     errorBreaksContinuationChain_ = true;
 
-    using R = typename std::result_of<F(std::exception_ptr)>::type;
+    using R = typename std::invoke_result<F, std::exception_ptr>::type;
     static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
 
     boost::variant2::visit(
@@ -524,7 +526,7 @@ void FutureImplBase<T>::catch_and_forward_error(F&& errorCallback)
     onErrorSet_ = true;
     errorBreaksContinuationChain_ = false;
 
-    using R = typename std::result_of<F(std::exception_ptr)>::type;
+    using R = typename std::invoke_result<F, std::exception_ptr>::type;
     static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
 
     boost::variant2::visit(

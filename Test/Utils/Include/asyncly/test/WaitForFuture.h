@@ -24,6 +24,7 @@
 
 #include <exception>
 #include <future>
+#include <type_traits>
 #include <vector>
 
 namespace asyncly::test {
@@ -111,14 +112,14 @@ inline void wait_for_future_failure<>(
 /// the observable never completes, this function will block indefinitely. The parameter passed is a
 /// function because it internally needs to be executed in an executor context.
 template <typename F>
-std::vector<typename std::result_of<F()>::type::value_type>
+std::vector<typename std::invoke_result<F>::type::value_type>
 collect_observable(const std::shared_ptr<IExecutor>& executor, F functionReturningObservable);
 
 template <typename F>
-std::vector<typename std::result_of<F()>::type::value_type>
+std::vector<typename std::invoke_result<F>::type::value_type>
 collect_observable(const asyncly::IExecutorPtr& executor, F functionReturningObservable)
 {
-    using T = typename std::result_of<F()>::type::value_type;
+    using T = typename std::invoke_result<F>::type::value_type;
     std::promise<void> syncPromise;
     auto syncFuture = syncPromise.get_future();
 
