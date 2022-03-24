@@ -490,10 +490,8 @@ TYPED_TEST(FutureTest, shouldForwardValuesThroughCatch)
 TYPED_TEST(FutureTest, shouldChooseTheRightErrorHandler)
 {
     //! [Error Chain]
-    struct WrongException : std::exception {
-    };
-    struct CorrectException : std::exception {
-    };
+    struct WrongException : std::exception { };
+    struct CorrectException : std::exception { };
     std::promise<void> exception_container;
 
     this->executor_->post([&exception_container]() {
@@ -529,10 +527,8 @@ TYPED_TEST(FutureTest, shouldChooseTheRightErrorHandler)
 
 TYPED_TEST(FutureTest, shouldChooseTheRightErrorHandlerOnExceptionalFuture)
 {
-    struct WrongException : std::exception {
-    };
-    struct CorrectException : std::exception {
-    };
+    struct WrongException : std::exception { };
+    struct CorrectException : std::exception { };
     std::promise<void> exception_container;
 
     this->executor_->post([&exception_container]() {
@@ -557,8 +553,7 @@ TYPED_TEST(FutureTest, shouldChooseTheRightErrorHandlerOnExceptionalFuture)
 
 TYPED_TEST(FutureTest, shouldCatchAndForwardError)
 {
-    struct CorrectException : std::exception {
-    };
+    struct CorrectException : std::exception { };
     std::promise<void> exception1_container;
     std::promise<void> exception2_container;
 
@@ -984,8 +979,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) -> Future<void> { throw test_error{}; })
@@ -1001,8 +995,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) {
@@ -1041,8 +1034,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() -> Future<void> { throw test_error{}; })
@@ -1058,8 +1050,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() {
@@ -1097,8 +1088,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) -> Future<bool> { throw test_error{}; })
@@ -1115,8 +1105,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) {
@@ -1155,8 +1144,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() -> Future<bool> { throw test_error{}; })
@@ -1173,8 +1161,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() {
@@ -1210,8 +1197,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) { throw test_error{}; })
@@ -1261,8 +1247,7 @@ TYPED_TEST(
 {
     std::promise<void> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() -> Future<void> { throw test_error{}; })
@@ -1314,8 +1299,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future<int>(42)
             .then([](int) -> Future<bool> { throw test_error{}; })
@@ -1345,8 +1329,7 @@ TYPED_TEST(
 {
     std::promise<bool> called;
 
-    struct test_error : public std::exception {
-    };
+    struct test_error : public std::exception { };
     this->executor_->post([&called]() {
         make_ready_future()
             .then([]() -> Future<bool> { throw test_error{}; })
@@ -1442,8 +1425,7 @@ template <typename E> class FutureThrowingExecutorTestBase : public Test {
 };
 
 class FutureThrowingExecutorRuntimeErrorTest
-    : public FutureThrowingExecutorTestBase<std::runtime_error> {
-};
+    : public FutureThrowingExecutorTestBase<std::runtime_error> { };
 
 TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_then)
 {
@@ -1470,8 +1452,7 @@ TEST_F(FutureThrowingExecutorRuntimeErrorTest, throws_on_late_set_exception)
 }
 
 class FutureThrowingExecutorExecutorStoppedExceptionTest
-    : public FutureThrowingExecutorTestBase<ExecutorStoppedException> {
-};
+    : public FutureThrowingExecutorTestBase<ExecutorStoppedException> { };
 
 TEST_F(FutureThrowingExecutorExecutorStoppedExceptionTest, throws_on_late_then)
 {

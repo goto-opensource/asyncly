@@ -66,8 +66,7 @@ INSTANTIATE_TYPED_TEST_SUITE_P(
 /**
  * Test of the IExecutor::is_serializing property
  */
-class SerializingPropertyTest : public ::testing::Test {
-};
+class SerializingPropertyTest : public ::testing::Test { };
 
 TEST_F(SerializingPropertyTest, singleThreadIsSerializing)
 {

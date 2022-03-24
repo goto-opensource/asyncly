@@ -71,8 +71,7 @@ TEST_F(StrandTest, shouldSerializeExecution)
     EXPECT_TRUE(run2);
 }
 
-class CreateStrandTest : public Test {
-};
+class CreateStrandTest : public Test { };
 
 TEST_F(CreateStrandTest, shouldCreateStrandIfNonSerializedExecutor)
 {

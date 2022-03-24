@@ -98,8 +98,7 @@ TYPED_TEST(SplitTest, shouldSplitErrorFutures)
     std::promise<int> called1;
     std::promise<int> called2;
 
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     this->executor_->post([&called1, &called2]() {
         auto lazy = make_lazy_future<int>();
@@ -125,8 +124,7 @@ TYPED_TEST(SplitTest, shouldSplitErrorVoidFutures)
     std::promise<void> called1;
     std::promise<void> called2;
 
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     this->executor_->post([&called1, &called2]() {
         auto lazy = make_lazy_future<void>();

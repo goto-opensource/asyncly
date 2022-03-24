@@ -31,8 +31,7 @@ namespace asyncly::detail {
 class PeriodicTask : public Cancelable, public std::enable_shared_from_this<PeriodicTask> {
   private:
     // Token to prevent construction from outside create(), but still support std::make_shared
-    struct Token {
-    };
+    struct Token { };
 
   public:
     // Due to the constructor wanting to schedule, and scheduling relying upon weak_from_this(), we

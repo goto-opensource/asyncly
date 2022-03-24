@@ -134,8 +134,7 @@ TEST_F(WrapWeakTest, shouldErrorOnDeadWeakWrap)
 // wrap_weak_with_custom_error
 TEST_F(WrapWeakTest, shouldCustomErrorOnDeadWeakWrap)
 {
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     auto wrapped = asyncly::wrap_weak_with_custom_error(
         callback_,

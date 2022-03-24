@@ -119,8 +119,7 @@ TYPED_TEST(ObservableTest, shouldPropagateCompletion)
 TYPED_TEST(ObservableTest, shouldPropagateErrors)
 {
     std::promise<std::exception_ptr> errored;
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     const auto onError = [&errored](std::exception_ptr e) { errored.set_value(e); };
 
@@ -460,8 +459,7 @@ TYPED_TEST(ObservableTest, shouldPropagateVoidError)
 {
     std::promise<void> error;
 
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     const auto onValue = []() {};
     const auto onError = [&error](auto e) mutable { error.set_exception(e); };

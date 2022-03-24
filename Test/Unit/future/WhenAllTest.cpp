@@ -189,8 +189,7 @@ TYPED_TEST(WhenAllTest, shouldCompileWhenAllWithContinuationReturningValueFuture
 
 TYPED_TEST(WhenAllTest, shouldRejectWhenAllOnFirstError)
 {
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     std::promise<void> rejected;
     this->executor_->post([&rejected]() {
@@ -349,8 +348,7 @@ TYPED_TEST(WhenAllTest, shouldResolveEmptyContainerOfVoidFutures)
 
 TYPED_TEST(WhenAllTest, shouldRejectContainerOfFutures)
 {
-    struct CustomError : public std::exception {
-    };
+    struct CustomError : public std::exception { };
 
     std::vector<Future<int>> futures;
     futures.push_back(make_ready_future<int>(3));
@@ -372,8 +370,7 @@ TYPED_TEST(WhenAllTest, shouldRejectContainerOfFutures)
 
 TYPED_TEST(WhenAllTest, shouldRejectContainerOfVoidFutures)
 {
-    struct CustomError : public std::exception {
-    };
+    struct CustomError : public std::exception { };
 
     std::vector<Future<void>> futures;
     futures.push_back(make_ready_future());
@@ -395,8 +392,7 @@ TYPED_TEST(WhenAllTest, shouldRejectContainerOfVoidFutures)
 
 TYPED_TEST(WhenAllTest, shouldRejectContainerOfVoidFuturesWithMultipleErrors)
 {
-    struct CustomError : public std::exception {
-    };
+    struct CustomError : public std::exception { };
 
     std::vector<Future<void>> futures;
     futures.push_back(make_ready_future());

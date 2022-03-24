@@ -21,6 +21,5 @@
 #include "asyncly/executor/IExecutor.h"
 
 namespace asyncly {
-class IStrand : public IExecutor {
-};
+class IStrand : public IExecutor { };
 } // namespace asyncly

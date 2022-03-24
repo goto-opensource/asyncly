@@ -223,8 +223,7 @@ TYPED_TEST(WhenAnyTest, shouldSupportErrors)
 {
     std::promise<double> resolved;
 
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     this->executor_->post([&resolved]() {
         auto lazy1 = make_lazy_future<int>();

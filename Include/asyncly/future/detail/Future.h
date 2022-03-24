@@ -119,8 +119,7 @@ struct Rejected {
     std::exception_ptr error_;
 };
 
-struct Continued {
-};
+struct Continued { };
 } // namespace future_state
 
 template <typename T> class FutureImplBase : public ErrorSink {

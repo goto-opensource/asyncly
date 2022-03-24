@@ -149,8 +149,7 @@ TYPED_TEST(AddTimeoutTest, shouldNotTimeoutValueFuturesWithIndefiniteTimeout)
 
 TYPED_TEST(AddTimeoutTest, shouldNotTimeoutErrorVoidFuturesWithIndefiniteTimeout)
 {
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     std::promise<void> succeeded;
     this->executor_->post([&succeeded]() {
@@ -177,8 +176,7 @@ TYPED_TEST(AddTimeoutTest, shouldNotTimeoutErrorVoidFuturesWithIndefiniteTimeout
 
 TYPED_TEST(AddTimeoutTest, shouldNotTimeoutErrorValueFuturesWithIndefiniteTimeout)
 {
-    struct MyError : public std::exception {
-    };
+    struct MyError : public std::exception { };
 
     std::promise<int> succeeded;
     this->executor_->post([&succeeded]() {
