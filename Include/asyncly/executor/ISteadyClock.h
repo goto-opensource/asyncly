@@ -18,7 +18,8 @@
 
 #pragma once
 
-#include <chrono>
+#include "asyncly/ExecutorTypes.h"
+
 #include <memory>
 
 namespace asyncly {
@@ -27,7 +28,7 @@ class ISteadyClock {
   public:
     virtual ~ISteadyClock() = default;
 
-    virtual std::chrono::steady_clock::time_point now() = 0;
+    virtual clock_type::time_point now() const = 0;
 };
 
 using ISteadyClockPtr = std::shared_ptr<ISteadyClock>;

@@ -22,16 +22,16 @@
 #include <memory>
 
 #include "asyncly/ExecutorTypes.h"
+#include "asyncly/executor/ISteadyClock.h"
 #include "asyncly/task/AutoCancelable.h"
 #include "asyncly/task/Cancelable.h"
 #include "asyncly/task/RepeatableTask.h"
 #include "asyncly/task/Task.h"
 
 namespace asyncly {
-class IExecutor {
+class IExecutor : public ISteadyClock {
   public:
     virtual ~IExecutor() = default;
-    virtual clock_type::time_point now() const = 0;
     virtual void post(Task&&) = 0;
     virtual std::shared_ptr<Cancelable> post_at(const clock_type::time_point& absTime, Task&&) = 0;
     virtual std::shared_ptr<Cancelable> post_after(const clock_type::duration& relTime, Task&&) = 0;
