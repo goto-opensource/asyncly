@@ -40,7 +40,7 @@ class PriorityQueue {
         std::pop_heap(container.begin(), container.end(), compare);
         auto res = std::move(container.back());
         container.pop_back();
-        return std::move(res);
+        return res;
     }
 
     bool empty() const
