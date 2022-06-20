@@ -88,8 +88,8 @@ add_subdirectory(Test)
 # Installation
 # ----------------------------------------------------------------------------------------
 
-install(DIRECTORY Include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
+install(DIRECTORY Include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(TARGETS asyncly
   EXPORT ${PROJECT_NAME}-targets
@@ -102,3 +102,4 @@ asyncly_install_export(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE ${PROJECT_NAME}::
 )
+
