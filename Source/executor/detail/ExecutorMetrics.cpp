@@ -73,11 +73,7 @@ TaskExecutionDurationMetrics::TaskExecutionDurationMetrics(
           { { "executor", executorLabel } },
           createDurationBuckets(12u, 250.0, 4.0) // 1us to 4s with exponential bucket sizes
           ) }
-
-    , timed_{ family_.Add(
-          { { "executor", executorLabel } },
-          createDurationBuckets(12u, 250.0, 4.0) // 1us to 4s with exponential bucket sizes
-          ) }
+    , timed_{ immediate_ } // no need to distiguish between immediate and timed for execution times
 {
 }
 

@@ -50,6 +50,10 @@ MetricSearchResult grabMetric(
         return { false, prometheus::ClientMetric{}, reason.str() };
     }
 
+    if (labelValue.empty() && !processedTaskFamily->metric.empty()) {
+        const auto metric = processedTaskFamily->metric.begin();
+        return { true, *metric, "" };
+    }
     const auto metric = std::find_if(
         processedTaskFamily->metric.begin(),
         processedTaskFamily->metric.end(),

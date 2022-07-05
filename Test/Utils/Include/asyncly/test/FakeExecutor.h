@@ -74,6 +74,7 @@ class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<F
     boost::optional<std::thread::id> m_runningThreadId;
     std::queue<Task> m_taskQueue;
     std::shared_ptr<FakeClockScheduler> m_scheduler;
+    bool m_taskRunning;
 };
 
 inline FakeExecutorPtr FakeExecutor::create()
@@ -83,6 +84,7 @@ inline FakeExecutorPtr FakeExecutor::create()
 
 inline FakeExecutor::FakeExecutor()
     : m_scheduler(std::make_shared<FakeClockScheduler>())
+    , m_taskRunning(false)
 {
 }
 
@@ -144,6 +146,11 @@ inline void FakeExecutor::advanceClock(clock_type::duration advance)
 
 inline void FakeExecutor::advanceClock(clock_type::time_point advanceTimePoint)
 {
+    if (m_taskRunning) {
+        m_scheduler->setClock(advanceTimePoint);
+        return;
+    }
+
     runTasks();
 
     std::size_t executedTasks = 0u;
@@ -170,6 +177,7 @@ inline size_t FakeExecutor::runTasks(size_t maxTasksToExecute /* = 0 */)
         throw std::runtime_error("FakeExecutor can only be called from a single thread!");
     }
 
+    m_taskRunning = true;
     auto size = m_taskQueue.size();
     auto remainingTasks = maxTasksToExecute;
     while (!m_taskQueue.empty() && (maxTasksToExecute == 0 || remainingTasks > 0)) {
@@ -178,6 +186,7 @@ inline size_t FakeExecutor::runTasks(size_t maxTasksToExecute /* = 0 */)
         task();
         --remainingTasks;
     }
+    m_taskRunning = false;
     return size;
 }
 

@@ -35,6 +35,7 @@ class MetricsTask {
   public:
     MetricsTask(
         Task&& t,
+        const IExecutorPtr& executor,
         prometheus::Histogram& taskExecutionDuration,
         prometheus::Histogram& taskQueueingDelay,
         const std::shared_ptr<detail::MetricsTaskState>& taskState);
@@ -48,6 +49,10 @@ class MetricsTask {
     void operator()();
 
     Task task_;
+
+    // reference is correct here since execution can only occur in an existing executor
+    const IExecutorPtr& executor_;
+
     prometheus::Histogram& taskExecutionDuration_;
     prometheus::Histogram& taskQueueingDelay_;
     const std::shared_ptr<detail::MetricsTaskState> taskState_;

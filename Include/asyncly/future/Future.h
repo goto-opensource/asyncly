@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <exception>
 #include <thread>
 #include <type_traits>
 
@@ -27,6 +28,7 @@
 #pragma warning(disable : 4505)
 #endif
 
+#include "asyncly/executor/IExecutor.h"
 #include "asyncly/future/detail/Coroutine.h"
 #include "asyncly/future/detail/Future.h"
 #include "asyncly/future/detail/FutureImpl.h"
@@ -477,6 +479,53 @@ Future<T> make_future_from_impl(const std::shared_ptr<detail::FutureImpl<T>>& fu
     return { futureImpl };
 }
 } // namespace detail
+
+/// This function allows the asynchronous call of a functor on a given
+/// executor. The interface is built to mimic std::async. Should an
+/// exception be thrown inside the functor, the resulting future will
+/// be rejected.
+///
+/// \tparam Fn a functor type, should be deduced
+///
+/// \tparam Args type of arguments that are passed to the functor,
+///         shall be deduced
+///
+/// \param executor that is used to run the functor on
+///
+/// \param function that will be executor on the given executor
+///
+/// \param args arguments that will be passed to the functor
+///
+/// \result a asyncly::Future<result_t> that will hold the result of the
+/// functor call after completion
+///
+
+template <class Fn, class... Args>
+auto async(IExecutorPtr executor, Fn&& function, Args&&... args) noexcept
+{
+    using result_t = std::invoke_result_t<Fn, Args&&...>;
+    auto promise = std::make_unique<Promise<result_t>>();
+    auto future = promise->get_future();
+
+    executor->post([p = std::move(promise),
+                    fn = std::forward<Fn>(function),
+                    tuple = std::tuple<std::remove_reference_t<Args>...>{
+                        std::forward<Args>(args)... }]() mutable {
+        try {
+            if constexpr (std::is_same_v<result_t, void>) {
+                std::apply(std::move(fn), std::move(tuple));
+                p->set_value();
+            } else {
+                p->set_value(std::apply(std::move(fn), std::move(tuple)));
+            }
+        } catch (...) {
+            p->set_exception(std::current_exception());
+        }
+    });
+
+    return future;
+}
+
 } // namespace asyncly
 
 #include "asyncly/future/detail/CoroutineImpl.h"

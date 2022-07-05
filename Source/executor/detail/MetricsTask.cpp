@@ -17,26 +17,29 @@
  */
 
 #include "MetricsTask.h"
+#include "asyncly/executor/IExecutor.h"
 
 namespace asyncly {
 
 MetricsTask::MetricsTask(
     Task&& t,
+    const IExecutorPtr& executor,
     prometheus::Histogram& taskExecutionDuration,
     prometheus::Histogram& taskQueueingDelay,
     const std::shared_ptr<detail::MetricsTaskState>& taskState)
     : task_(std::move(t))
+    , executor_(executor)
     , taskExecutionDuration_{ taskExecutionDuration }
     , taskQueueingDelay_{ taskQueueingDelay }
     , taskState_{ taskState }
-    , postTimePoint_{ clock_type::now() }
+    , postTimePoint_{ executor_->now() }
 {
 }
 
 void MetricsTask::operator()()
 {
     taskState_->onTaskExecutionStarted();
-    const auto start = clock_type::now();
+    const auto start = executor_->now();
     taskQueueingDelay_.Observe(
         std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(start - postTimePoint_)
             .count());
@@ -45,7 +48,7 @@ void MetricsTask::operator()()
 
     taskExecutionDuration_.Observe(
         std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(
-            clock_type::now() - start)
+            executor_->now() - start)
             .count());
 }
 

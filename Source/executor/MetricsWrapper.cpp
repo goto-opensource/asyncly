@@ -102,6 +102,7 @@ template <typename Base> void MetricsWrapper<Base>::post(Task&& closure)
         metrics_, metrics_->queuedTasks.immediate_, metrics_->processedTasks.immediate_);
     taskState->onTaskEnqueued();
     executor_->post(MetricsTask{ std::move(closure),
+                                 executor_,
                                  metrics_->taskExecution.immediate_,
                                  metrics_->taskDelay.immediate_,
                                  taskState });
@@ -118,6 +119,7 @@ MetricsWrapper<Base>::post_at(const clock_type::time_point& t, Task&& closure)
     auto cancelable = executor_->post_at(
         t,
         MetricsTask{ std::move(closure),
+                     executor_,
                      metrics_->taskExecution.timed_,
                      metrics_->taskDelay.timed_,
                      taskState });
@@ -135,6 +137,7 @@ MetricsWrapper<Base>::post_after(const clock_type::duration& t, Task&& closure)
     auto cancelable = executor_->post_after(
         t,
         MetricsTask{ std::move(closure),
+                     executor_,
                      metrics_->taskExecution.timed_,
                      metrics_->taskDelay.timed_,
                      taskState });

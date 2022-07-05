@@ -6,6 +6,7 @@ asyncly_add_google_test(test_asyncly
   detail/PrometheusTestHelper.h
   detail/ThrowingExecutor.h
   future/AddTimeoutTest.cpp
+  future/AsyncTest.cpp
   future/BlockingWait.cpp
   future/CoroutineTest.cpp
   future/FutureTest.cpp
