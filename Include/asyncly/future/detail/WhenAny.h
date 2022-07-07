@@ -19,6 +19,7 @@
 #pragma once
 
 #include <atomic>
+#include <variant>
 
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/utility.hpp>
@@ -34,9 +35,6 @@
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-
-#include <boost/optional.hpp>
-#include <boost/variant2/variant.hpp>
 
 #include "asyncly/detail/TypeUtils.h"
 #include "asyncly/future/detail/Future.h"
@@ -57,8 +55,8 @@ using when_any_return_types = typename boost::mp11::mp_if<
         boost::mp11::mp_size_t<1>>,
     typename boost::mp11::mp_at_c<when_any_unique_future_types<Args...>, 0>,
     typename boost::mp11::mp_apply<
-        boost::variant2::variant,
-        boost::mp11::mp_replace<when_any_unique_future_types<Args...>, void, boost::none_t>>>;
+        std::variant,
+        boost::mp11::mp_replace<when_any_unique_future_types<Args...>, void, std::monostate>>>;
 
 static_assert(
     std::is_same<when_any_return_types<Future<void>>, void>::value,
@@ -70,15 +68,13 @@ static_assert(
     std::is_same<when_any_return_types<Future<int>, Future<int>>, int>::value,
     "when_any_return_types<int, int> == int");
 static_assert(
-    std::is_same<
-        when_any_return_types<Future<int>, Future<bool>>,
-        boost::variant2::variant<int, bool>>::value,
-    "when_any_return_types<int, bool> == boost::variant<int, bool>");
+    std::is_same<when_any_return_types<Future<int>, Future<bool>>, std::variant<int, bool>>::value,
+    "when_any_return_types<int, bool> == std::variant<int, bool>");
 static_assert(
     std::is_same<
         when_any_return_types<Future<void>, Future<bool>>,
-        boost::variant2::variant<boost::none_t, bool>>::value,
-    "when_any_return_types<void, bool> == boost::variant<boost::none_t, bool>");
+        std::variant<std::monostate, bool>>::value,
+    "when_any_return_types<void, bool> == std::variant<std::monostate, bool>");
 
 namespace {
 template <typename... Args> struct when_any_resolver {
@@ -103,7 +99,7 @@ template <typename... Args> struct when_any_resolver {
     void operator()()
     {
         if (atomic_exchange(is_set_.get(), true) == false) {
-            promise_->set_value(boost::none);
+            promise_->set_value(std::monostate{});
         }
     }
 };

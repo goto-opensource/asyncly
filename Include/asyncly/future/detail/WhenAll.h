@@ -22,6 +22,7 @@
 #include <exception>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include <boost/mp11.hpp>
@@ -38,8 +39,6 @@
 #pragma warning(pop)
 #endif
 
-#include <boost/optional.hpp>
-
 #include "asyncly/detail/TypeUtils.h"
 #include "asyncly/future/detail/Future.h"
 
@@ -54,31 +53,8 @@ template <typename... Args>
 using swap_void_for_bool = boost::mp11::mp_apply<
     std::tuple,
     boost::mp11::mp_transform<
-        boost::optional,
+        std::optional,
         boost::mp11::mp_replace<boost::mp11::mp_list<Args...>, void, bool>>>;
-
-// TODO(juppm): replace by constexpr if in C++17, or by
-// boost::hana::eval_if(
-//           boost::hana::type_c<T> == boost::hana::type_c<const
-//           std::shared_ptr<PromiseImpl<void>>>,
-//            [&promise](auto _) mutable { _(promise)->set_value(); },
-//            [&promise, this](auto _) mutable { _(promise)->set_value(get_ready_results_unsafe());
-//            });
-// in VS2019
-template <typename T, typename U> struct resolve_all_promises_impl {
-    static void call(T& container, const U& promise)
-    {
-        promise->set_value(container.get_ready_results_unsafe());
-    }
-};
-
-template <typename T>
-struct resolve_all_promises_impl<T, const std::shared_ptr<PromiseImpl<void>>> {
-    static void call(T&, const std::shared_ptr<PromiseImpl<void>>& promise)
-    {
-        promise->set_value();
-    }
-};
 
 template <typename... Args> struct when_all_result_container {
     bool are_all_results_ready()
@@ -122,7 +98,11 @@ template <typename... Args> struct when_all_result_container {
 
         alreadyContinued = true;
 
-        resolve_all_promises_impl<decltype(*this), T>::call(*this, promise);
+        if constexpr (std::is_same_v<const std::shared_ptr<PromiseImpl<void>>, T>) {
+            promise->set_value();
+        } else {
+            promise->set_value(get_ready_results_unsafe());
+        }
     };
 
     template <typename T> void reject_all(std::exception_ptr error, T& promise)
@@ -169,7 +149,7 @@ when_all_impl(std::shared_ptr<FutureImpl<Args>>... args)
             ->then([result_container, promise, index](
                        typename std::add_const<typename std::decay<
                            decltype(future)>::type::element_type::value_type>::type v) {
-                std::get<index.value>(result_container->results).reset(v);
+                std::get<index.value>(result_container->results) = v;
                 result_container->maybe_resolve_promise(promise);
             })
             ->catch_error([result_container, promise](std::exception_ptr error) {
@@ -313,7 +293,7 @@ when_all_iterator_impl(I begin, I end, when_all_iterator_tag<T>)
                     std::make_move_iterator(values.begin()),
                     std::make_move_iterator(values.end()),
                     std::back_inserter(resultValues),
-                    [](boost::optional<ValueT>&& value) -> ValueT { return *std::move(value); });
+                    [](std::optional<ValueT>&& value) -> ValueT { return *std::move(value); });
                 promise->set_value(std::move(resultValues));
                 done = true;
                 return;
@@ -327,7 +307,7 @@ when_all_iterator_impl(I begin, I end, when_all_iterator_tag<T>)
         }
 
         std::exception_ptr error = nullptr;
-        std::vector<boost::optional<ValueT>> values;
+        std::vector<std::optional<ValueT>> values;
         std::shared_ptr<PromiseImpl<std::vector<ValueT>>> promise;
         bool done = false;
         std::mutex mutex;

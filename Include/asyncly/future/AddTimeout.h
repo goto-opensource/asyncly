@@ -82,7 +82,7 @@ Future<T> add_timeout(Duration duration, Future<T>&& future)
     auto combinedFuture = when_any(std::move(returnedFuture), std::move(timeoutFuture))
                               .then([cancelable](auto variant) {
                                   cancelable->cancel();
-                                  return boost::variant2::visit(TimeoutVisitor<T>(), variant);
+                                  return std::visit(TimeoutVisitor<T>(), variant);
                               });
 
     return combinedFuture;
@@ -103,7 +103,7 @@ template <typename T> struct TimeoutVisitor {
 };
 
 template <> struct TimeoutVisitor<void> {
-    void operator()(boost::none_t) const
+    void operator()(std::monostate) const
     {
     }
 

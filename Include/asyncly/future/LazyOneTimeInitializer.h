@@ -21,8 +21,7 @@
 #include "asyncly/future/Split.h"
 #include "asyncly/future/detail/FutureTraits.h"
 
-#include <boost/optional.hpp>
-
+#include <optional>
 #include <type_traits>
 
 namespace asyncly {
@@ -75,7 +74,7 @@ template <typename T> class LazyOneTimeInitializer {
   private:
     std::function<asyncly::Future<T>()> _fn;
 
-    boost::optional<asyncly::Future<T>> _future;
+    std::optional<asyncly::Future<T>> _future;
 };
 
 /// Creates a LazyOneTimeInitializer given a function returning an asyncly::Future.

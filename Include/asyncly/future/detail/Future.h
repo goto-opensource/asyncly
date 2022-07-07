@@ -23,8 +23,7 @@
 #include <memory>
 #include <mutex>
 #include <type_traits>
-
-#include <boost/variant2/variant.hpp>
+#include <variant>
 
 #include <function2/function2.hpp>
 
@@ -137,7 +136,7 @@ template <typename T> class FutureImplBase : public ErrorSink {
     void notify_error_ready(std::exception_ptr) override;
 
   protected:
-    boost::variant2::variant<
+    std::variant<
         future_state::Ready<T>,
         future_state::Resolved<T>,
         future_state::Rejected,

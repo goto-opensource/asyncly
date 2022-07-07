@@ -22,8 +22,6 @@
 #include "asyncly/future/Future.h"
 #include "asyncly/test/ExecutorTestFactories.h"
 
-#include "boost/none_t.hpp"
-
 #include "gmock/gmock.h"
 
 namespace asyncly {
@@ -61,7 +59,7 @@ TYPED_TEST(WhenAnyTest, shouldResolveValueFutures)
         auto future2 = std::get<0>(lazy2);
         auto promise2 = std::get<1>(lazy2);
 
-        when_any(future1, future2).then([&resolved](boost::variant2::variant<int, bool> result) {
+        when_any(future1, future2).then([&resolved](std::variant<int, bool> result) {
             // in C++17 this could be written much more concisely, see
             // http://en.cppreference.com/w/cpp/utility/variant/visit
             struct visitor {
@@ -82,7 +80,7 @@ TYPED_TEST(WhenAnyTest, shouldResolveValueFutures)
                 std::promise<int>& resolved_;
             };
 
-            boost::variant2::visit(visitor{ resolved }, result);
+            std::visit(visitor{ resolved }, result);
         });
 
         promise1.set_value(5);
@@ -104,30 +102,29 @@ TYPED_TEST(WhenAnyTest, shouldResolveMixedVoidValueFutures)
         auto future2 = std::get<0>(lazy2);
         auto promise2 = std::get<1>(lazy2);
 
-        when_any(future1, future2)
-            .then([&resolved](boost::variant2::variant<int, boost::none_t> result) {
-                // in C++17 this could be written much more concisely, see
-                // http://en.cppreference.com/w/cpp/utility/variant/visit
-                struct visitor {
-                    visitor(std::promise<void>& resolved)
-                        : resolved_{ resolved }
-                    {
-                    }
+        when_any(future1, future2).then([&resolved](std::variant<int, std::monostate> result) {
+            // in C++17 this could be written much more concisely, see
+            // http://en.cppreference.com/w/cpp/utility/variant/visit
+            struct visitor {
+                visitor(std::promise<void>& resolved)
+                    : resolved_{ resolved }
+                {
+                }
 
-                    void operator()(int) const
-                    {
-                    }
+                void operator()(int) const
+                {
+                }
 
-                    void operator()(boost::none_t) const
-                    {
-                        resolved_.set_value();
-                    }
+                void operator()(std::monostate) const
+                {
+                    resolved_.set_value();
+                }
 
-                    std::promise<void>& resolved_;
-                };
+                std::promise<void>& resolved_;
+            };
 
-                boost::variant2::visit(visitor{ resolved }, result);
-            });
+            std::visit(visitor{ resolved }, result);
+        });
 
         promise2.set_value();
         promise1.set_value(5);
@@ -148,30 +145,29 @@ TYPED_TEST(WhenAnyTest, shouldResolveMixedVoidValueFuturesWhenVoidPromiseIsNotRe
         auto future2 = std::get<0>(lazy2);
         auto promise2 = std::get<1>(lazy2);
 
-        when_any(future1, future2)
-            .then([&resolved](boost::variant2::variant<int, boost::none_t> result) {
-                // in C++17 this could be written much more concisely, see
-                // http://en.cppreference.com/w/cpp/utility/variant/visit
-                struct visitor {
-                    visitor(std::promise<int>& resolved)
-                        : resolved_{ resolved }
-                    {
-                    }
+        when_any(future1, future2).then([&resolved](std::variant<int, std::monostate> result) {
+            // in C++17 this could be written much more concisely, see
+            // http://en.cppreference.com/w/cpp/utility/variant/visit
+            struct visitor {
+                visitor(std::promise<int>& resolved)
+                    : resolved_{ resolved }
+                {
+                }
 
-                    void operator()(int a) const
-                    {
-                        resolved_.set_value(a);
-                    }
+                void operator()(int a) const
+                {
+                    resolved_.set_value(a);
+                }
 
-                    void operator()(boost::none_t) const
-                    {
-                    }
+                void operator()(std::monostate) const
+                {
+                }
 
-                    std::promise<int>& resolved_;
-                };
+                std::promise<int>& resolved_;
+            };
 
-                boost::variant2::visit(visitor{ resolved }, result);
-            });
+            std::visit(visitor{ resolved }, result);
+        });
 
         promise1.set_value(5);
         promise2.set_value();
@@ -194,7 +190,7 @@ TYPED_TEST(WhenAnyTest, shouldResolveValueFutureContinuations)
         auto promise2 = std::get<1>(lazy2);
 
         when_any(future1, future2)
-            .then([](boost::variant2::variant<int, double> result) {
+            .then([](std::variant<int, double> result) {
                 struct visitor {
                     double operator()(int a) const
                     {
@@ -207,7 +203,7 @@ TYPED_TEST(WhenAnyTest, shouldResolveValueFutureContinuations)
                     }
                 };
 
-                return make_ready_future<double>(boost::variant2::visit(visitor(), result));
+                return make_ready_future<double>(std::visit(visitor(), result));
             })
             .then([&resolved](double result) { resolved.set_value(result); });
 
@@ -234,7 +230,7 @@ TYPED_TEST(WhenAnyTest, shouldSupportErrors)
         auto promise2 = std::get<1>(lazy2);
 
         when_any(future1, future2)
-            .then([](boost::variant2::variant<int, double>) {})
+            .then([](std::variant<int, double>) {})
             .catch_error([&resolved](auto error) { resolved.set_exception(error); });
 
         promise1.set_exception(MyError{});

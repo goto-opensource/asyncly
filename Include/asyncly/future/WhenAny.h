@@ -36,14 +36,14 @@ template <typename T> class Future;
 /// \tparam Args deduced and must never be specified manually
 /// \param args Futures to be combined
 ///
-/// \return a `Future` containing a `boost::variant` of possible
+/// \return a `Future` containing a `std::variant` of possible
 /// values. The `variant` types are ordered by a types first
 /// occurrance in the passed arguments. When two `Futures` of the same
 /// type are contained in `args`, it's no longer possible to
 /// distinguish which `Future` has been resolved. `void` is replaced
-/// by `boost::none_t`, because `variants` can not hold void. Example:
+/// by `std::monostate`, because `variants` can not hold void. Example:
 /// `when_any(Future<int>, Future<void>, Future<int>, Future<bool>) ->
-/// Future<boost::variant<int, boost::none_t, bool>`
+/// Future<std::variant<int, std::monostate, bool>`
 ///
 template <typename... Args> Future<detail::when_any_return_types<Args...>> when_any(Args... args)
 {

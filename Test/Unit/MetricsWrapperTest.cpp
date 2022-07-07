@@ -21,13 +21,13 @@
 #include <deque>
 #include <future>
 #include <memory>
+#include <optional>
 #include <set>
 #include <sstream>
 
 #include "asyncly/ExecutorTypes.h"
 #include "asyncly/future/Future.h"
 #include "asyncly/test/FakeFutureTest.h"
-#include "boost/optional.hpp"
 
 #include "prometheus/metric_family.h"
 
@@ -47,7 +47,7 @@ namespace {
 
 enum class PostCallType { kPost, kPostAt, kPostAfter };
 
-inline boost::optional<std::shared_ptr<Cancelable>> postTaskNow(
+inline std::optional<std::shared_ptr<Cancelable>> postTaskNow(
     const IExecutorPtr& executor,
     PostCallType postType,
     Task&& task,
@@ -232,7 +232,7 @@ TEST_F(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
         cancelables.push_back(
             postTaskNow(
                 metricsExecutor_, PostCallType::kPostAt, [] {}, std::chrono::seconds(i))
-                .get());
+                .value());
     }
 
     for (const auto& cancelable : cancelables) {

@@ -449,7 +449,7 @@ FutureImplBase<T>::then(F&& continuation)
     auto continuationTmp = make_continuation<T, ContinuationT>::create(
         this_thread::get_current_executor(), std::forward<F>(continuation), std::move(promise));
 
-    boost::variant2::visit(
+    std::visit(
         boost::hana::overload(
             [&future, &continuationTmp](future_state::Ready<T>& ready) {
                 ready.errorObserver_ = future;
@@ -484,7 +484,7 @@ template <typename T> template <typename F> void FutureImplBase<T>::catch_error(
     using R = typename std::invoke_result<F, std::exception_ptr>::type;
     static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
 
-    boost::variant2::visit(
+    std::visit(
         boost::hana::overload(
             [&errorCallback](future_state::Ready<T>& ready) {
                 ready.onError_ = [executor{ this_thread::get_current_executor() },
@@ -529,7 +529,7 @@ void FutureImplBase<T>::catch_and_forward_error(F&& errorCallback)
     using R = typename std::invoke_result<F, std::exception_ptr>::type;
     static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
 
-    boost::variant2::visit(
+    std::visit(
         boost::hana::overload(
             [&errorCallback](future_state::Ready<T>& ready) {
                 ready.onError_ = [executor{ this_thread::get_current_executor() },
@@ -562,7 +562,7 @@ template <typename T> void FutureImplBase<T>::notify_error_ready(std::exception_
 {
     std::unique_lock<std::mutex> lock(FutureImplBase<T>::mutex_);
 
-    auto ready = boost::variant2::get_if<future_state::Ready<T>>(&state_);
+    auto ready = std::get_if<future_state::Ready<T>>(&state_);
     if (!ready) {
         throw std::runtime_error("future already in final state");
     }
@@ -590,7 +590,7 @@ template <typename T> void FutureImpl<T>::notify_value_ready(const T& value)
 {
     std::unique_lock<std::mutex> lock(this->mutex_);
 
-    auto ready = boost::variant2::get_if<future_state::Ready<T>>(&this->state_);
+    auto ready = std::get_if<future_state::Ready<T>>(&this->state_);
     if (!ready) {
         throw std::runtime_error("future already in final state");
     }
@@ -610,7 +610,7 @@ template <typename T> void FutureImpl<T>::notify_value_ready(T&& value)
 {
     std::unique_lock<std::mutex> lock(this->mutex_);
 
-    auto ready = boost::variant2::get_if<future_state::Ready<T>>(&this->state_);
+    auto ready = std::get_if<future_state::Ready<T>>(&this->state_);
     if (!ready) {
         throw std::runtime_error("future already in final state");
     }
@@ -630,7 +630,7 @@ inline void FutureImpl<void>::notify_value_ready()
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    auto ready = boost::variant2::get_if<future_state::Ready<void>>(&state_);
+    auto ready = std::get_if<future_state::Ready<void>>(&state_);
     if (!ready) {
         throw std::runtime_error("future already in final state");
     }

@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include <boost/optional.hpp>
 #include <boost/thread/condition_variable.hpp>
 
 #include <mutex>
+#include <optional>
 #include <queue>
 #include <thread>
 
@@ -71,7 +71,7 @@ class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<F
   private:
     FakeExecutor();
 
-    boost::optional<std::thread::id> m_runningThreadId;
+    std::optional<std::thread::id> m_runningThreadId;
     std::queue<Task> m_taskQueue;
     std::shared_ptr<FakeClockScheduler> m_scheduler;
     bool m_taskRunning;
@@ -170,7 +170,7 @@ inline void FakeExecutor::advanceClockToCurrentLastEvent()
 inline size_t FakeExecutor::runTasks(size_t maxTasksToExecute /* = 0 */)
 {
     const auto currentThreadId = std::this_thread::get_id();
-    if (!m_runningThreadId.is_initialized()) {
+    if (!m_runningThreadId.has_value()) {
         m_runningThreadId = currentThreadId;
     }
     if (m_runningThreadId != currentThreadId) {

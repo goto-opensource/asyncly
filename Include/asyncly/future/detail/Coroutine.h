@@ -33,7 +33,7 @@
 // C++ Coroutine TS Trait implementations
 #ifdef ASYNCLY_HAS_COROUTINES
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <experimental/coroutine>
 
@@ -55,7 +55,7 @@ template <typename T> struct coro_awaiter {
   private:
     Future<T>* future_;
     std::exception_ptr error_;
-    boost::optional<T> value_;
+    std::optional<T> value_;
 };
 
 template <> struct coro_awaiter<void> {

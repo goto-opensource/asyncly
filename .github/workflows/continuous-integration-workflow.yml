@@ -27,7 +27,7 @@ jobs:
           key: vcpkg-${{ matrix.os }}-${{ matrix.triplet }}
 
       - name: Install vcpkg dependencies
-        run: vcpkg install --triplet=${{ matrix.triplet }} benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-optional boost-mp11 boost-thread boost-variant2
+        run: vcpkg install --triplet=${{ matrix.triplet }} benchmark function2 gtest prometheus-cpp boost-asio boost-callable-traits boost-chrono boost-hana boost-mp11 boost-thread
 
       - name: Install ninja on Ubuntu
         if: runner.os == 'Linux'
