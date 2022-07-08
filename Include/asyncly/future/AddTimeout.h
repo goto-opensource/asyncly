@@ -61,7 +61,7 @@ template <typename T, typename Duration>
 Future<T> add_timeout(Duration duration, Future<T>&& future)
 {
     static_assert(
-        !std::is_same<T, Timeout>::value,
+        !std::is_same_v<T, Timeout>,
         "You cannot use this function with Future<Timeout>, it doesn't make any sense to try that");
     auto timeoutReject = make_lazy_future<Timeout>();
     auto timeoutFuture = std::get<0>(timeoutReject);

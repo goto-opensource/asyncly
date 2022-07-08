@@ -41,7 +41,7 @@ template <typename T> class PromiseImpl;
 template <typename T>
 std::tuple<std::shared_ptr<FutureImpl<T>>, std::shared_ptr<PromiseImpl<T>>> make_lazy_future_impl();
 template <typename T>
-std::shared_ptr<FutureImpl<typename std::decay<T>::type>> make_ready_future_impl(T&&);
+std::shared_ptr<FutureImpl<typename std::decay_t<T>>> make_ready_future_impl(T&&);
 inline std::shared_ptr<FutureImpl<void>> make_ready_future_impl();
 template <typename T>
 std::shared_ptr<FutureImpl<T>> make_exceptional_future_impl(std::exception_ptr e);

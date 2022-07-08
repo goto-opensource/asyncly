@@ -62,7 +62,7 @@ inline Future<void> make_ready_future();
 ///
 /// \param value the value the newly created Future should resolve to immediately
 ///
-template <typename T> Future<typename std::decay<T>::type> make_ready_future(T value);
+template <typename T> Future<typename std::decay_t<T>> make_ready_future(T value);
 
 ///
 /// make_exceptional_future creates a future that immediately fails
@@ -306,7 +306,7 @@ template <> class Future<void> {
 namespace detail {
 template <typename T, typename E> struct SetException {
     static_assert(
-        std::is_base_of<std::exception, E>::value,
+        std::is_base_of_v<std::exception, E>,
         "your error types should inherit from std::exception");
     static void dispatch(T& promise, E e)
     {
@@ -413,9 +413,9 @@ inline Future<void> make_ready_future()
     return { detail::make_ready_future_impl() };
 }
 
-template <typename T> Future<typename std::decay<T>::type> make_ready_future(T value)
+template <typename T> Future<typename std::decay_t<T>> make_ready_future(T value)
 {
-    return { detail::make_ready_future_impl<typename std::decay<T>::type>(std::move(value)) };
+    return { detail::make_ready_future_impl<typename std::decay_t<T>>(std::move(value)) };
 }
 
 namespace {
@@ -423,7 +423,7 @@ namespace {
 
 template <typename T, typename E> struct MakeExceptionalFuture {
     static_assert(
-        std::is_base_of<std::exception, E>::value,
+        std::is_base_of_v<std::exception, E>,
         "your error types should inherit from std::exception");
     static Future<T> dispatch(E e)
     {

@@ -28,8 +28,7 @@ namespace asyncly {
 template <typename T> std::tuple<Future<T>, Future<T>> split(Future<T>&& future)
 {
     static_assert(
-        std::is_copy_constructible<T>::value,
-        "You can only split futures for copy-constructible types");
+        std::is_copy_constructible_v<T>, "You can only split futures for copy-constructible types");
     auto lazy1 = make_lazy_future<T>();
     auto future1 = std::get<0>(lazy1);
     auto promise1 = std::get<1>(lazy1);

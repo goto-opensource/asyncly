@@ -34,7 +34,7 @@ template <typename T, typename D = void> struct maybe_pack_and_save;
 template <typename T>
 struct maybe_pack_and_save<
     T,
-    typename boost::disable_if<typename is_tuple<typename std::decay<T>::type>::type>::type> {
+    typename boost::disable_if<typename is_tuple<typename std::decay_t<T>>::type>::type> {
 
     maybe_pack_and_save(std::shared_ptr<PromiseImpl<T>>& promise)
         : promise_{ promise }
@@ -52,7 +52,7 @@ struct maybe_pack_and_save<
 template <typename T>
 struct maybe_pack_and_save<
     T,
-    typename std::enable_if<is_tuple<typename std::decay<T>::type>::type::value>::type> {
+    typename std::enable_if_t<is_tuple<typename std::decay_t<T>>::type::value>> {
 
     maybe_pack_and_save(std::shared_ptr<PromiseImpl<T>>& promise)
         : promise_{ promise }
@@ -111,9 +111,9 @@ inline void PromiseImpl<void>::set_value()
 }
 
 template <typename T>
-std::shared_ptr<FutureImpl<typename std::decay<T>::type>> make_ready_future_impl(T&& value)
+std::shared_ptr<FutureImpl<typename std::decay_t<T>>> make_ready_future_impl(T&& value)
 {
-    auto future = std::make_shared<FutureImpl<typename std::decay<T>::type>>();
+    auto future = std::make_shared<FutureImpl<typename std::decay_t<T>>>();
     future->notify_value_ready(std::forward<T>(value));
     return future;
 }
@@ -169,7 +169,7 @@ template <typename T, typename F, typename U> struct FutureVoidBinder {
     }
 
     T value_;
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -198,7 +198,7 @@ template <typename F, typename U> struct FutureVoidBinder<void, F, U> {
         }
     }
 
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -228,7 +228,7 @@ template <typename T, typename F, typename U> struct FutureValueBinder {
     }
 
     T value_;
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -256,7 +256,7 @@ template <typename F, typename U> struct FutureValueBinder<void, F, U> {
         }
     }
 
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -284,7 +284,7 @@ template <typename T, typename F, typename U> struct NonFutureVoidBinder {
     }
 
     T value_;
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -311,7 +311,7 @@ template <typename F, typename U> struct NonFutureVoidBinder<void, F, U> {
         promise_->set_value();
     }
 
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -339,7 +339,7 @@ template <typename T, typename F, typename U> struct NonFutureValueBinder {
     }
 
     T value_;
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -365,7 +365,7 @@ template <typename F, typename U> struct NonFutureValueBinder<void, F, U> {
         }
     }
 
-    static_assert(!std::is_reference<F>::value, "F must not be a reference type!");
+    static_assert(!std::is_reference_v<F>, "F must not be a reference type!");
     F continuation_;
     std::shared_ptr<PromiseImpl<U>> promise_;
 };
@@ -481,8 +481,8 @@ template <typename T> template <typename F> void FutureImplBase<T>::catch_error(
     onErrorSet_ = true;
     errorBreaksContinuationChain_ = true;
 
-    using R = typename std::invoke_result<F, std::exception_ptr>::type;
-    static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
+    using R = typename std::invoke_result_t<F, std::exception_ptr>;
+    static_assert(std::is_same_v<R, void>, "Error continuations can not return values!");
 
     std::visit(
         boost::hana::overload(
@@ -526,8 +526,8 @@ void FutureImplBase<T>::catch_and_forward_error(F&& errorCallback)
     onErrorSet_ = true;
     errorBreaksContinuationChain_ = false;
 
-    using R = typename std::invoke_result<F, std::exception_ptr>::type;
-    static_assert(std::is_same<R, void>::value, "Error continuations can not return values!");
+    using R = typename std::invoke_result_t<F, std::exception_ptr>;
+    static_assert(std::is_same_v<R, void>, "Error continuations can not return values!");
 
     std::visit(
         boost::hana::overload(

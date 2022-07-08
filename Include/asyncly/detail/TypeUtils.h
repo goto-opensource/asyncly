@@ -38,14 +38,13 @@ template <typename... Args> struct is_tuple<std::tuple<Args...>> {
 
 // tests for is_tuple
 static_assert(is_tuple<std::tuple<int>>::type::value, "is_tuple<std::tuple<int>>");
-static_assert(is_tuple<std::tuple<int>>::type::value, "is_tuple<std::tuple<int>>");
 static_assert(!is_tuple<bool>::type::value, "!is_tuple<bool>");
 
 template <typename T, typename D = void> struct maybe_unpack_and_call;
 template <typename T>
 struct maybe_unpack_and_call<
     T,
-    typename std::enable_if<!is_tuple<typename std::decay<T>::type>::type::value>::type> {
+    typename std::enable_if_t<!is_tuple<typename std::decay_t<T>>::type::value>> {
     template <typename F> auto operator()(F&& f, T value)
     {
         return f(std::move(value));
@@ -61,22 +60,20 @@ auto maybe_unpack_and_call_(F&& f, T tuple, boost::mp11::mp_list<S...>)
 template <typename T>
 struct maybe_unpack_and_call<
     T,
-    typename std::enable_if<is_tuple<typename std::decay<T>::type>::type::value>::type> {
+    typename std::enable_if_t<is_tuple<typename std::decay_t<T>>::type::value>> {
     template <typename F> auto operator()(F&& f, T tuple)
     {
         return maybe_unpack_and_call_(
-            std::forward<F>(f),
-            tuple,
-            typename boost::mp11::mp_iota_c<std::tuple_size<T>::value>{});
+            std::forward<F>(f), tuple, typename boost::mp11::mp_iota_c<std::tuple_size_v<T>>{});
     }
 };
 
 template <typename F, typename T> struct continuation_result_type {
-    using type = typename std::invoke_result<maybe_unpack_and_call<T>, F, T>::type;
+    using type = typename std::invoke_result_t<maybe_unpack_and_call<T>, F, T>;
 };
 
 template <typename F> struct continuation_result_type<F, void> {
-    using type = typename std::invoke_result<F&&>::type;
+    using type = typename std::invoke_result_t<F&&>;
 };
 
 template <typename T> class FutureImpl;
@@ -92,23 +89,23 @@ const auto future_returning_lambda = []() { return std::shared_ptr<FutureImpl<vo
 
 // tests for continuation_result_type
 static_assert(
-    std::is_same<continuation_result_type<decltype(void_lambda), void>::type, void>::value,
+    std::is_same_v<continuation_result_type<decltype(void_lambda), void>::type, void>,
     "contiuation_result_type<decltype([](){})> == void");
 static_assert(
-    std::is_same<continuation_result_type<decltype(int_lambda), void>::type, int>::value,
+    std::is_same_v<continuation_result_type<decltype(int_lambda), void>::type, int>,
     "contiuation_result_type<decltype([](){return 5;})> == int");
 static_assert(
-    std::is_same<continuation_result_type<decltype(bool_to_int_lambda), bool>::type, int>::value,
+    std::is_same_v<continuation_result_type<decltype(bool_to_int_lambda), bool>::type, int>,
     "contiuation_result_type<decltype([](bool){return 5;})> == int");
 static_assert(
-    std::is_same<
+    std::is_same_v<
         continuation_result_type<decltype(tuple_to_void_lambda), std::tuple<bool, int, bool>>::type,
-        void>::value,
+        void>,
     "contiuation_result_type<decltype([](bool, int, bool){})> == void");
 static_assert(
-    std::is_same<
+    std::is_same_v<
         continuation_result_type<decltype(future_returning_lambda), void>::type,
-        std::shared_ptr<FutureImpl<void>>>::value,
+        std::shared_ptr<FutureImpl<void>>>,
     "contiuation_result_type<decltype([](){return make_ready_future<void>();})> == "
     "std::shared_ptr<FutureImpl<void>>");
 
@@ -120,11 +117,10 @@ using continuation_future_element_type = typename boost::mp11::mp_if<
 
 // tests for continuation_future_element_type
 static_assert(
-    std::is_same<continuation_future_element_type<void, decltype(int_lambda)>, int>::value,
+    std::is_same_v<continuation_future_element_type<void, decltype(int_lambda)>, int>,
     "continuation_future_element_type<decltype([](){return 5;})> == int");
 static_assert(
-    std::is_same<continuation_future_element_type<void, decltype(future_returning_lambda)>, void>::
-        value,
+    std::is_same_v<continuation_future_element_type<void, decltype(future_returning_lambda)>, void>,
     "contiuation_future_element_type<decltype([](){ return make_ready_future<void>(); })> == void");
 
 template <typename T>
@@ -137,9 +133,9 @@ using when_all_return_types = null_tuple_to_void<
 
 // tests for when_all_return_types
 static_assert(
-    std::is_same<when_all_return_types<void, void, void>, void>::value,
+    std::is_same_v<when_all_return_types<void, void, void>, void>,
     "when_all_return_types<void, void, void> == void");
 static_assert(
-    std::is_same<when_all_return_types<int, void, int>, std::tuple<int, int>>::value,
+    std::is_same_v<when_all_return_types<int, void, int>, std::tuple<int, int>>,
     "when_all_return_types<int, void, int> == std::tuple<int, int>");
 } // namespace asyncly::detail

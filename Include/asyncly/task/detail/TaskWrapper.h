@@ -28,15 +28,14 @@ namespace asyncly::detail {
 // preserve validation checking for closures that support it, ie
 // std::function<void()> bound to a shared_ptr
 template <typename T, typename U = T>
-typename std::enable_if<std::is_convertible<U, bool>::value, bool>::type
-checkClosure(const T& closure)
+typename std::enable_if_t<std::is_convertible_v<U, bool>, bool> checkClosure(const T& closure)
 {
     return closure;
 }
 
 // assume valid closures if we cant check
 template <typename T, typename U = T>
-typename std::enable_if<!std::is_convertible<U, bool>::value, bool>::type checkClosure(const T&)
+typename std::enable_if_t<!std::is_convertible_v<U, bool>, bool> checkClosure(const T&)
 {
     return true;
 }
@@ -45,17 +44,15 @@ template <typename T> struct TaskWrapper : public TaskConcept {
     TaskWrapper(T&& closure)
         : closure_(std::move(closure))
     {
-        using R = typename std::invoke_result<T>::type;
-        static_assert(
-            std::is_same<R, void>::value, "Posted function objects can not return values!");
+        using R = typename std::invoke_result_t<T>;
+        static_assert(std::is_same_v<R, void>, "Posted function objects can not return values!");
     }
 
     TaskWrapper(const T& closure)
         : closure_(closure)
     {
-        using R = typename std::invoke_result<T>::type;
-        static_assert(
-            std::is_same<R, void>::value, "Posted function objects can not return values!");
+        using R = typename std::invoke_result_t<T>;
+        static_assert(std::is_same_v<R, void>, "Posted function objects can not return values!");
     }
 
     void run() override

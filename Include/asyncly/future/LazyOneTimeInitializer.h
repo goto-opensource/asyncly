@@ -40,12 +40,12 @@ template <typename T> class LazyOneTimeInitializer {
     {
         assert(_fn && "The initialization function has to be valid!");
 
-        using R = typename std::invoke_result<F>::type;
+        using R = typename std::invoke_result_t<F>;
         static_assert(
             detail::future_traits<R>::is_future::value,
             "The function has to return an asyncly::Future!");
         using T2 = typename R::value_type;
-        static_assert(std::is_same<T, T2>::value, "The return type Future type has to match T!");
+        static_assert(std::is_same_v<T, T2>, "The return type Future type has to match T!");
     }
 
     /// \return A future holding the value returned from calling the provided function.
@@ -83,7 +83,7 @@ template <typename T> class LazyOneTimeInitializer {
 /// \snippet LazyOneTimeInitializerTest.cpp LazyOneTimeInitializer WithinClass
 template <typename F> auto createLazyOneTimeInitializer(F&& fn)
 {
-    using R = typename std::invoke_result<F>::type;
+    using R = typename std::invoke_result_t<F>;
     static_assert(
         detail::future_traits<R>::is_future::value,
         "The function has to return an asyncly::Future!");

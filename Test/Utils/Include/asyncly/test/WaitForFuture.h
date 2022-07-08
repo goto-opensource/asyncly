@@ -32,77 +32,52 @@ namespace asyncly::test {
 /// Blockingly waits in the calling thread for the Future given and returns the value the future
 /// resolves to. In case the future is rejected, the exception it is rejected with is thrown.
 template <typename T>
-T wait_for_future(const std::shared_ptr<IExecutor>& executor, asyncly::Future<T>&& future);
-
-template <typename T>
-T wait_for_future(const std::shared_ptr<IExecutor>& executor, asyncly::Future<T>&& future)
+T wait_for_future(const asyncly::IExecutorPtr& executor, asyncly::Future<T>&& future)
 {
     std::promise<T> syncPromise;
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
-            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        if constexpr (std::is_same_v<T, void>) {
+            future.then([&syncPromise]() { syncPromise.set_value(); })
+                .catch_error(
+                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        } else {
+            future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
+                .catch_error(
+                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        }
     });
 
     return syncFuture.get();
-}
-
-template <>
-inline void
-wait_for_future<>(const std::shared_ptr<IExecutor>& executor, asyncly::Future<void>&& future)
-{
-    std::promise<void> syncPromise;
-    auto syncFuture = syncPromise.get_future();
-
-    executor->post([&future, &syncPromise]() mutable {
-        future.then([&syncPromise]() { syncPromise.set_value(); })
-            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
-    });
-
-    syncFuture.get();
 }
 
 /// Blockingly waits for the Future to fail. In case the future is unexpectedly resolved to a value,
 /// a std::runtime_error is thrown. If you are interested in the actual exception that's thrown,
 /// it's possible to use wait_for_future instead and surround it with a try/catch block.
 template <typename T>
-void wait_for_future_failure(
-    const std::shared_ptr<IExecutor>& executor, asyncly::Future<T>&& future);
-
-template <typename T>
-void wait_for_future_failure(
-    const std::shared_ptr<IExecutor>& executor, asyncly::Future<T>&& future)
+void wait_for_future_failure(const asyncly::IExecutorPtr& executor, asyncly::Future<T>&& future)
 {
     std::promise<void> syncPromise;
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        future
-            .then([&syncPromise](T) {
-                syncPromise.set_exception(std::make_exception_ptr(
-                    std::runtime_error{ "Expected failure, but found success" }));
-            })
-            .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
-    });
+        if constexpr (std::is_same_v<T, void>) {
+            future
+                .then([&syncPromise]() {
+                    syncPromise.set_exception(std::make_exception_ptr(
+                        std::runtime_error{ "Expected failure, but found success" }));
+                })
+                .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
 
-    syncFuture.get();
-}
-
-template <>
-inline void wait_for_future_failure<>(
-    const std::shared_ptr<IExecutor>& executor, asyncly::Future<void>&& future)
-{
-    std::promise<void> syncPromise;
-    auto syncFuture = syncPromise.get_future();
-
-    executor->post([&future, &syncPromise]() mutable {
-        future
-            .then([&syncPromise]() {
-                syncPromise.set_exception(std::make_exception_ptr(
-                    std::runtime_error{ "Expected failure, but found success" }));
-            })
-            .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
+        } else {
+            future
+                .then([&syncPromise](T) {
+                    syncPromise.set_exception(std::make_exception_ptr(
+                        std::runtime_error{ "Expected failure, but found success" }));
+                })
+                .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
+        }
     });
 
     syncFuture.get();
@@ -112,14 +87,10 @@ inline void wait_for_future_failure<>(
 /// the observable never completes, this function will block indefinitely. The parameter passed is a
 /// function because it internally needs to be executed in an executor context.
 template <typename F>
-std::vector<typename std::invoke_result<F>::type::value_type>
-collect_observable(const std::shared_ptr<IExecutor>& executor, F functionReturningObservable);
-
-template <typename F>
-std::vector<typename std::invoke_result<F>::type::value_type>
+std::vector<typename std::invoke_result_t<F>::value_type>
 collect_observable(const asyncly::IExecutorPtr& executor, F functionReturningObservable)
 {
-    using T = typename std::invoke_result<F>::type::value_type;
+    using T = typename std::invoke_result_t<F>::value_type;
     std::promise<void> syncPromise;
     auto syncFuture = syncPromise.get_future();
 

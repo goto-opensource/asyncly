@@ -21,6 +21,7 @@
 #include "asyncly/future/Future.h"
 
 #include <future>
+#include <type_traits>
 
 namespace asyncly::test {
 template <typename T>
@@ -28,8 +29,13 @@ std::future<T> convertExecutorFutureToStdFuture(asyncly::Future<T>& executorFutu
 {
     auto promise = std::make_shared<std::promise<T>>();
     auto future = promise->get_future();
-    executorFuture.then([promise](T val) mutable { promise->set_value(std::move(val)); })
-        .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    if constexpr (std::is_same_v<T, void>) {
+        executorFuture.then([promise]() mutable { promise->set_value(); })
+            .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    } else {
+        executorFuture.then([promise](T val) mutable { promise->set_value(std::move(val)); })
+            .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    }
     return future;
 }
 template <typename T>
@@ -37,26 +43,13 @@ std::future<T> convertExecutorFutureToStdFuture(asyncly::Future<T>&& executorFut
 {
     auto promise = std::make_shared<std::promise<T>>();
     auto future = promise->get_future();
-    executorFuture.then([promise](T val) mutable { promise->set_value(std::move(val)); })
-        .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
-    return future;
-}
-template <>
-inline std::future<void> convertExecutorFutureToStdFuture(asyncly::Future<void>& executorFuture)
-{
-    auto promise = std::make_shared<std::promise<void>>();
-    auto future = promise->get_future();
-    executorFuture.then([promise]() mutable { promise->set_value(); })
-        .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
-    return future;
-}
-template <>
-inline std::future<void> convertExecutorFutureToStdFuture(asyncly::Future<void>&& executorFuture)
-{
-    auto promise = std::make_shared<std::promise<void>>();
-    auto future = promise->get_future();
-    executorFuture.then([promise]() mutable { promise->set_value(); })
-        .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    if constexpr (std::is_same_v<T, void>) {
+        executorFuture.then([promise]() mutable { promise->set_value(); })
+            .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    } else {
+        executorFuture.then([promise](T val) mutable { promise->set_value(std::move(val)); })
+            .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
+    }
     return future;
 }
 } // namespace asyncly::test

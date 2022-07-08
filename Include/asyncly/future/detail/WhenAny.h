@@ -59,21 +59,21 @@ using when_any_return_types = typename boost::mp11::mp_if<
         boost::mp11::mp_replace<when_any_unique_future_types<Args...>, void, std::monostate>>>;
 
 static_assert(
-    std::is_same<when_any_return_types<Future<void>>, void>::value,
+    std::is_same_v<when_any_return_types<Future<void>>, void>,
     "when_any_return_types<void> == void");
 static_assert(
-    std::is_same<when_any_return_types<Future<void>, Future<void>>, void>::value,
+    std::is_same_v<when_any_return_types<Future<void>, Future<void>>, void>,
     "when_any_return_types<void, void> == void");
 static_assert(
-    std::is_same<when_any_return_types<Future<int>, Future<int>>, int>::value,
+    std::is_same_v<when_any_return_types<Future<int>, Future<int>>, int>,
     "when_any_return_types<int, int> == int");
 static_assert(
-    std::is_same<when_any_return_types<Future<int>, Future<bool>>, std::variant<int, bool>>::value,
+    std::is_same_v<when_any_return_types<Future<int>, Future<bool>>, std::variant<int, bool>>,
     "when_any_return_types<int, bool> == std::variant<int, bool>");
 static_assert(
-    std::is_same<
+    std::is_same_v<
         when_any_return_types<Future<void>, Future<bool>>,
-        std::variant<std::monostate, bool>>::value,
+        std::variant<std::monostate, bool>>,
     "when_any_return_types<void, bool> == std::variant<std::monostate, bool>");
 
 namespace {

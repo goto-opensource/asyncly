@@ -26,8 +26,7 @@
 #include <type_traits>
 
 namespace asyncly {
-template <typename F>
-using FutureReturnValueType = typename std::invoke_result<F>::type::value_type;
+template <typename F> using FutureReturnValueType = typename std::invoke_result_t<F>::value_type;
 
 namespace detail {
 template <typename F, typename R = void> struct BlockingWait;
@@ -35,7 +34,7 @@ template <typename F, typename R = void> struct BlockingWait;
 template <typename F>
 struct BlockingWait<
     F,
-    typename std::enable_if<!std::is_same<void, FutureReturnValueType<F>>::value, void>::type> {
+    typename std::enable_if_t<!std::is_same_v<void, FutureReturnValueType<F>>, void>> {
     FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
     {
         using T = FutureReturnValueType<F>;
@@ -56,7 +55,7 @@ struct BlockingWait<
 template <typename F>
 struct BlockingWait<
     F,
-    typename std::enable_if<std::is_same<void, FutureReturnValueType<F>>::value, void>::type> {
+    typename std::enable_if_t<std::is_same_v<void, FutureReturnValueType<F>>, void>> {
     FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
     {
         std::promise<void> syncPromise;
@@ -92,8 +91,6 @@ FutureReturnValueType<F> blocking_wait(const std::shared_ptr<IExecutor>& executo
 /// is rejected with is thrown. Note: You should NEVER use this from within an asyncly executor
 /// because it may lead to a deadlock! Main use case is for interop between a single-threaded
 /// piece of code (e.g. `main`) and an asynchronous function (e.g. Proxy method).
-template <typename T> T blocking_wait(asyncly::Future<T>&& future);
-
 template <typename T> T blocking_wait(asyncly::Future<T>&& future)
 {
     const auto executor = InlineExecutor::create();
@@ -101,8 +98,15 @@ template <typename T> T blocking_wait(asyncly::Future<T>&& future)
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
-            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        if constexpr (std::is_same_v<T, void>) {
+            future.then([&syncPromise]() { syncPromise.set_value(); })
+                .catch_error(
+                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        } else {
+            future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
+                .catch_error(
+                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        }
     });
 
     return syncFuture.get();
@@ -124,19 +128,5 @@ detail::when_all_return_types<Args...> blocking_wait_all(Future<Args>&&... args)
     });
 
     return syncFuture.get();
-}
-
-template <> inline void blocking_wait<>(asyncly::Future<void>&& future)
-{
-    const auto executor = InlineExecutor::create();
-    std::promise<void> syncPromise;
-    auto syncFuture = syncPromise.get_future();
-
-    executor->post([&future, &syncPromise]() mutable {
-        future.then([&syncPromise]() { syncPromise.set_value(); })
-            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
-    });
-
-    syncFuture.get();
 }
 } // namespace asyncly

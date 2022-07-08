@@ -147,8 +147,8 @@ when_all_impl(std::shared_ptr<FutureImpl<Args>>... args)
         auto future = boost::hana::at(futures, index);
         future
             ->then([result_container, promise, index](
-                       typename std::add_const<typename std::decay<
-                           decltype(future)>::type::element_type::value_type>::type v) {
+                       typename std::add_const_t<
+                           typename std::decay_t<decltype(future)>::element_type::value_type> v) {
                 std::get<index.value>(result_container->results) = v;
                 result_container->maybe_resolve_promise(promise);
             })
@@ -260,7 +260,7 @@ std::shared_ptr<
     FutureImpl<typename std::vector<typename std::iterator_traits<I>::value_type::value_type>>>
 when_all_iterator_impl(I begin, I end, when_all_iterator_tag<T>)
 {
-    static_assert(!std::is_void<T>::value, "T must not be void");
+    static_assert(!std::is_void_v<T>, "T must not be void");
     using FutureT = typename std::iterator_traits<I>::value_type;
     using ValueT = typename FutureT::value_type;
 
