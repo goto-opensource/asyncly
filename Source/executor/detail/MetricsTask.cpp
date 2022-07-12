@@ -38,7 +38,11 @@ MetricsTask::MetricsTask(
 
 void MetricsTask::operator()()
 {
+    // Note: there is a short race condition here leading to wrong monitoring.
+    // If the task is cancelled in between `onTaskExecutionStarted` and the invocation of the task
+    // below, it is incorrectly counted as processed, even though it is skipped.
     taskState_->onTaskExecutionStarted();
+
     const auto start = executor_->now();
     taskQueueingDelay_.Observe(
         std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(start - postTimePoint_)

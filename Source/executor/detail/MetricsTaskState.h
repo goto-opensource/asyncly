@@ -37,7 +37,6 @@ class MetricsTaskState {
         prometheus::Gauge& enqueuedTasks,
         prometheus::Counter& processedTasks);
 
-    void onTaskEnqueued();
     void onTaskExecutionStarted();
     void onTaskCancelled();
 

@@ -30,17 +30,6 @@ MetricsTaskState::MetricsTaskState(
 {
 }
 
-void MetricsTaskState::onTaskEnqueued()
-{
-    std::lock_guard<std::mutex> lock{ mutex_ };
-
-    if (hasRun_) {
-        return;
-    }
-
-    enqueuedTasks_.Increment();
-}
-
 void MetricsTaskState::onTaskExecutionStarted()
 {
     std::lock_guard<std::mutex> lock{ mutex_ };

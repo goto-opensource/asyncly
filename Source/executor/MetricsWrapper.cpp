@@ -100,7 +100,7 @@ template <typename Base> void MetricsWrapper<Base>::post(Task&& closure)
     closure.maybe_set_executor(this->weak_from_this());
     auto taskState = std::make_shared<detail::MetricsTaskState>(
         metrics_, metrics_->queuedTasks.immediate_, metrics_->processedTasks.immediate_);
-    taskState->onTaskEnqueued();
+    metrics_->queuedTasks.immediate_.Increment();
     executor_->post(MetricsTask{ std::move(closure),
                                  executor_,
                                  metrics_->taskExecution.immediate_,
@@ -115,7 +115,7 @@ MetricsWrapper<Base>::post_at(const clock_type::time_point& t, Task&& closure)
     closure.maybe_set_executor(this->weak_from_this());
     auto taskState = std::make_shared<detail::MetricsTaskState>(
         metrics_, metrics_->queuedTasks.timed_, metrics_->processedTasks.timed_);
-    taskState->onTaskEnqueued();
+    metrics_->queuedTasks.timed_.Increment();
     auto cancelable = executor_->post_at(
         t,
         MetricsTask{ std::move(closure),
@@ -133,7 +133,7 @@ MetricsWrapper<Base>::post_after(const clock_type::duration& t, Task&& closure)
     closure.maybe_set_executor(this->weak_from_this());
     auto taskState = std::make_shared<detail::MetricsTaskState>(
         metrics_, metrics_->queuedTasks.timed_, metrics_->processedTasks.timed_);
-    taskState->onTaskEnqueued();
+    metrics_->queuedTasks.timed_.Increment();
     auto cancelable = executor_->post_after(
         t,
         MetricsTask{ std::move(closure),
