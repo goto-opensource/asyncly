@@ -512,7 +512,7 @@ auto async(IExecutorPtr executor, Fn&& function, Args&&... args) noexcept
                     tuple = std::tuple<std::remove_reference_t<Args>...>{
                         std::forward<Args>(args)... }]() mutable {
         try {
-            if constexpr (std::is_same_v<result_t, void>) {
+            if constexpr (std::is_void_v<result_t>) {
                 std::apply(std::move(fn), std::move(tuple));
                 p->set_value();
             } else {

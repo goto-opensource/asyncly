@@ -32,27 +32,19 @@ MetricsTaskState::MetricsTaskState(
 
 void MetricsTaskState::onTaskExecutionStarted()
 {
-    std::lock_guard<std::mutex> lock{ mutex_ };
-
-    if (hasRun_) {
-        return;
+    bool expectedDequeued = false;
+    if (dequeued_.compare_exchange_strong(expectedDequeued, true)) {
+        enqueuedTasks_.Decrement();
+        processedTasks_.Increment();
     }
-
-    hasRun_ = true;
-    enqueuedTasks_.Decrement();
-    processedTasks_.Increment();
 }
 
 void MetricsTaskState::onTaskCancelled()
 {
-    std::lock_guard<std::mutex> lock{ mutex_ };
-
-    if (hasRun_ || wasCancelled_) {
-        return;
+    bool expectedDequeued = false;
+    if (dequeued_.compare_exchange_strong(expectedDequeued, true)) {
+        enqueuedTasks_.Decrement();
     }
-
-    wasCancelled_ = true;
-    enqueuedTasks_.Decrement();
 }
 
 } // namespace asyncly::detail

@@ -29,7 +29,7 @@ std::future<T> convertExecutorFutureToStdFuture(asyncly::Future<T>& executorFutu
 {
     auto promise = std::make_shared<std::promise<T>>();
     auto future = promise->get_future();
-    if constexpr (std::is_same_v<T, void>) {
+    if constexpr (std::is_void_v<T>) {
         executorFuture.then([promise]() mutable { promise->set_value(); })
             .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
     } else {
@@ -43,7 +43,7 @@ std::future<T> convertExecutorFutureToStdFuture(asyncly::Future<T>&& executorFut
 {
     auto promise = std::make_shared<std::promise<T>>();
     auto future = promise->get_future();
-    if constexpr (std::is_same_v<T, void>) {
+    if constexpr (std::is_void_v<T>) {
         executorFuture.then([promise]() mutable { promise->set_value(); })
             .catch_error([promise](std::exception_ptr e) { promise->set_exception(e); });
     } else {

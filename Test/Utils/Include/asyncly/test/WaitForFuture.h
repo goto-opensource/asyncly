@@ -38,7 +38,7 @@ T wait_for_future(const asyncly::IExecutorPtr& executor, asyncly::Future<T>&& fu
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        if constexpr (std::is_same_v<T, void>) {
+        if constexpr (std::is_void_v<T>) {
             future.then([&syncPromise]() { syncPromise.set_value(); })
                 .catch_error(
                     [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
@@ -62,7 +62,7 @@ void wait_for_future_failure(const asyncly::IExecutorPtr& executor, asyncly::Fut
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        if constexpr (std::is_same_v<T, void>) {
+        if constexpr (std::is_void_v<T>) {
             future
                 .then([&syncPromise]() {
                     syncPromise.set_exception(std::make_exception_ptr(

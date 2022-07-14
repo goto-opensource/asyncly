@@ -482,7 +482,7 @@ template <typename T> template <typename F> void FutureImplBase<T>::catch_error(
     errorBreaksContinuationChain_ = true;
 
     using R = typename std::invoke_result_t<F, std::exception_ptr>;
-    static_assert(std::is_same_v<R, void>, "Error continuations can not return values!");
+    static_assert(std::is_void_v<R>, "Error continuations can not return values!");
 
     std::visit(
         boost::hana::overload(
@@ -527,7 +527,7 @@ void FutureImplBase<T>::catch_and_forward_error(F&& errorCallback)
     errorBreaksContinuationChain_ = false;
 
     using R = typename std::invoke_result_t<F, std::exception_ptr>;
-    static_assert(std::is_same_v<R, void>, "Error continuations can not return values!");
+    static_assert(std::is_void_v<R>, "Error continuations can not return values!");
 
     std::visit(
         boost::hana::overload(

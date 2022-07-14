@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <mutex>
+#include <atomic>
 
 #include <prometheus/counter.h>
 #include <prometheus/gauge.h>
@@ -41,11 +41,9 @@ class MetricsTaskState {
     void onTaskCancelled();
 
   private:
-    std::mutex mutex_;
     ExecutorMetricsPtr metrics_;
     prometheus::Gauge& enqueuedTasks_;
     prometheus::Counter& processedTasks_;
-    bool hasRun_ = false;
-    bool wasCancelled_ = false;
+    std::atomic<bool> dequeued_ = false;
 };
 } // namespace asyncly::detail

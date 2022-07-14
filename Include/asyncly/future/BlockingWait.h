@@ -32,9 +32,7 @@ namespace detail {
 template <typename F, typename R = void> struct BlockingWait;
 
 template <typename F>
-struct BlockingWait<
-    F,
-    typename std::enable_if_t<!std::is_same_v<void, FutureReturnValueType<F>>, void>> {
+struct BlockingWait<F, typename std::enable_if_t<!std::is_void_v<FutureReturnValueType<F>>, void>> {
     FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
     {
         using T = FutureReturnValueType<F>;
@@ -53,9 +51,7 @@ struct BlockingWait<
 };
 
 template <typename F>
-struct BlockingWait<
-    F,
-    typename std::enable_if_t<std::is_same_v<void, FutureReturnValueType<F>>, void>> {
+struct BlockingWait<F, typename std::enable_if_t<std::is_void_v<FutureReturnValueType<F>>, void>> {
     FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
     {
         std::promise<void> syncPromise;
@@ -98,7 +94,7 @@ template <typename T> T blocking_wait(asyncly::Future<T>&& future)
     auto syncFuture = syncPromise.get_future();
 
     executor->post([&future, &syncPromise]() mutable {
-        if constexpr (std::is_same_v<T, void>) {
+        if constexpr (std::is_void_v<T>) {
             future.then([&syncPromise]() { syncPromise.set_value(); })
                 .catch_error(
                     [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });

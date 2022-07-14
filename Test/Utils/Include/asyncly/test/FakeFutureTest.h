@@ -28,6 +28,7 @@
 #include "IFakeExecutor.h"
 
 #include <future>
+#include <type_traits>
 
 namespace asyncly::test {
 
@@ -35,10 +36,6 @@ namespace asyncly::test {
 
 /// FakeFutureTest provides helper functions for using Futures in
 /// GoogleTests with a FakeExecutor.
-
-template <typename T> struct type2type {
-    typedef T type;
-};
 
 template <class BaseClass> class FakeFutureTestBase : public BaseClass {
   public:
@@ -63,13 +60,6 @@ template <class BaseClass> class FakeFutureTestBase : public BaseClass {
 
     /// Returns used FakeExecutor
     asyncly::test::IFakeExecutorPtr get_fake_executor();
-
-  private:
-    template <typename T> T wait_for_future(type2type<T>, asyncly::Future<T>&& future);
-    void wait_for_future(type2type<void>, asyncly::Future<void>&& future);
-
-    template <typename T> void wait_for_future_failure(type2type<T>, asyncly::Future<T>&& future);
-    void wait_for_future_failure(type2type<void>, asyncly::Future<void>&& future);
 
   private:
     const asyncly::test::IFakeExecutorPtr fakeExecutor_;
@@ -98,18 +88,16 @@ template <class B>
 template <typename T>
 inline T FakeFutureTestBase<B>::wait_for_future(asyncly::Future<T>&& future)
 {
-    return wait_for_future(type2type<T>(), std::move(future));
-}
-
-template <class B>
-template <typename T>
-inline T FakeFutureTestBase<B>::wait_for_future(type2type<T>, asyncly::Future<T>&& future)
-{
     std::promise<T> syncPromise;
     auto syncFuture = syncPromise.get_future();
 
-    future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
-        .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+    if constexpr (std::is_void_v<T>) {
+        future.then([&syncPromise]() { syncPromise.set_value(); })
+            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+    } else {
+        future.then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
+            .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+    }
 
     fakeExecutor_->runTasks();
 
@@ -117,60 +105,27 @@ inline T FakeFutureTestBase<B>::wait_for_future(type2type<T>, asyncly::Future<T>
 }
 
 template <class B>
-inline void FakeFutureTestBase<B>::wait_for_future(type2type<void>, asyncly::Future<void>&& future)
-{
-    std::promise<void> syncPromise;
-    auto syncFuture = syncPromise.get_future();
-
-    future.then([&syncPromise]() { syncPromise.set_value(); })
-        .catch_error([&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
-
-    fakeExecutor_->runTasks();
-
-    syncFuture.get();
-}
-
-template <class B>
 template <typename T>
 inline void FakeFutureTestBase<B>::wait_for_future_failure(asyncly::Future<T>&& future)
 {
-    return wait_for_future_failure(type2type<T>(), std::move(future));
-}
-
-template <class B>
-template <typename T>
-inline void
-FakeFutureTestBase<B>::wait_for_future_failure(type2type<T>, asyncly::Future<T>&& future)
-{
     std::promise<void> syncPromise;
     auto syncFuture = syncPromise.get_future();
 
-    future
-        .then([&syncPromise](T) {
-            syncPromise.set_exception(std::make_exception_ptr(
-                std::runtime_error{ "Expected failure, but found success" }));
-        })
-        .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
-
-    fakeExecutor_->runTasks();
-
-    syncFuture.get();
-}
-
-template <class B>
-inline void
-FakeFutureTestBase<B>::wait_for_future_failure(type2type<void>, asyncly::Future<void>&& future)
-{
-    std::promise<void> syncPromise;
-    auto syncFuture = syncPromise.get_future();
-
-    future
-        .then([&syncPromise]() {
-            syncPromise.set_exception(std::make_exception_ptr(
-                std::runtime_error{ "Expected failure, but found success" }));
-        })
-        .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
-
+    if constexpr (std::is_void_v<T>) {
+        future
+            .then([&syncPromise]() {
+                syncPromise.set_exception(std::make_exception_ptr(
+                    std::runtime_error{ "Expected failure, but found success" }));
+            })
+            .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
+    } else {
+        future
+            .then([&syncPromise](T) {
+                syncPromise.set_exception(std::make_exception_ptr(
+                    std::runtime_error{ "Expected failure, but found success" }));
+            })
+            .catch_error([&syncPromise](std::exception_ptr) { syncPromise.set_value(); });
+    }
     fakeExecutor_->runTasks();
 
     syncFuture.get();

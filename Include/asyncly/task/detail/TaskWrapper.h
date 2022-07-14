@@ -45,14 +45,14 @@ template <typename T> struct TaskWrapper : public TaskConcept {
         : closure_(std::move(closure))
     {
         using R = typename std::invoke_result_t<T>;
-        static_assert(std::is_same_v<R, void>, "Posted function objects can not return values!");
+        static_assert(std::is_void_v<R>, "Posted function objects can not return values!");
     }
 
     TaskWrapper(const T& closure)
         : closure_(closure)
     {
         using R = typename std::invoke_result_t<T>;
-        static_assert(std::is_same_v<R, void>, "Posted function objects can not return values!");
+        static_assert(std::is_void_v<R>, "Posted function objects can not return values!");
     }
 
     void run() override
