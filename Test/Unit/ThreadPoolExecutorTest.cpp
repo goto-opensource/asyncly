@@ -87,21 +87,18 @@ TEST_F(ThreadPoolExecutorTest, DISABLED_shouldRunClosuresOnMultipleThreads)
     EXPECT_EQ(threadIds.end(), std::adjacent_find(threadIds.begin(), threadIds.end()));
 }
 
-TEST_F(ThreadPoolExecutorTest, shouldSupportDestructionInWorkerThread)
+TEST_F(ThreadPoolExecutorTest, shouldFinishRecursiveTasksBeforeExecutorDestruction)
 {
-    for (int i = 0; i < 1000; i++) {
-        std::promise<std::thread::id> p;
-        {
-            auto executorController = ThreadPoolExecutorController::create(1);
-            auto executor = executorController->get_executor();
-            executor->post([executor, &p]() {
-                executor->post([executor, &p]() {
-                    executor->post([executor, &p]() { p.set_value(std::this_thread::get_id()); });
-                });
-            });
-        }
-        EXPECT_NE(p.get_future().get(), std::this_thread::get_id());
+    std::promise<void> p;
+    {
+        auto executorController = ThreadPoolExecutorController::create(1);
+        auto executor = executorController->get_executor();
+        executor->post([executor, &p]() {
+            executor->post(
+                [executor, &p]() { executor->post([executor, &p]() { p.set_value(); }); });
+        });
     }
+    p.get_future().get();
 }
 
 TEST_F(ThreadPoolExecutorTest, shouldFinishAllTasksBeforeDestruction)
