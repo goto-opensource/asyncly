@@ -24,24 +24,27 @@ namespace asyncly {
 MetricsTask::MetricsTask(
     Task&& t,
     const IExecutorPtr& executor,
-    prometheus::Histogram& taskExecutionDuration,
-    prometheus::Histogram& taskQueueingDelay,
-    const std::shared_ptr<detail::MetricsTaskState>& taskState)
+    const ExecutorMetricsPtr& metrics,
+    MetricsTask::ExecutionType executionType)
     : task_(std::move(t))
     , executor_(executor)
-    , taskExecutionDuration_{ taskExecutionDuration }
-    , taskQueueingDelay_{ taskQueueingDelay }
-    , taskState_{ taskState }
+    , metrics_(metrics)
+    , taskExecutionDuration_{ executionType == ExecutionType::timed
+                                  ? metrics_->taskExecution.timed_
+                                  : metrics_->taskExecution.immediate_ }
+    , taskQueueingDelay_{ executionType == ExecutionType::timed ? metrics_->taskDelay.timed_
+                                                                : metrics_->taskDelay.immediate_ }
+    , enqueuedTasks_{ executionType == ExecutionType::timed ? metrics_->queuedTasks.timed_
+                                                            : metrics_->queuedTasks.immediate_ }
+    , processedTasks_{ executionType == ExecutionType::timed ? metrics_->processedTasks.timed_
+                                                             : metrics_->processedTasks.immediate_ }
     , postTimePoint_{ executor_->now() }
 {
 }
 
 void MetricsTask::operator()()
 {
-    // Note: there is a short race condition here leading to wrong monitoring.
-    // If the task is cancelled in between `onTaskExecutionStarted` and the invocation of the task
-    // below, it is incorrectly counted as processed, even though it is skipped.
-    taskState_->onTaskExecutionStarted();
+    enqueuedTasks_.Decrement();
 
     const auto start = executor_->now();
     taskQueueingDelay_.Observe(
@@ -49,6 +52,7 @@ void MetricsTask::operator()()
             .count());
 
     task_();
+    processedTasks_.Increment();
 
     taskExecutionDuration_.Observe(
         std::chrono::duration_cast<std::chrono::duration<double, std::nano>>(

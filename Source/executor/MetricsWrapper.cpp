@@ -27,7 +27,6 @@
 #include "asyncly/task/detail/PeriodicTask.h"
 
 #include "detail/MetricsTask.h"
-#include "detail/MetricsTaskState.h"
 
 namespace asyncly {
 
@@ -65,20 +64,29 @@ class MetricsCancelable final : public Cancelable {
   public:
     MetricsCancelable(
         std::shared_ptr<Cancelable> cancelable,
-        const std::shared_ptr<detail::MetricsTaskState>& taskState)
+        ExecutorMetricsPtr metrics,
+        MetricsTask::ExecutionType executionType)
         : cancelable_{ cancelable }
-        , taskState_{ taskState }
+        , metrics_(metrics)
+        , enqueuedTasks_{ executionType == MetricsTask::ExecutionType::timed
+                              ? metrics_->queuedTasks.timed_
+                              : metrics_->queuedTasks.immediate_ }
     {
     }
 
-    void cancel() override
+    bool cancel() override
     {
-        taskState_->onTaskCancelled();
-        cancelable_->cancel();
+        if (cancelable_->cancel()) {
+            enqueuedTasks_.Decrement();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     const std::shared_ptr<Cancelable> cancelable_;
-    const std::shared_ptr<detail::MetricsTaskState> taskState_;
+    const ExecutorMetricsPtr metrics_;
+    prometheus::Gauge& enqueuedTasks_;
 };
 } // namespace
 
@@ -98,14 +106,9 @@ MetricsWrapper<Base>::MetricsWrapper(
 template <typename Base> void MetricsWrapper<Base>::post(Task&& closure)
 {
     closure.maybe_set_executor(this->weak_from_this());
-    auto taskState = std::make_shared<detail::MetricsTaskState>(
-        metrics_, metrics_->queuedTasks.immediate_, metrics_->processedTasks.immediate_);
     metrics_->queuedTasks.immediate_.Increment();
-    executor_->post(MetricsTask{ std::move(closure),
-                                 executor_,
-                                 metrics_->taskExecution.immediate_,
-                                 metrics_->taskDelay.immediate_,
-                                 taskState });
+    executor_->post(MetricsTask{
+        std::move(closure), executor_, metrics_, MetricsTask::ExecutionType::immediate });
 }
 
 template <typename Base>
@@ -113,17 +116,12 @@ std::shared_ptr<Cancelable>
 MetricsWrapper<Base>::post_at(const clock_type::time_point& t, Task&& closure)
 {
     closure.maybe_set_executor(this->weak_from_this());
-    auto taskState = std::make_shared<detail::MetricsTaskState>(
-        metrics_, metrics_->queuedTasks.timed_, metrics_->processedTasks.timed_);
     metrics_->queuedTasks.timed_.Increment();
     auto cancelable = executor_->post_at(
         t,
-        MetricsTask{ std::move(closure),
-                     executor_,
-                     metrics_->taskExecution.timed_,
-                     metrics_->taskDelay.timed_,
-                     taskState });
-    return std::make_shared<MetricsCancelable>(cancelable, taskState);
+        MetricsTask{ std::move(closure), executor_, metrics_, MetricsTask::ExecutionType::timed });
+    return std::make_shared<MetricsCancelable>(
+        cancelable, metrics_, MetricsTask::ExecutionType::timed);
 }
 
 template <typename Base>
@@ -131,17 +129,12 @@ std::shared_ptr<Cancelable>
 MetricsWrapper<Base>::post_after(const clock_type::duration& t, Task&& closure)
 {
     closure.maybe_set_executor(this->weak_from_this());
-    auto taskState = std::make_shared<detail::MetricsTaskState>(
-        metrics_, metrics_->queuedTasks.timed_, metrics_->processedTasks.timed_);
     metrics_->queuedTasks.timed_.Increment();
     auto cancelable = executor_->post_after(
         t,
-        MetricsTask{ std::move(closure),
-                     executor_,
-                     metrics_->taskExecution.timed_,
-                     metrics_->taskDelay.timed_,
-                     taskState });
-    return std::make_shared<MetricsCancelable>(cancelable, taskState);
+        MetricsTask{ std::move(closure), executor_, metrics_, MetricsTask::ExecutionType::timed });
+    return std::make_shared<MetricsCancelable>(
+        cancelable, metrics_, MetricsTask::ExecutionType::timed);
 }
 
 template <typename Base>

@@ -63,8 +63,6 @@ add_library(asyncly
   Source/executor/detail/ExternalEventExecutor.cpp
   Source/executor/detail/MetricsTask.cpp
   Source/executor/detail/MetricsTask.h
-  Source/executor/detail/MetricsTaskState.cpp
-  Source/executor/detail/MetricsTaskState.h
   Source/executor/detail/StrandImpl.cpp
   Source/executor/detail/StrandImpl.h
 

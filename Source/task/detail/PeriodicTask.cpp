@@ -43,20 +43,21 @@ PeriodicTask::PeriodicTask(
 {
 }
 
-void PeriodicTask::cancel()
+bool PeriodicTask::cancel()
 {
     std::lock_guard<std::mutex> lock{ mutex_ };
     if (cancelled_) {
-        return;
+        return true;
     }
     cancelled_ = true;
 
     if (currentDelayedTask_) {
         currentDelayedTask_->cancel();
+        currentDelayedTask_.reset();
     }
-    currentDelayedTask_.reset();
 
     task_.reset();
+    return true;
 }
 
 void PeriodicTask::scheduleTask_()

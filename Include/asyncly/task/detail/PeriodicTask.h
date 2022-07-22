@@ -40,7 +40,7 @@ class PeriodicTask : public Cancelable, public std::enable_shared_from_this<Peri
     create(const clock_type::duration& period, RepeatableTask&& task, const IExecutorPtr& executor);
 
   public:
-    void cancel() override;
+    bool cancel() override;
 
   public:
     PeriodicTask(

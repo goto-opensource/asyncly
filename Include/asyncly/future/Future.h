@@ -503,7 +503,7 @@ Future<T> make_future_from_impl(const std::shared_ptr<detail::FutureImpl<T>>& fu
 template <class Fn, class... Args>
 auto async(IExecutorPtr executor, Fn&& function, Args&&... args) noexcept
 {
-    using result_t = std::invoke_result_t<Fn, Args&&...>;
+    using result_t = std::remove_reference_t<std::invoke_result_t<Fn, Args&&...>>;
     auto promise = std::make_unique<Promise<result_t>>();
     auto future = promise->get_future();
 

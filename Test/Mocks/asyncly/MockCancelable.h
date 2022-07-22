@@ -26,6 +26,6 @@ namespace asyncly {
 
 class MockCancelable : public Cancelable {
   public:
-    MOCK_METHOD0(cancel, void());
+    MOCK_METHOD0(cancel, bool());
 };
 } // namespace asyncly

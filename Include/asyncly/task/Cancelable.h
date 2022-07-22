@@ -23,7 +23,14 @@ namespace asyncly {
 class Cancelable {
   public:
     virtual ~Cancelable() = default;
-    virtual void cancel() = 0;
+    ///
+    /// Cancels a task.
+    /// Cancellation cannot be guaranteed to be successful when called
+    /// within another strand (or thread) than the task-to-be-cancelled is executed on.
+    /// Reason: Task might already be in execution (or preparation of execution)
+    ///
+    /// \return  true if cancel succeeded or was already cancelled, false otherwise (too late)
+    virtual bool cancel() = 0;
 };
 
 } // namespace asyncly

@@ -35,18 +35,17 @@ class TaskCancelable : public Cancelable {
     {
     }
 
-    void cancel() override
+    bool cancel() override
     {
         std::lock_guard<std::mutex> lock(mtx_);
-        isCanceled_ = true;
-        auto task = task_.lock();
-        if (task) {
-            task->executor_.reset();
-
-            if (!isRunning_) {
-                task->task_.reset();
-            }
+        if (isRunning_) {
+            return false; // too late to cancel
         }
+        isCanceled_ = true;
+        if (auto task = task_.lock()) {
+            task->task_.reset();
+        }
+        return true;
     }
 
     bool maybeMarkAsRunning()

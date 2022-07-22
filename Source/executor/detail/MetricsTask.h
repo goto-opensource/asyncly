@@ -25,20 +25,20 @@
 #include <prometheus/registry.h>
 
 #include "asyncly/ExecutorTypes.h"
+#include "asyncly/executor/detail/ExecutorMetrics.h"
 #include "asyncly/task/Task.h"
-
-#include "MetricsTaskState.h"
 
 namespace asyncly {
 
 class MetricsTask {
   public:
+    enum class ExecutionType { timed, immediate };
+
     MetricsTask(
         Task&& t,
         const IExecutorPtr& executor,
-        prometheus::Histogram& taskExecutionDuration,
-        prometheus::Histogram& taskQueueingDelay,
-        const std::shared_ptr<detail::MetricsTaskState>& taskState);
+        const ExecutorMetricsPtr& metrics,
+        ExecutionType executionType);
 
     MetricsTask(const MetricsTask&) = delete;
     MetricsTask(MetricsTask&& o) = default;
@@ -52,10 +52,13 @@ class MetricsTask {
 
     // reference is correct here since execution can only occur in an existing executor
     const IExecutorPtr& executor_;
+    const ExecutorMetricsPtr metrics_;
 
     prometheus::Histogram& taskExecutionDuration_;
     prometheus::Histogram& taskQueueingDelay_;
-    const std::shared_ptr<detail::MetricsTaskState> taskState_;
+    prometheus::Gauge& enqueuedTasks_;
+    prometheus::Counter& processedTasks_;
+
     const clock_type::time_point postTimePoint_;
 };
 } // namespace asyncly

@@ -43,9 +43,10 @@ class AsioTimerTask : public asyncly::Cancelable,
         timer_.async_wait(AsioTimerHandler{ std::move(task), shared_from_this() });
     }
 
-    void cancel() override
+    bool cancel() override
     {
-        timer_.cancel();
+        const auto cancelled_ops = timer_.cancel();
+        return (cancelled_ops > 0);
     }
 
   private:
