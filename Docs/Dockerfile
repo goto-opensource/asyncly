@@ -1,8 +1,7 @@
 FROM ubuntu:20.04
 MAINTAINER jupp.mueller@logmein.com
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends curl doxygen python3-minimal python3-sphinx python3-sphinx-rtd-theme tar xz-utils liblua5.2
+RUN apt-get update && apt-get install -y --no-install-recommends curl doxygen python3-minimal python3-sphinx python3-sphinx-rtd-theme tar xz-utils liblua5.2
 RUN mkdir /doxyrest; curl -sL https://github.com/vovkos/doxyrest/releases/download/doxyrest-2.0.0/doxyrest-2.0.0-linux-amd64.tar.xz | tar xJf - -C /doxyrest --strip-components=1
 
 ENV DOXYREST_DIR /doxyrest
