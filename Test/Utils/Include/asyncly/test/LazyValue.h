@@ -19,33 +19,40 @@
 #pragma once
 
 #include "asyncly/Future.h"
+#include "asyncly/future/Future.h"
+
+#include <optional>
+#include <tuple>
 
 namespace asyncly::test {
 
 template <typename ValueType> class LazyValue {
   public:
     LazyValue()
-        : _valueFuturePromise(asyncly::make_lazy_future<ValueType>())
+        : _future(_promise.get_future())
     {
     }
 
-    asyncly::Future<ValueType> get_future() const
+    asyncly::Future<ValueType> get_future()
     {
-        return std::get<0>(_valueFuturePromise);
+        auto [futureToReturn, futureToStore] = asyncly::split(std::move(*_future));
+        _future.emplace(futureToStore);
+        return futureToReturn;
     }
 
     void set_value(const ValueType& value)
     {
-        std::get<1>(_valueFuturePromise).set_value(value);
+        _promise.set_value(value);
     }
 
     void set_value(ValueType&& value)
     {
-        std::get<1>(_valueFuturePromise).set_value(std::move(value));
+        _promise.set_value(std::move(value));
     }
 
   private:
-    std::tuple<asyncly::Future<ValueType>, asyncly::Promise<ValueType>> _valueFuturePromise;
+    asyncly::Promise<ValueType> _promise;
+    std::optional<asyncly::Future<ValueType>> _future;
 };
 
 } // namespace asyncly::test
