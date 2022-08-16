@@ -30,7 +30,7 @@ namespace asyncly::detail {
 template <typename T, typename U = T>
 typename std::enable_if_t<std::is_convertible_v<U, bool>, bool> checkClosure(const T& closure)
 {
-    return closure;
+    return !!closure;
 }
 
 // assume valid closures if we cant check
