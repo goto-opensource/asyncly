@@ -35,8 +35,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Asyncly'
-copyright = u'2019, LogmeIn Inc'
-author = u'Jupp Mueller'
+copyright = u'2022, GoTo Inc'
+author = u'The Asyncly authors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
