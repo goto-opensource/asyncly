@@ -5,30 +5,30 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_google_benchmark",
-        sha256 = "6132883bc8c9b0df5375b16ab520fac1a85dc9e4cf5be59480448ece74b278d4",
-        strip_prefix = "benchmark-1.6.1",
+        sha256 = "3aff99169fa8bdee356eaa1f691e835a6e57b1efeadb8a0f9f228531158246ac",
+        strip_prefix = "benchmark-1.7.0",
         urls = [
-            "https://github.com/google/benchmark/archive/v1.6.1.tar.gz",
+            "https://github.com/google/benchmark/archive/v1.7.0.tar.gz",
         ],
     )
 
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "b4870bf121ff7795ba20d20bcdd8627b8e088f2d1dab299a031c1034eddc93d5",
-        strip_prefix = "googletest-release-1.11.0",
+        sha256 = "81964fe578e9bd7c94dfdb09c8e4d6e6759e19967e397dbea48d1c10e45d0df2",
+        strip_prefix = "googletest-release-1.12.1",
         urls = [
-            "https://github.com/google/googletest/archive/release-1.11.0.tar.gz",
+            "https://github.com/google/googletest/archive/release-1.12.1.tar.gz",
         ],
     )
 
     maybe(
         http_archive,
         name = "com_github_jupp0r_prometheus_cpp",
-        sha256 = "07018db604ea3e61f5078583e87c80932ea10c300d979061490ee1b7dc8e3a41",
-        strip_prefix = "prometheus-cpp-1.0.0",
+        sha256 = "593e028d401d3298eada804d252bc38d8cab3ea1c9e88bcd72095281f85e6d16",
+        strip_prefix = "prometheus-cpp-1.0.1",
         urls = [
-            "https://github.com/jupp0r/prometheus-cpp/archive/v1.0.0.tar.gz",
+            "https://github.com/jupp0r/prometheus-cpp/archive/v1.0.1.tar.gz",
         ],
     )
 
@@ -46,9 +46,9 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_nelhage_rules_boost",
-        sha256 = "c1298755d1e5f458a45c410c56fb7a8d2e44586413ef6e2d48dd83cc2eaf6a98",
-        strip_prefix = "rules_boost-789a047e61c0292c3b989514f5ca18a9945b0029",
+        sha256 = "0db14c7eb7acc78cbe601a450d7161e492d7ffc98150775cfef6e2cdf5ec7e6a",
+        strip_prefix = "rules_boost-ea2991b24d68439121130845f7dbef8d1dd383d2",
         urls = [
-            "https://github.com/nelhage/rules_boost/archive/789a047e61c0292c3b989514f5ca18a9945b0029.tar.gz",
+            "https://github.com/nelhage/rules_boost/archive/ea2991b24d68439121130845f7dbef8d1dd383d2.tar.gz",
         ],
     )
