@@ -1,9 +1,7 @@
-EXTRA_SOURCES = []
-
 cc_test(
     name = "test_asyncly",
     size = "medium",
-    srcs = EXTRA_SOURCES + glob(
+    srcs = glob(
         [
             "**/*.cpp",
             "**/*.h",
