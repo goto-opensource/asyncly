@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 LogMeIn
+ * Copyright 2022 LogMeIn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,17 @@
 
 #pragma once
 
-#include "asyncly/future/AddTimeout.h"
 #include "asyncly/future/Future.h"
-#include "asyncly/future/LazyOneTimeInitializer.h"
-#include "asyncly/future/Split.h"
-#include "asyncly/future/WhenAll.h"
-#include "asyncly/future/WhenAny.h"
-#include "asyncly/future/WhenThen.h"
+
+namespace asyncly {
+template <typename T> auto when_then(Future<T>&& when, Promise<T>& then)
+{
+    when.then([then](T val) mutable { then.set_value(val); })
+        .catch_error([then](std::exception_ptr e) mutable { then.set_exception(e); });
+}
+template <> inline auto when_then<void>(Future<void>&& when, Promise<void>& then)
+{
+    when.then([then]() mutable { then.set_value(); })
+        .catch_error([then](std::exception_ptr e) mutable { then.set_exception(e); });
+}
+} // namespace asyncly
