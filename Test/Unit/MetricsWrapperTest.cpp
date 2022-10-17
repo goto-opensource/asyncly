@@ -253,6 +253,26 @@ TEST_F(MetricsWrapperTest, shouldNotCountCanceledQueuedTasks)
     EXPECT_DOUBLE_EQ(result.metric.gauge.value, static_cast<double>(numberOfQueuedTasks));
 }
 
+TEST_F(MetricsWrapperTest, shouldNotDecrementTwiceOnDoubleCancel)
+{
+    auto cancelable = postTaskNow(
+                          metricsExecutor_, PostCallType::kPostAt, [] {}, std::chrono::seconds(1))
+                          .value();
+
+    cancelable->cancel();
+    cancelable->cancel();
+
+    const auto families = registry_->Collect();
+    const auto result = detail::grabMetric(
+        families,
+        prometheus::MetricType::Gauge,
+        "currently_enqueued_tasks_total",
+        targetCounterValue_[PostCallType::kPostAt]);
+    EXPECT_TRUE(result.success) << result.errorMessage;
+
+    EXPECT_DOUBLE_EQ(result.metric.gauge.value, static_cast<double>(0));
+}
+
 TEST_P(MetricsWrapperTest, shouldMeasureTaskRuntime)
 {
     const auto expectedSummarizedTaskRuntime = 500;

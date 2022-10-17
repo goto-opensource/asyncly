@@ -38,10 +38,13 @@ class TaskCancelable : public Cancelable {
     bool cancel() override
     {
         std::lock_guard<std::mutex> lock(mtx_);
+        if (isCanceled_) {
+            return false;
+        }
+        isCanceled_ = true;
         if (isRunning_) {
             return false; // too late to cancel
         }
-        isCanceled_ = true;
         if (auto task = task_.lock()) {
             task->task_.reset();
         }

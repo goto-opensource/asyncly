@@ -29,7 +29,7 @@ class Cancelable {
     /// within another strand (or thread) than the task-to-be-cancelled is executed on.
     /// Reason: Task might already be in execution (or preparation of execution)
     ///
-    /// \return  true if cancel succeeded or was already cancelled, false otherwise (too late)
+    /// \return  true if cancel succeeded, false otherwise (too late, already cancelled)
     virtual bool cancel() = 0;
 };
 
