@@ -219,8 +219,7 @@ TEST_F(WrapWeakThisTest, shouldWorkForMutableLambas)
 }
 
 template <typename TExecutorFactory>
-class WrapWeakPostTest : public WrapWeakTest, public WrapPostTest<TExecutorFactory> {
-};
+class WrapWeakPostTest : public WrapWeakTest, public WrapPostTest<TExecutorFactory> { };
 
 TYPED_TEST_SUITE(WrapWeakPostTest, ExecutorFactoryTypes);
 

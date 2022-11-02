@@ -86,8 +86,7 @@ class ExecutorCommonTestBase : public Test {
 };
 
 template <typename TExecutorFactory>
-class ExecutorCommonTest : public ExecutorCommonTestBase<TExecutorFactory, IExecutor> {
-};
+class ExecutorCommonTest : public ExecutorCommonTestBase<TExecutorFactory, IExecutor> { };
 
 TYPED_TEST_SUITE_P(ExecutorCommonTest);
 
@@ -211,8 +210,7 @@ REGISTER_TYPED_TEST_SUITE_P(
 //////////////////////////////////////////
 
 template <typename TExecutorFactory>
-class ScheduledExecutorCommonTest : public ExecutorCommonTestBase<TExecutorFactory, IExecutor> {
-};
+class ScheduledExecutorCommonTest : public ExecutorCommonTestBase<TExecutorFactory, IExecutor> { };
 
 TYPED_TEST_SUITE_P(ScheduledExecutorCommonTest);
 

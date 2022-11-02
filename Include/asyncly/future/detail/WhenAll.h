@@ -180,8 +180,7 @@ template <> struct when_all_iterator_result<void> {
     using result_type = void;
 };
 
-template <typename> struct when_all_iterator_tag {
-};
+template <typename> struct when_all_iterator_tag { };
 
 template <typename I> // I models InputIterator<Future<void>>
 std::shared_ptr<FutureImpl<void>>
