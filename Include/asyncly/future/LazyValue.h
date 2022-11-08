@@ -22,15 +22,29 @@
 #include "asyncly/future/Future.h"
 
 #include <optional>
+#include <stdexcept>
 #include <tuple>
 
-namespace asyncly::test {
+namespace asyncly {
 
 template <typename ValueType> class LazyValue {
   public:
     LazyValue()
         : _future(_promise.get_future())
+        , _hasValue(false)
     {
+    }
+
+    LazyValue(const LazyValue&) = delete;
+    LazyValue(LazyValue&&) = delete;
+    LazyValue& operator=(const LazyValue&) = delete;
+    LazyValue& operator=(LazyValue&&) = delete;
+
+    ~LazyValue()
+    {
+        if (!_hasValue) {
+            _promise.set_exception(std::runtime_error("Could not be resolved. No value was set."));
+        }
     }
 
     asyncly::Future<ValueType> get_future()
@@ -42,17 +56,26 @@ template <typename ValueType> class LazyValue {
 
     void set_value(const ValueType& value)
     {
+        _hasValue = true;
         _promise.set_value(value);
     }
 
     void set_value(ValueType&& value)
     {
+        _hasValue = true;
         _promise.set_value(std::move(value));
+    }
+
+    bool has_value() const
+    {
+        return _hasValue;
     }
 
   private:
     asyncly::Promise<ValueType> _promise;
     std::optional<asyncly::Future<ValueType>> _future;
+
+    bool _hasValue;
 };
 
-} // namespace asyncly::test
+} // namespace asyncly

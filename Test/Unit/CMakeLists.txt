@@ -11,6 +11,7 @@ asyncly_add_google_test(test_asyncly
   future/CoroutineTest.cpp
   future/FutureTest.cpp
   future/LazyOneTimeInitializerTest.cpp
+  future/LazyValueTest.cpp
   future/SplitTest.cpp
   future/WhenAllTest.cpp
   future/WhenAnyTest.cpp
