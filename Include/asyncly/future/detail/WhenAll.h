@@ -145,10 +145,8 @@ when_all_impl(std::shared_ptr<FutureImpl<Args>>... args)
 
     boost::hana::for_each(valueIndices, [&result_container, &promise, &futures](auto index) {
         auto future = boost::hana::at(futures, index);
-        using type = typename std::add_const_t<
-            typename std::decay_t<decltype(future)>::element_type::value_type>;
         future
-            ->then([result_container, promise, index](type v) {
+            ->then([result_container, promise, index](auto v) {
                 std::get<index.value>(result_container->results) = v;
                 result_container->maybe_resolve_promise(promise);
             })
