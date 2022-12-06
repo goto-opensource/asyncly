@@ -19,6 +19,7 @@
 #pragma once
 
 #include "asyncly/ExecutorTypes.h"
+#include "asyncly/detail/TypeUtils.h"
 #include "asyncly/future/Future.h"
 #include "asyncly/observable/Observable.h"
 
@@ -40,6 +41,13 @@ T wait_for_future(const asyncly::IExecutorPtr& executor, asyncly::Future<T>&& fu
     executor->post([&future, &syncPromise]() mutable {
         if constexpr (std::is_void_v<T>) {
             future.then([&syncPromise]() { syncPromise.set_value(); })
+                .catch_error(
+                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+        } else if constexpr (detail::is_tuple<T>::type::value) {
+            future
+                .then([&syncPromise](auto... args) {
+                    syncPromise.set_value(std::make_tuple(args...));
+                })
                 .catch_error(
                     [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
         } else {

@@ -78,4 +78,49 @@ template <typename ValueType> class LazyValue {
     bool _hasValue;
 };
 
+template <> class LazyValue<void> {
+  public:
+    LazyValue()
+        : _future(_promise.get_future())
+        , _hasValue(false)
+    {
+    }
+
+    LazyValue(const LazyValue&) = delete;
+    LazyValue(LazyValue&&) = delete;
+    LazyValue& operator=(const LazyValue&) = delete;
+    LazyValue& operator=(LazyValue&&) = delete;
+
+    ~LazyValue()
+    {
+        if (!_hasValue) {
+            _promise.set_exception(std::runtime_error("Could not be resolved. No value was set."));
+        }
+    }
+
+    asyncly::Future<void> get_future()
+    {
+        auto [futureToReturn, futureToStore] = asyncly::split(std::move(*_future));
+        _future.emplace(futureToStore);
+        return futureToReturn;
+    }
+
+    void set_value()
+    {
+        _hasValue = true;
+        _promise.set_value();
+    }
+
+    bool has_value() const
+    {
+        return _hasValue;
+    }
+
+  private:
+    asyncly::Promise<void> _promise;
+    std::optional<asyncly::Future<void>> _future;
+
+    bool _hasValue;
+};
+
 } // namespace asyncly
