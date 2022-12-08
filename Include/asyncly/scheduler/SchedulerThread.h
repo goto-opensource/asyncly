@@ -19,6 +19,7 @@
 #pragma once
 
 #include "IRunnableScheduler.h"
+#include "asyncly/ExecutorTypes.h"
 
 #include <thread>
 
@@ -27,9 +28,8 @@ namespace asyncly {
 class SchedulerThread {
   public:
     SchedulerThread(
-        const ThreadInitFunction& threadInit,
-        const std::shared_ptr<IRunnableScheduler>& runableScheduler);
-    void finish();
+        ThreadInitFunction threadInit, std::shared_ptr<IRunnableScheduler> runableScheduler);
+    ~SchedulerThread();
     asyncly::ISchedulerPtr get_scheduler() const;
 
   private:
@@ -38,19 +38,18 @@ class SchedulerThread {
 };
 
 inline SchedulerThread::SchedulerThread(
-    const ThreadInitFunction& threadInit,
-    const std::shared_ptr<IRunnableScheduler>& runableScheduler)
-    : m_runableScheduler(runableScheduler)
+    ThreadInitFunction threadInit, std::shared_ptr<IRunnableScheduler> runableScheduler)
+    : m_runableScheduler(std::move(runableScheduler))
 {
-    m_timerThread = std::thread([this, threadInit] {
-        if (threadInit) {
-            threadInit();
+    m_timerThread = std::thread([this, init = std::move(threadInit)] {
+        if (init) {
+            init();
         }
         m_runableScheduler->run();
     });
 }
 
-inline void SchedulerThread::finish()
+inline SchedulerThread::~SchedulerThread()
 {
     m_runableScheduler->stop();
     m_timerThread.join();

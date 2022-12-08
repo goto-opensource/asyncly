@@ -64,7 +64,6 @@ void ThreadPoolExecutorController::finish()
     std::lock_guard<std::mutex> lock(m_stopMutex);
 
     if (m_schedulerThread) {
-        m_schedulerThread->finish();
         m_schedulerThread.reset();
     }
 

@@ -41,12 +41,6 @@ template <class SchedulerImpl> class SchedulerProviderExternal {
         schedulerThread_ = std::make_shared<SchedulerThread>(
             ThreadInitFunction{}, std::make_shared<SchedulerImpl>());
     }
-    virtual ~SchedulerProviderExternal()
-    {
-        if (schedulerThread_) {
-            schedulerThread_->finish();
-        }
-    }
 
     ISchedulerPtr get_scheduler() const
     {

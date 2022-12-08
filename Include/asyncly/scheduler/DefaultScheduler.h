@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <mutex>
-
 #include "IRunnableScheduler.h"
 #include "detail/BaseScheduler.h"
 #include "detail/Sleep.h"
+#include <atomic>
+#include <mutex>
 
 #include "asyncly/executor/IExecutor.h"
 #include "asyncly/task/Task.h"
@@ -49,21 +49,20 @@ class DefaultScheduler : public IRunnableScheduler {
   private:
     BaseScheduler m_baseScheduler;
     const clock_type::duration m_timerGranularity;
-    bool m_shutDownActive;
+    std::atomic<bool> m_running;
     std::mutex m_mutex;
 };
 
 inline DefaultScheduler::DefaultScheduler(const clock_type::duration& timerGranularity)
     : m_baseScheduler([]() { return clock_type::now(); })
     , m_timerGranularity(timerGranularity)
-    , m_shutDownActive(false)
+    , m_running(true)
 {
 }
 
 inline void DefaultScheduler::stop()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_shutDownActive = true;
+    m_running = false;
 }
 
 inline asyncly::clock_type::time_point DefaultScheduler::now() const
@@ -90,12 +89,9 @@ inline void DefaultScheduler::run()
     // NOTE: There is no concurrent entrance in this function.
     // The mutex is required to protect the timer queue
     // against data races with the public interface.
-    while (true) {
+    while (m_running) {
         {
             std::unique_lock<std::mutex> lock(m_mutex);
-            if (m_shutDownActive) {
-                return;
-            }
             m_baseScheduler.prepareElapse();
         }
         m_baseScheduler.elapse();
