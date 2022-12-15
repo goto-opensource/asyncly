@@ -22,6 +22,7 @@
 #include "boost/thread.hpp"
 #include "boost/thread/future.hpp"
 
+#include <array>
 #include <future>
 #include <thread>
 
