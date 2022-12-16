@@ -22,20 +22,23 @@
 #include "detail/TaskCurrentExecutorGuard.h"
 #include "detail/TaskWrapper.h"
 
+#include <concepts>
 #include <memory>
 #include <type_traits>
 
 namespace asyncly {
 
 struct Task {
-    template <typename T, typename = typename std::enable_if<!std::is_same_v<T, Task>>>
+    template <typename T>
+        requires(!std::same_as<T, Task>)
     Task(T&& closure)
         : task_{ new detail::TaskWrapper<typename std::remove_reference<T>::type>{
             std::forward<T>(closure) } }
     {
     }
 
-    template <typename T, typename = typename std::enable_if<!std::is_same_v<T, Task>>>
+    template <typename T>
+        requires std::same_as<T, Task>
     Task(const T& closure)
         : task_{ new detail::TaskWrapper<T>{ closure } }
     {

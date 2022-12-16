@@ -40,31 +40,21 @@ template <typename... Args> struct is_tuple<std::tuple<Args...>> {
 static_assert(is_tuple<std::tuple<int>>::type::value, "is_tuple<std::tuple<int>>");
 static_assert(!is_tuple<bool>::type::value, "!is_tuple<bool>");
 
-template <typename T, typename D = void> struct maybe_unpack_and_call;
-template <typename T>
-struct maybe_unpack_and_call<
-    T,
-    typename std::enable_if_t<!is_tuple<typename std::decay_t<T>>::type::value>> {
-    template <typename F> auto operator()(F&& f, T value)
-    {
-        return f(std::move(value));
-    }
-};
-
 template <typename F, typename T, typename... S>
 auto maybe_unpack_and_call_(F&& f, T tuple, boost::mp11::mp_list<S...>)
 {
     return f(std::get<S::value>(tuple)...);
 }
 
-template <typename T>
-struct maybe_unpack_and_call<
-    T,
-    typename std::enable_if_t<is_tuple<typename std::decay_t<T>>::type::value>> {
-    template <typename F> auto operator()(F&& f, T tuple)
+template <typename T> struct maybe_unpack_and_call {
+    template <typename F> auto operator()(F&& f, T value)
     {
-        return maybe_unpack_and_call_(
-            std::forward<F>(f), tuple, typename boost::mp11::mp_iota_c<std::tuple_size_v<T>>{});
+        if constexpr (is_tuple<typename std::decay_t<T>>::type::value) {
+            return maybe_unpack_and_call_(
+                std::forward<F>(f), value, typename boost::mp11::mp_iota_c<std::tuple_size_v<T>>{});
+        } else {
+            return f(std::move(value));
+        }
     }
 };
 

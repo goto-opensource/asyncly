@@ -25,19 +25,16 @@
 
 namespace asyncly::detail {
 
-// preserve validation checking for closures that support it, ie
-// std::function<void()> bound to a shared_ptr
-template <typename T, typename U = T>
-typename std::enable_if_t<std::is_convertible_v<U, bool>, bool> checkClosure(const T& closure)
+template <typename T, typename U = T> constexpr bool checkClosure(const T& closure)
 {
-    return !!closure;
-}
-
-// assume valid closures if we cant check
-template <typename T, typename U = T>
-typename std::enable_if_t<!std::is_convertible_v<U, bool>, bool> checkClosure(const T&)
-{
-    return true;
+    if constexpr (std::is_convertible_v<U, bool>) {
+        // preserve validation checking for closures that support it, ie
+        // std::function<void()> bound to a shared_ptr
+        return !!closure;
+    } else {
+        // assume valid closures if we cant check
+        return true;
+    }
 }
 
 template <typename T> struct TaskWrapper : public TaskConcept {

@@ -29,10 +29,8 @@ namespace asyncly {
 template <typename F> using FutureReturnValueType = typename std::invoke_result_t<F>::value_type;
 
 namespace detail {
-template <typename F, typename R = void> struct BlockingWait;
 
-template <typename F>
-struct BlockingWait<F, typename std::enable_if_t<!std::is_void_v<FutureReturnValueType<F>>, void>> {
+template <typename F> struct BlockingWait {
     FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
     {
         using T = FutureReturnValueType<F>;
@@ -40,31 +38,20 @@ struct BlockingWait<F, typename std::enable_if_t<!std::is_void_v<FutureReturnVal
         auto syncFuture = syncPromise.get_future();
 
         executor->post([&func, &syncPromise]() mutable {
-            func()
-                .then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
-                .catch_error(
-                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+            if constexpr (std::is_void_v<T>) {
+                func()
+                    .then([&syncPromise]() { syncPromise.set_value(); })
+                    .catch_error(
+                        [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+            } else {
+                func()
+                    .then([&syncPromise](T result) { syncPromise.set_value(std::move(result)); })
+                    .catch_error(
+                        [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
+            }
         });
 
         return syncFuture.get();
-    }
-};
-
-template <typename F>
-struct BlockingWait<F, typename std::enable_if_t<std::is_void_v<FutureReturnValueType<F>>, void>> {
-    FutureReturnValueType<F> operator()(const std::shared_ptr<IExecutor>& executor, const F& func)
-    {
-        std::promise<void> syncPromise;
-        auto syncFuture = syncPromise.get_future();
-
-        executor->post([&func, &syncPromise]() mutable {
-            func()
-                .then([&syncPromise]() { syncPromise.set_value(); })
-                .catch_error(
-                    [&syncPromise](std::exception_ptr e) { syncPromise.set_exception(e); });
-        });
-
-        syncFuture.get();
     }
 };
 } // namespace detail
