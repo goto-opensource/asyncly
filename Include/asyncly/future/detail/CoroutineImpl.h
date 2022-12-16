@@ -18,10 +18,10 @@
 
 #pragma once
 
-// C++ Coroutine TS Trait implementations
+// C++ Coroutine Trait implementations
 #ifdef ASYNCLY_HAS_COROUTINES
 
-#include <experimental/coroutine>
+#include <coroutine>
 
 namespace asyncly {
 namespace detail {
@@ -54,8 +54,7 @@ template <typename T> bool coro_awaiter<T>::await_ready()
 }
 
 // todo: use bool-version to shortcut ready futures
-template <typename T>
-void coro_awaiter<T>::await_suspend(std::experimental::coroutine_handle<> coroutine_handle)
+template <typename T> void coro_awaiter<T>::await_suspend(std::coroutine_handle<> coroutine_handle)
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "await_suspend"
@@ -126,8 +125,7 @@ inline bool coro_awaiter<void>::await_ready()
 }
 
 // todo: use bool-version to shortcut ready futures
-inline void
-coro_awaiter<void>::await_suspend(std::experimental::coroutine_handle<> coroutine_handle)
+inline void coro_awaiter<void>::await_suspend(std::coroutine_handle<> coroutine_handle)
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "await_suspend"
@@ -168,7 +166,7 @@ inline void coro_awaiter<void>::await_resume()
     }
 }
 
-template <typename T> std::experimental::suspend_never coro_promise<T>::initial_suspend()
+template <typename T> std::suspend_never coro_promise<T>::initial_suspend() noexcept
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "initial_suspend"
@@ -177,7 +175,7 @@ template <typename T> std::experimental::suspend_never coro_promise<T>::initial_
     return {};
 }
 
-template <typename T> std::experimental::suspend_never coro_promise<T>::final_suspend()
+template <typename T> std::suspend_never coro_promise<T>::final_suspend() noexcept
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "final_suspend"
@@ -240,7 +238,7 @@ inline Future<void> coro_promise<void>::get_return_object()
     return promise_->get_future();
 }
 
-inline std::experimental::suspend_never coro_promise<void>::initial_suspend()
+inline std::suspend_never coro_promise<void>::initial_suspend() noexcept
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::initial_suspend"
@@ -249,7 +247,7 @@ inline std::experimental::suspend_never coro_promise<void>::initial_suspend()
     return {};
 }
 
-inline std::experimental::suspend_never coro_promise<void>::final_suspend()
+inline std::suspend_never coro_promise<void>::final_suspend() noexcept
 {
 #ifdef ASYNCLY_FUTURE_DEBUG
     std::cerr << "coro_promise::final_suspend"

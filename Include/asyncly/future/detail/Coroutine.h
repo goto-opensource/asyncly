@@ -18,24 +18,18 @@
 
 #pragma once
 
-// Eric Niebler contributed this detection macro to Folly:
-// https://github.com/facebook/folly/blob/master/folly/Portability.h#L407
-#if defined(__cpp_coroutines) && __cpp_coroutines >= 201703L && __cplusplus < 202002L
-#if defined(__has_include) && __has_include(<experimental/coroutine>)
-#define ASYNCLY_HAS_COROUTINES 1
-#endif
-#endif
+#include <version>
 
-#if defined(_MSC_VER) && defined(_RESUMABLE_FUNCTIONS_SUPPORTED)
+#if __cpp_impl_coroutine >= 201902L && __cpp_lib_coroutine >= 201902L
 #define ASYNCLY_HAS_COROUTINES 1
 #endif
 
-// C++ Coroutine TS Trait implementations
+// C++ Coroutine Trait implementations
 #ifdef ASYNCLY_HAS_COROUTINES
 
+#include <coroutine>
+#include <memory>
 #include <optional>
-
-#include <experimental/coroutine>
 
 namespace asyncly {
 
@@ -49,7 +43,7 @@ template <typename T> struct coro_awaiter {
     ~coro_awaiter();
     bool await_ready();
     // todo: use bool-version to shortcut ready futures
-    void await_suspend(std::experimental::coroutine_handle<> coroutine_handle);
+    void await_suspend(std::coroutine_handle<> coroutine_handle);
     T await_resume();
 
   private:
@@ -63,7 +57,7 @@ template <> struct coro_awaiter<void> {
     ~coro_awaiter();
     bool await_ready();
     // todo: use bool-version to shortcut ready futures
-    void await_suspend(std::experimental::coroutine_handle<> coroutine_handle);
+    void await_suspend(std::coroutine_handle<> coroutine_handle);
     void await_resume();
 
   private:
@@ -75,8 +69,8 @@ template <typename T> struct coro_promise {
     std::unique_ptr<Promise<T>> promise_;
     coro_promise();
     ~coro_promise();
-    std::experimental::suspend_never initial_suspend();
-    std::experimental::suspend_never final_suspend();
+    std::suspend_never initial_suspend() noexcept;
+    std::suspend_never final_suspend() noexcept;
     void unhandled_exception();
     void return_value(T value);
 };
@@ -86,8 +80,8 @@ template <> struct coro_promise<void> {
     coro_promise();
     ~coro_promise();
     Future<void> get_return_object();
-    std::experimental::suspend_never initial_suspend();
-    std::experimental::suspend_never final_suspend();
+    std::suspend_never initial_suspend() noexcept;
+    std::suspend_never final_suspend() noexcept;
     void unhandled_exception();
     void return_void();
 };
