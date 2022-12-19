@@ -16,7 +16,7 @@ option(ENABLE_TESTING "Build tests" ON)
 option(OVERRIDE_CXX_STANDARD_FLAGS "Force building with -std=c++14 even if the CXXLFAGS are configured differently" ON)
 
 if(OVERRIDE_CXX_STANDARD_FLAGS)
-  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
@@ -26,6 +26,7 @@ if(WIN32)
   add_definitions("-DWIN32_LEAN_AND_MEAN")
   add_definitions("-D_WIN32_WINNT=0x0601")
   add_compile_options("/bigobj")
+  add_compile_options("/Zc:__cplusplus")
 endif()
 
 find_package(function2 CONFIG REQUIRED)
@@ -70,12 +71,6 @@ add_library(asyncly
   Source/task/detail/TaskCurrentExecutorGuard.cpp
 )
 
-
-if(RTC_OS_MSWIN)
-  # silence deprecation warnings triggered by Boost Hana
-  target_compile_definitions(asyncly PUBLIC _SILENCE_CXX17_IS_LITERAL_TYPE_DEPRECATION_WARNING)
-  target_compile_definitions(asyncly PUBLIC _SILENCE_CLANG_COROUTINE_MESSAGE)
-endif()
 
 target_include_directories(asyncly PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>)
 target_link_libraries(asyncly PUBLIC Boost::thread prometheus-cpp::core function2::function2)

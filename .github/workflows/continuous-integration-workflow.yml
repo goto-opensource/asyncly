@@ -8,11 +8,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-18.04, windows-2019]
+        os: [macOS-latest, ubuntu-22.04, windows-2019]
         include:
           - os: macOS-latest
             triplet: x64-osx
-          - os: ubuntu-18.04
+          - os: ubuntu-22.04
             triplet: x64-linux
           - os: windows-2019
             triplet: x64-windows
@@ -75,11 +75,11 @@ jobs:
         os: [macOS-latest, ubuntu-latest, windows-latest]
         include:
           - os: macOS-latest
-            bazel_args: "--cxxopt=-std=c++17"
+            bazel_args: "--cxxopt=-std=c++20"
           - os: ubuntu-latest
-            bazel_args: "--cxxopt=-std=c++17"
+            bazel_args: "--cxxopt=-std=c++20"
           - os: windows-latest
-            bazel_args: "--cxxopt=/std:c++17"
+            bazel_args: "--cxxopt=/std:c++20 --cxxopt=/Zc:__cplusplus"
 
     steps:
       - uses: actions/checkout@main
