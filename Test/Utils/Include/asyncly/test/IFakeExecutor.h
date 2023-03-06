@@ -35,6 +35,7 @@ class IFakeExecutor : public IStrand {
     virtual size_t queuedTasks() const = 0;
     virtual void advanceClock(clock_type::duration advance) = 0;
     virtual void advanceClock(clock_type::time_point timePoint) = 0;
+    virtual void advanceClockToCurrentLastEvent() = 0;
 };
 using IFakeExecutorPtr = std::shared_ptr<IFakeExecutor>;
 

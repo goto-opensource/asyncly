@@ -50,11 +50,10 @@ class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<F
     FakeExecutor(FakeExecutor const&) = delete;
     FakeExecutor& operator=(FakeExecutor const&) = delete;
 
-    void advanceClockToCurrentLastEvent();
-
     // IFakeExecutor
     void advanceClock(clock_type::duration advance) override;
     void advanceClock(clock_type::time_point timePoint) override;
+    void advanceClockToCurrentLastEvent() override;
     size_t runTasks(size_t maxTasksToExecute = 0) override;
     void clear() override;
     size_t queuedTasks() const override;
