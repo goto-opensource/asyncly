@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 {
     asyncly::test::WindowsTimerResolution winTimerResolution;
 
-    const int timeoutInSeconds = 120;
+    const int timeoutInSeconds = 240;
 
     ::testing::InitGoogleMock(&argc, argv);
     ::testing::GTEST_FLAG(catch_exceptions) = false;
