@@ -32,8 +32,7 @@ struct Task {
     template <typename T>
         requires(!std::same_as<T, Task>)
     Task(T&& closure)
-        : task_{ new detail::TaskWrapper<typename std::remove_reference<T>::type>{
-            std::forward<T>(closure) } }
+        : task_{ new detail::TaskWrapper<std::remove_reference_t<T>>{ std::forward<T>(closure) } }
     {
     }
 

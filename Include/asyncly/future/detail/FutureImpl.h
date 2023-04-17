@@ -396,7 +396,7 @@ template <typename T, typename C> struct make_continuation {
         return [executor{ std::move(executor) },
                 continuation{ std::forward<F>(continuation) },
                 promise](T value) mutable {
-            executor->post(select_binder<T, typename std::remove_reference<F>::type, C>{
+            executor->post(select_binder<T, std::remove_reference_t<F>, C>{
                 std::move(value), std::move(continuation), std::move(promise) });
         };
     }
@@ -412,7 +412,7 @@ template <typename C> struct make_continuation<void, C> {
         return [executor{ std::move(executor) },
                 continuation{ std::forward<F>(continuation) },
                 promise]() mutable {
-            executor->post(select_binder<void, typename std::remove_reference<F>::type, C>{
+            executor->post(select_binder<void, std::remove_reference_t<F>, C>{
                 std::move(continuation), std::move(promise) });
         };
     }
