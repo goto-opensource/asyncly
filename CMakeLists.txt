@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------------------------------
 
 
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(asyncly CXX)
 
@@ -13,13 +13,6 @@ include(CMake/AsynclyBuild.cmake)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared ones" OFF)
 option(ENABLE_TESTING "Build tests" ON)
-option(OVERRIDE_CXX_STANDARD_FLAGS "Force building with -std=c++14 even if the CXXLFAGS are configured differently" ON)
-
-if(OVERRIDE_CXX_STANDARD_FLAGS)
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
 
 if(WIN32)
   add_definitions("-DNOMINMAX")
@@ -72,10 +65,13 @@ add_library(asyncly
 )
 
 
+target_compile_features(asyncly PUBLIC cxx_std_20)
 target_include_directories(asyncly PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>)
 target_link_libraries(asyncly PUBLIC Boost::thread prometheus-cpp::core function2::function2)
 
-add_subdirectory(Test)
+# EXTERNAL-ONLY if(ENABLE_TESTING)
+  add_subdirectory(Test)
+# EXTERNAL-ONLY endif()
 
 # ----------------------------------------------------------------------------------------
 # Installation

@@ -54,8 +54,8 @@ getHttpUrl("https://discovery/numberservice")
 
 ## Dependencies
 
-- C++14
-- Boost 1.72
+- C++20
+- Boost 1.81
 - prometheus-cpp
 - function2
 - Bazel or CMake
