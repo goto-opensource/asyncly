@@ -23,7 +23,6 @@ cc_library(
         "@boost//:callable_traits",
         "@boost//:hana",
         "@boost//:mp11",
-        "@boost//:thread",
         "@com_github_jupp0r_prometheus_cpp//core",
         "@com_github_naios_function2//:function2",
     ],

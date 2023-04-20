@@ -16,7 +16,6 @@ cc_library(
     deps = [
         "//:asyncly",
         "@boost//:asio",
-        "@boost//:thread",
         "@com_google_googletest//:gtest",
     ],
 )

@@ -16,12 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <chrono>
 #include <future>
 #include <iostream>
 #include <thread>
-
-#include <boost/chrono.hpp>
-#include <boost/thread.hpp>
 
 #include <benchmark/benchmark.h>
 
@@ -78,7 +76,7 @@ static void threadPoolPerformanceTest(benchmark::State& state)
     while (allowedToRun) {
         uint64_t currentResult = result;
         while (lastResult == currentResult) {
-            boost::this_thread::sleep_for(boost::chrono::microseconds(5));
+            std::this_thread::sleep_for(std::chrono::microseconds(5));
             currentResult = result;
         }
         const auto afterTs = std::chrono::steady_clock::now();

@@ -14,8 +14,6 @@ cc_test(
         "//:asyncly",
         "//Test/Mocks:asyncly_mocks",
         "//Test/Utils:asyncly_test_utils",
-        "@boost//:chrono",
-        "@boost//:thread",
         "@com_google_googletest//:gtest_main",
     ],
 )

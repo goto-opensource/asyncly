@@ -18,11 +18,8 @@
 
 #include "gmock/gmock.h"
 
-#include "boost/chrono.hpp"
-#include "boost/thread.hpp"
-#include "boost/thread/future.hpp"
-
 #include <array>
+#include <chrono>
 #include <future>
 #include <thread>
 
@@ -48,44 +45,6 @@ TEST_F(ThreadPoolExecutorTest, shouldInitializeWithOneThread)
 TEST_F(ThreadPoolExecutorTest, shouldInializeWithMultipleThreads)
 {
     ThreadPoolExecutorController::create(10);
-}
-
-TEST_F(ThreadPoolExecutorTest, DISABLED_shouldRunClosuresOnMultipleThreads)
-{
-    const auto numThreads = 5;
-
-    std::array<boost::promise<std::thread::id>, numThreads> threadIdPromises;
-    std::array<boost::shared_future<std::thread::id>, numThreads> threadIdFutures;
-    std::transform(
-        threadIdPromises.begin(),
-        threadIdPromises.end(),
-        threadIdFutures.begin(),
-        [](boost::promise<std::thread::id>& p) { return p.get_future(); });
-
-    auto closure = [&threadIdPromises, &threadIdFutures](int i) {
-        auto threadId = std::this_thread::get_id();
-        threadIdPromises[i].set_value(threadId);
-        boost::wait_for_all(threadIdFutures.begin(), threadIdFutures.end());
-    };
-
-    {
-        auto executorController = ThreadPoolExecutorController::create(numThreads);
-        auto executor = executorController->get_executor();
-        for (auto i = 0; i < numThreads; i++) {
-            executor->post(std::bind(closure, i));
-        }
-    }
-
-    boost::wait_for_all(threadIdFutures.begin(), threadIdFutures.end());
-    std::array<std::thread::id, numThreads> threadIds;
-    std::transform(
-        threadIdFutures.begin(),
-        threadIdFutures.end(),
-        threadIds.begin(),
-        [](boost::shared_future<std::thread::id>& f) { return f.get(); });
-
-    std::sort(threadIds.begin(), threadIds.end());
-    EXPECT_EQ(threadIds.end(), std::adjacent_find(threadIds.begin(), threadIds.end()));
 }
 
 TEST_F(ThreadPoolExecutorTest, shouldFinishRecursiveTasksBeforeExecutorDestruction)
@@ -138,7 +97,7 @@ TEST_F(ThreadPoolExecutorTest, shouldFinishAllThreadsBeforeExecutorDestruction)
         delete b;
 
         // make it somewhat more likely to fail
-        boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         *done = true;
         sync_done.set_value();
     });

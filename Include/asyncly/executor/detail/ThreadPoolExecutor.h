@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include <boost/thread/condition_variable.hpp>
-
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -66,8 +65,8 @@ class ThreadPoolExecutor final : public Base,
     ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler);
 
   private:
-    boost::mutex m_mutex;
-    boost::condition_variable m_condition;
+    std::mutex m_mutex;
+    std::condition_variable m_condition;
     unsigned int m_activeThreads;
     std::queue<Task> m_taskQueue;
 
@@ -143,7 +142,7 @@ template <typename Base> void ThreadPoolExecutor<Base>::post(Task&& closure)
     }
     closure.maybe_set_executor(this->weak_from_this());
     {
-        std::lock_guard<boost::mutex> lock(m_mutex);
+        std::lock_guard lock{ m_mutex };
         if (m_isStopped) {
             throw ExecutorStoppedException("executor stopped");
         }
@@ -155,7 +154,7 @@ template <typename Base> void ThreadPoolExecutor<Base>::post(Task&& closure)
 template <typename Base> void ThreadPoolExecutor<Base>::finish()
 {
     {
-        std::lock_guard<boost::mutex> lock(m_mutex);
+        std::lock_guard lock{ m_mutex };
         m_isShutdownActive = true;
     }
     m_condition.notify_all();
@@ -164,14 +163,14 @@ template <typename Base> void ThreadPoolExecutor<Base>::finish()
 template <typename Base> void ThreadPoolExecutor<Base>::run()
 {
     {
-        std::lock_guard<boost::mutex> lock{ m_mutex };
+        std::lock_guard lock{ m_mutex };
         if (m_isStopped) {
             return;
         }
         ++m_activeThreads;
     }
     while (true) {
-        boost::unique_lock<boost::mutex> lock{ m_mutex };
+        std::unique_lock lock{ m_mutex };
 
         m_condition.wait(lock, [this] {
             return !m_taskQueue.empty() || m_isShutdownActive;

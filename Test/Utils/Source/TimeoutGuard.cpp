@@ -24,7 +24,7 @@
 namespace asyncly::test {
 
 TimeoutGuard::TimeoutGuard(std::time_t timeoutInSec)
-    : timeout_{ boost::chrono::seconds(timeoutInSec) }
+    : timeout_{ std::chrono::seconds(timeoutInSec) }
     , testDone_(false)
 {
 }
@@ -57,7 +57,7 @@ void TimeoutGuard::stop()
 
 void TimeoutGuard::worker()
 {
-    boost::unique_lock<boost::mutex> lock{ mutex_ };
+    std::unique_lock lock{ mutex_ };
     auto notTimedOut = conditionVariable_.wait_for(lock, timeout_, [this]() { return testDone_; });
 
     if (!notTimedOut) {

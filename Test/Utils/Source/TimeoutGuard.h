@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include <chrono>
+#include <condition_variable>
 #include <cstdlib>
 #include <ctime>
 #include <mutex>
 #include <thread>
 
 #include <boost/noncopyable.hpp>
-#include <boost/thread/condition_variable.hpp>
 
 namespace asyncly::test {
 
@@ -44,12 +45,12 @@ class TimeoutGuard : boost::noncopyable {
   private:
     void worker();
 
-    using clock = boost::chrono::steady_clock;
+    using clock = std::chrono::steady_clock;
 
     const clock::duration timeout_;
     std::thread thread_;
     bool testDone_;
-    boost::mutex mutex_;
-    boost::condition_variable conditionVariable_;
+    std::mutex mutex_;
+    std::condition_variable conditionVariable_;
 };
 } // namespace asyncly::test

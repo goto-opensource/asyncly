@@ -24,7 +24,7 @@ endif()
 
 find_package(function2 CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS chrono thread system)
+find_package(Boost REQUIRED)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads)
@@ -67,7 +67,7 @@ add_library(asyncly
 
 target_compile_features(asyncly PUBLIC cxx_std_20)
 target_include_directories(asyncly PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>)
-target_link_libraries(asyncly PUBLIC Boost::thread prometheus-cpp::core function2::function2)
+target_link_libraries(asyncly PUBLIC Boost::boost prometheus-cpp::core function2::function2)
 
 # EXTERNAL-ONLY if(ENABLE_TESTING)
   add_subdirectory(Test)

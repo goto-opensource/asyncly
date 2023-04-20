@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <boost/thread/condition_variable.hpp>
-
 #include <mutex>
 #include <optional>
 #include <queue>

@@ -86,7 +86,7 @@ void ExternalEventExecutor::post(Task&& closure)
     closure.maybe_set_executor(weak_from_this());
     bool signalExternalEvent = false;
     {
-        std::lock_guard<boost::mutex> lock{ m_mutex };
+        std::lock_guard lock{ m_mutex };
         if (m_isStopped) {
             throw ExecutorStoppedException("executor stopped");
         }
@@ -102,7 +102,7 @@ void ExternalEventExecutor::runOnce()
 {
     while (true) {
         {
-            std::lock_guard<boost::mutex> lock{ m_mutex };
+            std::lock_guard lock{ m_mutex };
             if (m_taskQueue.empty()) {
                 return;
             }

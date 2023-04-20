@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <boost/thread/condition_variable.hpp>
-
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -60,7 +58,7 @@ class ExternalEventExecutor final : public IStrand,
         const ExternalEventFunction& externalEventFunction);
 
   private:
-    boost::mutex m_mutex;
+    std::mutex m_mutex;
     std::queue<Task> m_taskQueue;
     std::queue<Task> m_execQueue;
     ExternalEventFunction m_externalEventFunction;
