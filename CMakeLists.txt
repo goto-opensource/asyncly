@@ -69,9 +69,9 @@ target_compile_features(asyncly PUBLIC cxx_std_20)
 target_include_directories(asyncly PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>)
 target_link_libraries(asyncly PUBLIC Boost::boost prometheus-cpp::core function2::function2)
 
-# EXTERNAL-ONLY if(ENABLE_TESTING)
+if(ENABLE_TESTING)
   add_subdirectory(Test)
-# EXTERNAL-ONLY endif()
+endif()
 
 # ----------------------------------------------------------------------------------------
 # Installation
@@ -91,4 +91,5 @@ asyncly_install_export(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   NAMESPACE ${PROJECT_NAME}::
 )
+
 
