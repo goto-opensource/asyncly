@@ -46,9 +46,9 @@ def asyncly_repositories():
     maybe(
         http_archive,
         name = "com_github_nelhage_rules_boost",
-        sha256 = "70a77b7a9d9256a0b07b2749289ce80e66e7e7cb583eb4ac31604a9badfed114",
-        strip_prefix = "rules_boost-fc33e89dad59ca36b71932e04e7e28ca9fa030c6",
+        sha256 = "a7c42df432fae9db0587ff778d84f9dc46519d67a984eff8c79ae35e45f277c1",
+        strip_prefix = "rules_boost-cfa585b1b5843993b70aa52707266dc23b3282d0",
         urls = [
-            "https://github.com/nelhage/rules_boost/archive/fc33e89dad59ca36b71932e04e7e28ca9fa030c6.tar.gz",
+            "https://github.com/nelhage/rules_boost/archive/cfa585b1b5843993b70aa52707266dc23b3282d0.tar.gz",
         ],
     )
