@@ -33,6 +33,7 @@ class FakeClockScheduler : public IScheduler {
 
     bool advanceClockToNextEvent(clock_type::time_point limit);
     void setClock(clock_type::time_point limit);
+    size_t getQueueSize() const;
     clock_type::time_point getLastExpiredTime() const;
     void clear();
 
@@ -75,6 +76,11 @@ inline void FakeClockScheduler::setClock(clock_type::time_point timePoint)
 {
     std::unique_lock<std::mutex> lock(m_scheduledMutex);
     m_mockedNow = timePoint;
+}
+
+inline size_t FakeClockScheduler::getQueueSize() const
+{
+    return m_baseScheduler.getQueueSize();
 }
 
 inline clock_type::time_point FakeClockScheduler::getLastExpiredTime() const

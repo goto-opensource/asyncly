@@ -43,6 +43,11 @@ class PriorityQueue {
         return res;
     }
 
+    std::size_t size() const
+    {
+        return container.size();
+    }
+
     bool empty() const
     {
         return container.empty();

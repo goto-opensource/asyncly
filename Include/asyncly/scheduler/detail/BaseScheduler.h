@@ -40,6 +40,8 @@ class BaseScheduler : public IScheduler {
     void prepareElapse();
 
     size_t elapse();
+
+    size_t getQueueSize() const;
     /**
      * Return the time_point of the next scheduled tasks, if it is older or equal than limit.
      * Otherwise limit is returned.
@@ -131,6 +133,10 @@ inline size_t BaseScheduler::elapse()
         task();
     }
     return elapsedTasks;
+}
+inline size_t BaseScheduler::getQueueSize() const
+{
+    return m_timerQueue.size();
 }
 
 inline clock_type::time_point BaseScheduler::getNextExpiredTime(clock_type::time_point limit) const

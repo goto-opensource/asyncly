@@ -55,6 +55,7 @@ class FakeExecutor : public IFakeExecutor, public std::enable_shared_from_this<F
     size_t runTasks(size_t maxTasksToExecute = 0) override;
     void clear() override;
     size_t queuedTasks() const override;
+    size_t queuedSchedulerTasks() const override;
 
     // IStrand
     clock_type::time_point now() const override;
@@ -198,5 +199,10 @@ inline void FakeExecutor::clear()
 inline size_t FakeExecutor::queuedTasks() const
 {
     return m_taskQueue.size();
+}
+
+inline size_t FakeExecutor::queuedSchedulerTasks() const
+{
+    return m_scheduler->getQueueSize();
 }
 } // namespace asyncly::test
