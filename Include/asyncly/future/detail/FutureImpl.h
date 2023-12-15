@@ -457,7 +457,6 @@ FutureImplBase<T>::then(F&& continuation)
             },
             [this, &continuationTmp](future_state::Resolved<T>& resolved) {
                 resolved.callContinuation(continuationTmp);
-                // coverity[MISSING_LOCK]
                 state_ = future_state::Continued{};
             },
             [&future](future_state::Rejected& rejected) {
