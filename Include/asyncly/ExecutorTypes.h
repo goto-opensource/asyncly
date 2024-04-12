@@ -30,6 +30,9 @@ using clock_type = std::chrono::steady_clock;
 using AutoCancelablePtr = std::shared_ptr<class AutoCancelable>;
 using CancelablePtr = std::shared_ptr<class Cancelable>;
 
+class ISteadyClock;
+using ISteadyClockPtr = std::shared_ptr<ISteadyClock>;
+
 class IExecutor;
 using IExecutorPtr = std::shared_ptr<IExecutor>;
 using IExecutorWPtr = std::weak_ptr<IExecutor>;
