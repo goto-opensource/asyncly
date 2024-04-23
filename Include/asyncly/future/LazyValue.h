@@ -71,6 +71,12 @@ template <typename ValueType> class LazyValue {
         return _hasValue;
     }
 
+    template <typename E> void set_exception(E e)
+    {
+        _hasValue = true;
+        _promise.set_exception(e);
+    }
+
   private:
     asyncly::Promise<ValueType> _promise;
     std::optional<asyncly::Future<ValueType>> _future;
@@ -114,6 +120,12 @@ template <> class LazyValue<void> {
     bool has_value() const
     {
         return _hasValue;
+    }
+
+    template <typename E> void set_exception(E e)
+    {
+        _hasValue = true;
+        _promise.set_exception(e);
     }
 
   private:
