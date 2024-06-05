@@ -51,6 +51,7 @@ class SchedulerThread;
 using ThreadInitFunction = std::function<void()>;
 
 struct ThreadPoolConfig {
+    std::string name;
     std::vector<ThreadInitFunction> executorInitFunctions;
     ThreadInitFunction schedulerInitFunction;
 };

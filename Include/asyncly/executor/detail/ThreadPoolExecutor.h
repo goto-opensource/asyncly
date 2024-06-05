@@ -44,7 +44,8 @@ class ThreadPoolExecutor final : public Base,
                                  public IThreadPoolExecutor,
                                  public std::enable_shared_from_this<ThreadPoolExecutor<Base>> {
   public:
-    static std::shared_ptr<ThreadPoolExecutor> create(const asyncly::ISchedulerPtr& scheduler);
+    static std::shared_ptr<ThreadPoolExecutor>
+    create(const std::string& name, const asyncly::ISchedulerPtr& scheduler);
 
     ThreadPoolExecutor(ThreadPoolExecutor const&) = delete;
     ThreadPoolExecutor& operator=(ThreadPoolExecutor const&) = delete;
@@ -62,7 +63,7 @@ class ThreadPoolExecutor final : public Base,
     ISchedulerPtr get_scheduler() const override;
 
   private:
-    ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler);
+    ThreadPoolExecutor(const std::string& name, const asyncly::ISchedulerPtr& scheduler);
 
   private:
     std::mutex m_mutex;
@@ -73,21 +74,24 @@ class ThreadPoolExecutor final : public Base,
     bool m_isShutdownActive;
     bool m_isStopped;
 
+    const std::string m_name;
     const ISchedulerPtr m_scheduler;
 };
 
 template <typename Base>
 std::shared_ptr<ThreadPoolExecutor<Base>>
-ThreadPoolExecutor<Base>::create(const asyncly::ISchedulerPtr& scheduler)
+ThreadPoolExecutor<Base>::create(const std::string& name, const asyncly::ISchedulerPtr& scheduler)
 {
-    return std::shared_ptr<ThreadPoolExecutor>(new ThreadPoolExecutor(scheduler));
+    return std::shared_ptr<ThreadPoolExecutor>(new ThreadPoolExecutor(name, scheduler));
 }
 
 template <typename Base>
-ThreadPoolExecutor<Base>::ThreadPoolExecutor(const asyncly::ISchedulerPtr& scheduler)
+ThreadPoolExecutor<Base>::ThreadPoolExecutor(
+    const std::string& name, const asyncly::ISchedulerPtr& scheduler)
     : m_activeThreads(0)
     , m_isShutdownActive(false)
     , m_isStopped(false)
+    , m_name(name)
     , m_scheduler(scheduler)
 {
 }
@@ -102,7 +106,7 @@ std::shared_ptr<Cancelable>
 ThreadPoolExecutor<Base>::post_at(const clock_type::time_point& absTime, Task&& task)
 {
     if (!task) {
-        throw std::runtime_error("invalid closure");
+        throw std::runtime_error(m_name + ": invalid closure");
     }
     task.maybe_set_executor(this->weak_from_this());
     return m_scheduler->execute_at(this->weak_from_this(), absTime, std::move(task));
@@ -113,7 +117,7 @@ std::shared_ptr<Cancelable>
 ThreadPoolExecutor<Base>::post_after(const clock_type::duration& relTime, Task&& task)
 {
     if (!task) {
-        throw std::runtime_error("invalid closure");
+        throw std::runtime_error(m_name + ": invalid closure");
     }
     task.maybe_set_executor(this->weak_from_this());
     return m_scheduler->execute_after(this->weak_from_this(), relTime, std::move(task));
@@ -124,7 +128,7 @@ std::shared_ptr<AutoCancelable> ThreadPoolExecutor<Base>::post_periodically(
     const clock_type::duration& period, RepeatableTask&& task)
 {
     if (!task) {
-        throw std::runtime_error("invalid closure");
+        throw std::runtime_error(m_name + ": invalid closure");
     }
     return std::make_shared<AutoCancelable>(
         detail::PeriodicTask::create(period, std::move(task), this->shared_from_this()));
@@ -138,13 +142,13 @@ template <typename Base> asyncly::ISchedulerPtr ThreadPoolExecutor<Base>::get_sc
 template <typename Base> void ThreadPoolExecutor<Base>::post(Task&& closure)
 {
     if (!closure) {
-        throw std::runtime_error("invalid closure");
+        throw std::runtime_error(m_name + ": invalid closure");
     }
     closure.maybe_set_executor(this->weak_from_this());
     {
         std::lock_guard lock{ m_mutex };
         if (m_isStopped) {
-            throw ExecutorStoppedException("executor stopped");
+            throw ExecutorStoppedException(m_name + ": executor stopped");
         }
         m_taskQueue.push(std::move(closure));
     }

@@ -24,6 +24,10 @@ namespace asyncly {
 
 class ExecutorStoppedException : public std::runtime_error {
   public:
+    ExecutorStoppedException(const std::string& message)
+        : std::runtime_error(message)
+    {
+    }
     ExecutorStoppedException(const char* message)
         : std::runtime_error(message)
     {

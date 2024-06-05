@@ -35,11 +35,12 @@ ThreadPoolExecutorController::ThreadPoolExecutorController(
 
     const bool isSerializingExecutor = (threadPoolConfig.executorInitFunctions.size() == 1);
     if (isSerializingExecutor) {
-        const auto executor = ThreadPoolExecutor<IStrand>::create(scheduler);
+        const auto executor = ThreadPoolExecutor<IStrand>::create(threadPoolConfig.name, scheduler);
         m_executor = executor;
         m_threadPoolExecutor = executor;
     } else {
-        const auto executor = ThreadPoolExecutor<IExecutor>::create(scheduler);
+        const auto executor
+            = ThreadPoolExecutor<IExecutor>::create(threadPoolConfig.name, scheduler);
         m_executor = executor;
         m_threadPoolExecutor = executor;
     }
@@ -88,6 +89,7 @@ std::unique_ptr<asyncly::ThreadPoolExecutorController>
 ThreadPoolExecutorController::create(size_t numberOfThreads, const ISchedulerPtr& scheduler)
 {
     ThreadPoolConfig threadPoolConfig;
+    threadPoolConfig.name = "<noname>";
     for (auto i = 0u; i < numberOfThreads; ++i) {
         threadPoolConfig.executorInitFunctions.emplace_back([]() {});
     }
