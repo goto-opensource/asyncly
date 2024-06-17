@@ -152,8 +152,7 @@ TEST_P(MetricsWrapperTest, shouldCountQueuedTasks)
     const auto numberOfPostedTasks = 100;
     const auto numberOfQueuedTasks = numberOfPostedTasks;
     for (auto i = 0; i < numberOfPostedTasks; i++) {
-        postTaskNow(
-            metricsExecutor_, GetParam(), [] {}, std::chrono::seconds(i));
+        postTaskNow(metricsExecutor_, GetParam(), [] {}, std::chrono::seconds(i));
     }
 
     const auto families = registry_->Collect();

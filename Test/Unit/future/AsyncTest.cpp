@@ -72,8 +72,7 @@ TYPED_TEST(AsyncTest, async_returnValueWithNoParameters)
 TYPED_TEST(AsyncTest, do_returnValueWithParametersAsValue)
 {
     run_in_executor(this->executor_, [&](auto done) {
-        auto future = asyncly::async(
-            this->executor_, [](int a, int b) { return a + b; }, 5, 7);
+        auto future = asyncly::async(this->executor_, [](int a, int b) { return a + b; }, 5, 7);
         future.then([done](int result) {
             EXPECT_EQ(result, 12);
             done->set_value();
@@ -110,8 +109,7 @@ TYPED_TEST(AsyncTest, do_returnValueWithParametersLiteralsAsConstLRef)
 TYPED_TEST(AsyncTest, do_returnValueWithParametersAsRValue)
 {
     run_in_executor(this->executor_, [&](auto done) {
-        auto future = asyncly::async(
-            this->executor_, [](int&& a, int&& b) { return a + b; }, 5, 7);
+        auto future = asyncly::async(this->executor_, [](int&& a, int&& b) { return a + b; }, 5, 7);
         future.then([done](int result) {
             EXPECT_EQ(result, 12);
             done->set_value();
@@ -139,8 +137,7 @@ TYPED_TEST(AsyncTest, do_returnValueWithParametersReferencesAsValue)
     run_in_executor(this->executor_, [&](auto done) {
         int i = 5;
         int j = 7;
-        auto future = asyncly::async(
-            this->executor_, [](int a, int b) { return a + b; }, i, j);
+        auto future = asyncly::async(this->executor_, [](int a, int b) { return a + b; }, i, j);
         future.then([done](int result) {
             EXPECT_EQ(result, 12);
             done->set_value();
