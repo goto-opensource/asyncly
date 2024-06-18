@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [macOS-latest, ubuntu-22.04, windows-2019]
         include:
-          - os: macOS-latest
+          - os: macOS-12
             triplet: x64-osx
           - os: ubuntu-22.04
             triplet: x64-linux
